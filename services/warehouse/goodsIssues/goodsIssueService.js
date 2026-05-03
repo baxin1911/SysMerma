@@ -1,4 +1,3 @@
-import { GoodsIssueInsufficientStock } from "../../../errors/inventory/stockError.js";
 import {
     GoodsIssueNotFound,
     GoodsIssueRequesterProfileNotFound,
@@ -251,7 +250,9 @@ export const updateGoodsIssue = async ({ id, goodsIssueDto }) => {
                             id: true,
                             productId: true,
                             quantity: true,
-                            convertedQuantity: true
+                            convertedQuantity: true,
+                            suppliedQuantity: true,
+                            projectConvertedQuantity: true
                         }
                     }
                 }
@@ -263,6 +264,13 @@ export const updateGoodsIssue = async ({ id, goodsIssueDto }) => {
             const currentDetails = goodsIssue.details.filter((d) => detailIds.includes(d.id));
             const currentById = new Map(currentDetails.map((d) => [d.id, d]));
 
+            const productIds = Array.from(new Set(currentDetails.map((d) => d.productId)));
+            const products = await tx.product.findMany({
+                where: { id: { in: productIds } },
+                select: { id: true, currentStock: true }
+            });
+            const availableStockById = new Map(products.map((p) => [p.id, p.currentStock ?? 0]));
+
             const productTotals = new Map();
             const movementDetails = [];
 
@@ -270,38 +278,38 @@ export const updateGoodsIssue = async ({ id, goodsIssueDto }) => {
                 const current = currentById.get(detail.id);
                 if (!current) continue;
 
-                const requested = Number(current.convertedQuantity);
-                const supplied = Number(detail.projectConvertedQuantity || 0);
-                const difference = requested - supplied;
-                const isSupplied = supplied + FLOAT_EPSILON >= requested;
+                const requestedBase = current.quantity ?? 0;
+                const previousSuppliedBase = current.suppliedQuantity ?? 0;
+                const pendingBase = Math.max(0, requestedBase - previousSuppliedBase);
+
+                const currentStock = availableStockById.get(current.productId) ?? 0;
+                const suppliedPartialBase = Math.min(pendingBase, currentStock);
+
+                const targetSuppliedConverted = detail.projectConvertedQuantity ?? 0;
+                const requestedConverted = current.convertedQuantity ?? 0;
+                const suppliedBase = previousSuppliedBase + suppliedPartialBase;
+                const difference = requestedConverted - targetSuppliedConverted;
+                const isSupplied = suppliedBase + FLOAT_EPSILON >= requestedBase;
 
                 await tx.goodsIssueDetail.update({
                     where: { id: current.id },
                     data: {
-                        projectConvertedQuantity: supplied,
-                        suppliedQuantity: supplied,
+                        projectConvertedQuantity: targetSuppliedConverted,
+                        suppliedQuantity: suppliedBase,
                         convertedQuantityDifference: difference,
                         isSupplied,
                         fulfillmentStatus: {
-                            connect: { name: isSupplied ? FULFILLMENT_COMPLETE : (supplied > 0 ? FULFILLMENT_PARTIAL : FULFILLMENT_PENDING) }
+                            connect: { name: isSupplied ? FULFILLMENT_COMPLETE : (suppliedBase > 0 ? FULFILLMENT_PARTIAL : FULFILLMENT_PENDING) }
                         }
                     }
                 });
 
-                if (supplied > FLOAT_EPSILON) {
+                if (suppliedPartialBase > FLOAT_EPSILON) {
                     const prev = productTotals.get(current.productId) || 0;
-                    productTotals.set(current.productId, prev + supplied);
-                    movementDetails.push({ productId: current.productId, goodsIssueDetailId: current.id, quantity: supplied });
+                    productTotals.set(current.productId, prev + suppliedPartialBase);
+                    movementDetails.push({ productId: current.productId, goodsIssueDetailId: current.id, quantity: suppliedPartialBase });
+                    availableStockById.set(current.productId, currentStock - suppliedPartialBase);
                 }
-            }
-
-            const products = await tx.product.findMany({
-                where: { id: { in: Array.from(productTotals.keys()) } },
-                select: { id: true, currentStock: true }
-            });
-            const stockById = new Map(products.map((p) => [p.id, Number(p.currentStock)]));
-            for (const [productId, qty] of productTotals.entries()) {
-                if ((stockById.get(productId) || 0) + FLOAT_EPSILON < qty) throw new GoodsIssueInsufficientStock();
             }
 
             if (movementDetails.length) {
@@ -320,7 +328,7 @@ export const updateGoodsIssue = async ({ id, goodsIssueDto }) => {
 
             const refreshed = await tx.goodsIssueDetail.findMany({ where: { goodsIssueId: id }, select: { isSupplied: true, suppliedQuantity: true } });
             const allSupplied = refreshed.every((d) => d.isSupplied);
-            const anySupplied = refreshed.some((d) => Number(d.suppliedQuantity || 0) > FLOAT_EPSILON);
+            const anySupplied = refreshed.some((d) => (d.suppliedQuantity ?? 0) > FLOAT_EPSILON);
             const fulfillmentName = allSupplied ? FULFILLMENT_COMPLETE : (anySupplied ? FULFILLMENT_PARTIAL : FULFILLMENT_PENDING);
 
             return await tx.goodsIssue.update({
@@ -333,7 +341,7 @@ export const updateGoodsIssue = async ({ id, goodsIssueDto }) => {
             });
         });
     } catch (err) {
-        if (err instanceof GoodsIssueNotFound || err instanceof GoodsIssueInsufficientStock) throw err;
+        if (err instanceof GoodsIssueNotFound) throw err;
         throw new GoodsIssueUpdateDatabaseError();
     }
 }
