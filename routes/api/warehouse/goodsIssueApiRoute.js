@@ -2,13 +2,9 @@ import express from 'express';
 import { authorizeUserApi, verifyCookiesAuthTokenRequired } from '../../../middleware/authMiddleware.js';
 import { validate } from '../../../middleware/validatorMiddleware.js';
 import {
-    approveGoodsIssueStatus,
-    cancelGoodsIssueStatus,
-    confirmGoodsIssueStatus,
     editGoodsIssueDetails,
     getAllGoodsIssues,
-    registerGoodsIssue,
-    rejectGoodsIssueStatus
+    registerGoodsIssue
 } from '../../../controllers/api/warehouse/goodsIssueController.js';
 import { goodsIssueDetailsValidation, goodsIssueValidation } from '../../../validators/forms/goodsIssueValidations.js';
 
@@ -37,27 +33,6 @@ const goodsIssueDetailsPermissions = {
     departments: ['ALMACÉN Y PROVEDURÍA', 'SISTEMAS']
 };
 
-const goodsIssueApprovalPermissions = {
-    roles: ['Almacenista', 'Coordinador', 'Auxiliar', 'Administrador del sistema'],
-    departments: [
-        'ACABADOS',
-        'ALMACÉN Y PROVEDURÍA',
-        'DISEÑO',
-        'INSTALACIONES',
-        'IMPRESIÓN',
-        'ROUTER',
-        'PT/TRÁFICO',
-        'SISTEMAS',
-        'TALLER 3D',
-        'VENTAS Y PROYECTOS ESPECIALES'
-    ]
-};
-
-const goodsIssueConfirmationPermissions = {
-    roles: ['Coordinador', 'Auxiliar', 'Almacenista', 'Administrador del sistema'],
-    departments: ['ALMACÉN Y PROVEDURÍA', 'SISTEMAS']
-};
-
 router.get(
     '/',
     verifyCookiesAuthTokenRequired,
@@ -83,32 +58,8 @@ router.patch(
     editGoodsIssueDetails
 );
 
-router.patch(
-    '/:id/approve',
-    verifyCookiesAuthTokenRequired,
-    authorizeUserApi(goodsIssueApprovalPermissions),
-    approveGoodsIssueStatus
-);
 
-router.patch(
-    '/:id/reject',
-    verifyCookiesAuthTokenRequired,
-    authorizeUserApi(goodsIssueApprovalPermissions),
-    rejectGoodsIssueStatus
-);
 
-router.patch(
-    '/:id/confirm',
-    verifyCookiesAuthTokenRequired,
-    authorizeUserApi(goodsIssueConfirmationPermissions),
-    confirmGoodsIssueStatus
-);
 
-router.patch(
-    '/:id/cancel',
-    verifyCookiesAuthTokenRequired,
-    authorizeUserApi(goodsIssueConfirmationPermissions),
-    cancelGoodsIssueStatus
-);
 
 export default router;

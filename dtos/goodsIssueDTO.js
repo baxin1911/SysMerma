@@ -12,3 +12,12 @@ export const createGoodsIssueDtoForRegister = (body = {}) => ({
         quantity: Number(d.quantity)
     }))
 });
+
+
+export const createGoodsIssueDetailsDtoForUpdate = (body = {}) => ({
+    details: (body.details || []).map((detail) => ({
+        id: detail.id?.trim(),
+        projectConvertedQuantity: Number(detail.projectConvertedQuantity),
+        isSupplied: detail.isSupplied
+    }))
+});

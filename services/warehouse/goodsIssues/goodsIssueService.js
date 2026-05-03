@@ -1,15 +1,7 @@
 import { GoodsIssueInsufficientStock } from "../../../errors/inventory/stockError.js";
 import {
-    GoodsIssueApprovalForbidden,
-    GoodsIssueConfirmationForbidden,
-    GoodsIssueEditForbidden,
     GoodsIssueNotFound,
-    GoodsIssueProjectNotFound,
     GoodsIssueRequesterProfileNotFound,
-    GoodsIssueStatusNotFound,
-    GoodsIssueApproverProfileNotFound,
-    GoodsIssueWarehouseStaffProfileNotFound,
-    GoodsIssueStatusUpdateDatabaseError,
     GoodsIssueUpdateDatabaseError,
     GoodsIssueAdvisorProfileNotFound
 } from "../../../errors/warehouse/goodsIssueError.js";
@@ -22,22 +14,14 @@ import { buildGoodsIssueDetails } from "./goodsIssueHelpers.js";
 
 const ROLE_SYSTEM_ADMIN = 'Administrador del sistema';
 const ROLE_COORDINATOR = 'Coordinador';
-const ROLE_AUXILIARY = 'Auxiliar';
-const ROLE_WAREHOUSE_STAFF = 'Almacenista';
 const DEPARTMENT_WAREHOUSE = 'ALMACÉN Y PROVEDURÍA';
-const STATUS_OPEN = 'Abierta';
+const STATUS_PENDING = 'Pendiente';
 const STATUS_APPROVED = 'Aprobada';
-const STATUS_REJECTED = 'Rechazada';
-const STATUS_CONFIRMED = 'Confirmada';
-const STATUS_CANCELED = 'Cancelada';
 const REFERENCE_NUMBER_TYPE = 'SAL';
-const REASON_INTERNAL_CONSUMPTION = 'Consumo interno';
-const WAREHOUSE_DELIVERY_ROLES = [ROLE_COORDINATOR, ROLE_AUXILIARY, ROLE_WAREHOUSE_STAFF];
-const PRISMA_RECORD_NOT_FOUND = 'P2025';
 const FLOAT_EPSILON = 0.000001;
-const DISPATCH_STATUS_NOT_DISPATCHED = 'Sin surtir';
-const DISPATCH_STATUS_PARTIAL = 'Surtido parcial';
-const DISPATCH_STATUS_COMPLETE = 'Surtido completo';
+const FULFILLMENT_PENDING = 'Pendiente';
+const FULFILLMENT_PARTIAL = 'Surtido parcial';
+const FULFILLMENT_COMPLETE = 'Surtido';
 
 export const findAllGoodsIssues = async ({
     skip = 0,
@@ -133,28 +117,6 @@ export const findAllGoodsIssues = async ({
         recordsTotal: total,
         recordsFiltered: filtered
     };
-};
-
-const getActiveProfileIdByUserId = async ({ tx, userId, errorClass }) => {
-
-    const profile = await tx.profile.findFirst({
-        where: {
-            isActive: true,
-            users: {
-                some: {
-                    id: userId,
-                    isActive: true
-                }
-            }
-        },
-        select: {
-            id: true
-        }
-    });
-
-    if (!profile) throw new errorClass();
-
-    return profile.id;
 };
 
 const addQuantityToMap = (map, productId, quantity) => {
@@ -275,100 +237,8 @@ export const createGoodsIssue = async ({
     return result.goodsIssue;
 };
 
-export const updateGoodsIssue = async ({ id, goodsIssueDto, canEditDepartment }) => {
-
-    return {};
-}
-
-const updateGoodsIssueApprovalStatus = async ({
-    id,
-    statusName,
-    userDepartment,
-    userRole,
-    userId
-}) => {
-
-    const goodsIssue = await prisma.goodsIssue.findUnique({
-        where: { id },
-        include: {
-            department: {
-                select: {
-                    name: true
-                }
-            },
-            status: {
-                select: {
-                    name: true
-                }
-            }
-        }
-    });
-
-    if (!goodsIssue) throw new GoodsIssueNotFound();
-    if (goodsIssue.status?.name !== STATUS_OPEN) throw new GoodsIssueStatusNotFound();
-
-    const isSystemAdmin = userRole === ROLE_SYSTEM_ADMIN;
-    const isWarehouseDepartment = userDepartment === DEPARTMENT_WAREHOUSE;
-    const canApproveAnyDepartment = isSystemAdmin || isWarehouseDepartment;
-
-    if (
-        !canApproveAnyDepartment &&
-        goodsIssue.department?.name !== userDepartment
-    ) {
-        throw new GoodsIssueApprovalForbidden();
-    }
-
-    try {
-
-        const data = {
-            status: {
-                connect: {
-                    name: statusName
-                }
-            }
-        };
-
-        if (statusName === STATUS_APPROVED) {
-            const approverId = await getActiveProfileIdByUserId({
-                tx: prisma,
-                userId,
-                errorClass: GoodsIssueApproverProfileNotFound
-            });
-
-            data.approver = {
-                connect: {
-                    id: approverId
-                }
-            };
-            data.approvedDate = new Date();
-        }
-
-        return await prisma.goodsIssue.update({
-            where: { id },
-            data,
-            select: {
-                id: true,
-                status: {
-                    select: {
-                        id: true,
-                        name: true
-                    }
-                }
-            }
-        });
-    } catch (err) {
-        if (err.code === PRISMA_RECORD_NOT_FOUND) throw new GoodsIssueStatusNotFound();
-        throw new GoodsIssueStatusUpdateDatabaseError();
-    }
-};
-
-const updateGoodsIssueDeliveryStatus = async ({
-    id,
-    statusName,
-    userDepartment,
-    userRole,
-    userId
-}) => {
+export const updateGoodsIssue = async ({ id, goodsIssueDto }) => {
+    const { details = [] } = goodsIssueDto;
 
     try {
         return await prisma.$transaction(async (tx) => {
@@ -376,206 +246,94 @@ const updateGoodsIssueDeliveryStatus = async ({
                 where: { id },
                 select: {
                     id: true,
-                    status: {
-                        select: {
-                            name: true
-                        }
-                    },
                     details: {
                         select: {
                             id: true,
                             productId: true,
-                            quantity: true
-                        }
-                    },
-                    movement: {
-                        select: {
-                            details: {
-                                select: {
-                                    productId: true,
-                                    quantity: true
-                                }
-                            }
+                            quantity: true,
+                            convertedQuantity: true
                         }
                     }
                 }
             });
 
             if (!goodsIssue) throw new GoodsIssueNotFound();
-            if (goodsIssue.status?.name !== STATUS_APPROVED) throw new GoodsIssueStatusNotFound();
 
-            const isSystemAdmin = userRole === ROLE_SYSTEM_ADMIN;
-            const canConfirmFromWarehouse = userDepartment === DEPARTMENT_WAREHOUSE &&
-                WAREHOUSE_DELIVERY_ROLES.includes(userRole);
+            const detailIds = details.map((d) => d.id).filter(Boolean);
+            const currentDetails = goodsIssue.details.filter((d) => detailIds.includes(d.id));
+            const currentById = new Map(currentDetails.map((d) => [d.id, d]));
 
-            if (!isSystemAdmin && !canConfirmFromWarehouse) {
-                throw new GoodsIssueConfirmationForbidden();
+            const productTotals = new Map();
+            const movementDetails = [];
+
+            for (const detail of details) {
+                const current = currentById.get(detail.id);
+                if (!current) continue;
+
+                const requested = Number(current.convertedQuantity);
+                const supplied = Number(detail.projectConvertedQuantity || 0);
+                const difference = requested - supplied;
+                const isSupplied = supplied + FLOAT_EPSILON >= requested;
+
+                await tx.goodsIssueDetail.update({
+                    where: { id: current.id },
+                    data: {
+                        projectConvertedQuantity: supplied,
+                        suppliedQuantity: supplied,
+                        convertedQuantityDifference: difference,
+                        isSupplied,
+                        fulfillmentStatus: {
+                            connect: { name: isSupplied ? FULFILLMENT_COMPLETE : (supplied > 0 ? FULFILLMENT_PARTIAL : FULFILLMENT_PENDING) }
+                        }
+                    }
+                });
+
+                if (supplied > FLOAT_EPSILON) {
+                    const prev = productTotals.get(current.productId) || 0;
+                    productTotals.set(current.productId, prev + supplied);
+                    movementDetails.push({ productId: current.productId, goodsIssueDetailId: current.id, quantity: supplied });
+                }
             }
 
-            const data = {
-                status: {
-                    connect: {
-                        name: statusName
-                    }
-                }
-            };
-
-            let dispatchedProductIds = [];
-            let totalRequestedProducts = 0;
-
-            if (statusName === STATUS_CONFIRMED) {
-                const warehouseStaffId = await getActiveProfileIdByUserId({
-                    tx,
-                    userId,
-                    errorClass: GoodsIssueWarehouseStaffProfileNotFound
-                });
-
-                const requestedByProduct = new Map();
-                goodsIssue.details.forEach((detail) => {
-                    addQuantityToMap(requestedByProduct, detail.productId, detail.quantity);
-                });
-                totalRequestedProducts = requestedByProduct.size;
-
-                const deliveredByProduct = new Map();
-                goodsIssue.movement.forEach((movement) => {
-                    movement.details.forEach((detail) => {
-                        addQuantityToMap(deliveredByProduct, detail.productId, detail.quantity);
-                    });
-                });
-
-                const pendingProducts = [];
-                for (const [productId, requestedQuantity] of requestedByProduct.entries()) {
-                    const alreadyDelivered = deliveredByProduct.get(productId) || 0;
-                    const pendingQuantity = Math.max(requestedQuantity - alreadyDelivered, 0);
-                    if (pendingQuantity > FLOAT_EPSILON) pendingProducts.push({ productId, pendingQuantity });
-                }
-
-                const stockProducts = await tx.product.findMany({
-                    where: {
-                        id: {
-                            in: pendingProducts.map((product) => product.productId)
-                        }
-                    },
-                    select: {
-                        id: true,
-                        currentStock: true
-                    }
-                });
-
-                const stockByProduct = new Map(
-                    stockProducts.map((product) => [product.id, Number(product.currentStock)])
-                );
-
-                for (const product of pendingProducts) {
-
-                    const currentStock = stockByProduct.get(product.productId) || 0;
-
-                    if (currentStock + FLOAT_EPSILON < product.pendingQuantity) {
-                        throw new GoodsIssueInsufficientStock();
-                    }
-                }
-
-                const detailsToDispatch = pendingProducts.map((product) => ({
-                    productId: product.productId,
-                    quantity: product.pendingQuantity
-                }));
-
-                if (detailsToDispatch.length) {
-
-                    await tx.inventoryMovement.create({
-                        data: {
-                            goodsIssueId: goodsIssue.id,
-                            reasonId: reason.id,
-                            date: new Date(),
-                            details: {
-                                create: detailsToDispatch
-                            }
-                        }
-                    });
-
-                    for (const detail of detailsToDispatch) {
-                        await tx.product.update({
-                            where: {
-                                id: detail.productId
-                            },
-                            data: {
-                                currentStock: {
-                                    decrement: detail.quantity
-                                }
-                            }
-                        });
-                    }
-
-                    detailsToDispatch.forEach((detail) => {
-                        addQuantityToMap(deliveredByProduct, detail.productId, detail.quantity);
-                    });
-                }
-
-                dispatchedProductIds = detailsToDispatch.map((detail) => detail.productId);
-
-                data.status = {
-                    connect: {
-                        name: STATUS_CONFIRMED
-                    }
-                };
-
-                data.warehouseStaff = {
-                    connect: {
-                        id: warehouseStaffId
-                    }
-                };
-                data.deliveryDate = new Date();
-            }
-
-            const updatedGoodsIssue = await tx.goodsIssue.update({
-                where: { id },
-                data,
-                select: {
-                    id: true,
-                    referenceNumber: true,
-                    department: {
-                        select: {
-                            id: true,
-                            name: true
-                        }
-                    },
-                    status: {
-                        select: {
-                            id: true,
-                            name: true
-                        }
-                    }
-                }
+            const products = await tx.product.findMany({
+                where: { id: { in: Array.from(productTotals.keys()) } },
+                select: { id: true, currentStock: true }
             });
+            const stockById = new Map(products.map((p) => [p.id, Number(p.currentStock)]));
+            for (const [productId, qty] of productTotals.entries()) {
+                if ((stockById.get(productId) || 0) + FLOAT_EPSILON < qty) throw new GoodsIssueInsufficientStock();
+            }
 
-            return {
-                ...updatedGoodsIssue,
-                dispatchedProductIds,
-                totalRequestedProducts
-            };
+            if (movementDetails.length) {
+                await tx.inventoryMovement.create({
+                    data: {
+                        goodsIssueId: id,
+                        date: new Date(),
+                        details: { create: movementDetails }
+                    }
+                });
+
+                for (const [productId, qty] of productTotals.entries()) {
+                    await tx.product.update({ where: { id: productId }, data: { currentStock: { decrement: qty } } });
+                }
+            }
+
+            const refreshed = await tx.goodsIssueDetail.findMany({ where: { goodsIssueId: id }, select: { isSupplied: true, suppliedQuantity: true } });
+            const allSupplied = refreshed.every((d) => d.isSupplied);
+            const anySupplied = refreshed.some((d) => Number(d.suppliedQuantity || 0) > FLOAT_EPSILON);
+            const fulfillmentName = allSupplied ? FULFILLMENT_COMPLETE : (anySupplied ? FULFILLMENT_PARTIAL : FULFILLMENT_PENDING);
+
+            return await tx.goodsIssue.update({
+                where: { id },
+                data: {
+                    fulfillmentStatus: { connect: { name: fulfillmentName } },
+                    status: { connect: { name: STATUS_APPROVED } }
+                },
+                select: { id: true, fulfillmentStatus: true, status: true }
+            });
         });
     } catch (err) {
-        if (err.code === PRISMA_RECORD_NOT_FOUND) throw new GoodsIssueStatusNotFound();
-        if (
-            err instanceof GoodsIssueNotFound ||
-            err instanceof GoodsIssueStatusNotFound ||
-            err instanceof GoodsIssueConfirmationForbidden ||
-            err instanceof GoodsIssueWarehouseStaffProfileNotFound
-        ) {
-            throw err;
-        }
-        throw new GoodsIssueStatusUpdateDatabaseError();
+        if (err instanceof GoodsIssueNotFound || err instanceof GoodsIssueInsufficientStock) throw err;
+        throw new GoodsIssueUpdateDatabaseError();
     }
-};
-
-export const approveGoodsIssue = async ({ id, userDepartment, userRole, userId }) =>
-    await updateGoodsIssueApprovalStatus({ id, statusName: STATUS_APPROVED, userDepartment, userRole, userId });
-
-export const rejectGoodsIssue = async ({ id, userDepartment, userRole, userId }) =>
-    await updateGoodsIssueApprovalStatus({ id, statusName: STATUS_REJECTED, userDepartment, userRole, userId });
-
-export const confirmGoodsIssue = async ({ id, userDepartment, userRole, userId }) =>
-    await updateGoodsIssueDeliveryStatus({ id, statusName: STATUS_CONFIRMED, userDepartment, userRole, userId });
-
-export const cancelGoodsIssue = async ({ id, userDepartment, userRole, userId }) =>
-    await updateGoodsIssueDeliveryStatus({ id, statusName: STATUS_CANCELED, userDepartment, userRole, userId });
+}
