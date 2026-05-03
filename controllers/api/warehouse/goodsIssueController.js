@@ -1,12 +1,8 @@
-import { createGoodsIssueDtoForRegister } from "../../../dtos/goodsIssueDTO.js";
+import { createGoodsIssueDetailsDtoForUpdate, createGoodsIssueDtoForRegister } from "../../../dtos/goodsIssueDTO.js";
 import { successCodeMessages } from "../../../messages/codeMessages.js";
 import {
-    approveGoodsIssue,
-    cancelGoodsIssue,
-    confirmGoodsIssue,
     createGoodsIssue,
     findAllGoodsIssues,
-    rejectGoodsIssue,
     updateGoodsIssue
 } from "../../../services/warehouse/goodsIssues/goodsIssueService.js";
 import { createStockNotification, notifyProductStockStatusChanges } from "../../../services/warehouse/notificationService.js";
@@ -51,17 +47,12 @@ export const registerGoodsIssue = async (req, res) => {
 };
 
 export const editGoodsIssueDetails = async (req, res) => {
-console.log(req.body)
-console.log(req.params.id)
-    const goodsIssueDto = createGoodsIssueDtoForRegister(req.body);
+    const goodsIssueDto = createGoodsIssueDetailsDtoForUpdate(req.body);
     const sanitizedGoodsIssueDto = sanitizeEmptyStrings(goodsIssueDto);
 
-    const canEditDepartment = ['Almacén', 'Sistemas'].includes(req.user.department);
-
     const goodsIssue = await updateGoodsIssue({
-        goodsIssueDto: sanitizedGoodsIssueDto, 
-        id: req.params.id,
-        canEditDepartment,
+        goodsIssueDto: sanitizedGoodsIssueDto,
+        id: req.params.id
     });
 
     return res.status(200).json({
@@ -70,62 +61,3 @@ console.log(req.params.id)
     });
 };
 
-export const approveGoodsIssueStatus = async (req, res) => {
-
-    const goodsIssue = await approveGoodsIssue({
-        id: req.params.id,
-        userDepartment: req.user.department,
-        userRole: req.user.role,
-        userId: req.userId
-    });
-
-    return res.status(200).json({
-        goodsIssue,
-        code: successCodeMessages.APPROVED_GOODS_ISSUE
-    });
-};
-
-export const rejectGoodsIssueStatus = async (req, res) => {
-
-    const goodsIssue = await rejectGoodsIssue({
-        id: req.params.id,
-        userDepartment: req.user.department,
-        userRole: req.user.role,
-        userId: req.userId
-    });
-
-    return res.status(200).json({
-        goodsIssue,
-        code: successCodeMessages.REJECTED_GOODS_ISSUE
-    });
-};
-
-export const confirmGoodsIssueStatus = async (req, res) => {
-
-    const goodsIssue = await confirmGoodsIssue({
-        id: req.params.id,
-        userDepartment: req.user.department,
-        userRole: req.user.role,
-        userId: req.userId
-    });
-
-    return res.status(200).json({
-        goodsIssue,
-        code: successCodeMessages.CONFIRMED_GOODS_ISSUE
-    });
-};
-
-export const cancelGoodsIssueStatus = async (req, res) => {
-
-    const goodsIssue = await cancelGoodsIssue({
-        id: req.params.id,
-        userDepartment: req.user.department,
-        userRole: req.user.role,
-        userId: req.userId
-    });
-
-    return res.status(200).json({
-        goodsIssue,
-        code: successCodeMessages.CANCELED_GOODS_ISSUE
-    });
-};
