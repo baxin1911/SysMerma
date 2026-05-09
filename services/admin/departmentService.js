@@ -1,9 +1,9 @@
 import { DepartmentFindDatabaseError, DepartmentNotFound } from "../../errors/admin/departmentError.js";
-import { prisma } from "../../lib/prisma.js";
+import { getDb } from "../../repository/baseRepository.js";
 
 export const findDepartmentById = async ({ tx, id }) => {
 
-    const db = tx || prisma;
+    const db = getDb(tx);
     let department;
 
     try {

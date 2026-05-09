@@ -1,5 +1,5 @@
 import express from 'express';
-import { authorizeUserApi, verifyCookiesAuthTokenRequired } from '../../../middleware/authMiddleware.js';
+import { authorizeUserApi, verifyApiTokenRequired } from '../../../middleware/authMiddleware.js';
 import { getAllPresentations } from '../../../controllers/api/warehouse/presentationController.js';
 
 const router = express.Router();
@@ -11,7 +11,7 @@ const presentationPermissions = {
 
 router.get(
     '/',
-    verifyCookiesAuthTokenRequired,
+    verifyApiTokenRequired,
     authorizeUserApi(presentationPermissions),
     getAllPresentations
 );

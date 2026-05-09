@@ -3,7 +3,7 @@ import { cancelPurchaseRequisition, confirmPurchaseRequisition, editPurchaseRequ
 import { refreshProductTable } from "../../plugins/datatable/baseDatatable.js";
 import { createPurchaseRequisitionDatatable, details, initDetailsPurchaseRequisitionTable } from "../../plugins/datatable/purchaseRequisitionDatatable.js";
 import { initPurchaseRequisitionFormSelect2 } from "../../plugins/select2/modules/purchaseRequisitionSelect.js";
-import { toggleInputSelectErrors, toggleTableErrors, setFormReadOnly, toggleButtons, clearFormErrors } from "../../ui/formUI.js";
+import { setFormReadOnly, toggleButtons, clearFormErrors } from "../../ui/formUI.js";
 import { openModal } from "../../ui/modalUI.js";
 import { on } from "../../utils/domUtils.js";
 import { formatDateLongWithTime } from "../../utils/formatters.js";
@@ -33,11 +33,6 @@ useForm({
 
         return errors;
     },
-    normalizeErrors: ({ form, errors }) => {
-
-        toggleTableErrors(form, errors);
-        toggleInputSelectErrors(form, errors);
-    },
     sendRequest: async ({ formData, form }) => {
 
         await handleSubmit({
@@ -47,11 +42,6 @@ useForm({
             update: editPurchaseRequisition
         });
     },
-    normalizeServerErrors: (form, serverErrors) => {
-
-        toggleTableErrors(form, serverErrors);
-        toggleInputSelectErrors(form, serverErrors);
-    }
 });
 
 export const openPurchaseRequisitionModal = async ({ mode, data = null }) => {

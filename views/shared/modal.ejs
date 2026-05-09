@@ -72,21 +72,11 @@ const buttons = {
         attrs: {
             'data-mdb-dismiss': 'modal'
         }
-    },
-    cancelButton: {
-        id: 'cancelBtn',
-        class: 'btn btn-secondary',
-        content: 'Cancelar'
-    },
-    confirmButton: {
-        id: 'confirmBtn',
-        class: 'btn btn-primary',
-        content: 'Confirmar'
     }
 }; %>
 
 <div class="modal fade" id="<%= modalId %>" tabindex="-1" aria-labelledby="<%= header.title.id %>">
-    <div class="modal-dialog modal-xl">
+    <div class="modal-dialog modal-fullscreen">
         <div class="modal-content">
         
         <%- include('./header', { header }) %>
@@ -145,14 +135,6 @@ const buttons = {
 
                 <div class="col-12">
                     <%- include('./button', { button: buttons.backButton }) %>
-
-                    <% if (form.canApprove) { %>
-                        <div class="approve-container">
-                            <%- include('./button', { button: buttons.cancelButton }) %>
-
-                            <%- include('./button', { button: buttons.confirmButton }) %>
-                        </div>
-                    <% } %>
                     
                     <%- include('./submit') %>
                 </div>

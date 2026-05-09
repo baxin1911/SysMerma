@@ -1,8 +1,8 @@
-import { prisma } from "../lib/prisma.js";
+import { getDb } from "../repository/baseRepository.js";
 
 export const getUserIdByLogin = async (name, password) => {
 
-    const user = await prisma.user.findUnique({
+    const user = await getDb().user.findUnique({
         where: {
             name: name,
         },
@@ -21,7 +21,7 @@ export const getUserIdByLogin = async (name, password) => {
 
 export const getLoggedUser = async (userId) => {
 
-    const accesses = await prisma.userRoleDepartment.findMany({
+    const accesses = await getDb().userRoleDepartment.findMany({
         where: {
             userId
         },

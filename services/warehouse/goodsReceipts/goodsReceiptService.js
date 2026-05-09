@@ -1,14 +1,17 @@
 import {
+    GoodsReceiptCreateDatabaseError,
     ProfileReceivedByNotFound,
     SupplierNotFound
 } from "../../../errors/warehouse/goodsReceiptError.js";
-import { prisma } from "../../../lib/prisma.js";
+import { getDb } from "../../../repository/baseRepository.js";
 import { generateReferenceNumber } from "../../document/referenceNumberService.js";
 import { findProfileById } from "../../admin/profileService.js";
 import { applyInventoryMovement } from "../../inventory/movementService.js";
 import { findUniqueSupplier } from "../supplierService.js";
 import { buildGoodsReceiptDetails } from "./goodsReceiptHelpers.js";
-import { updateConvertedQuantityByCurrentStock, updateProductUnitCostIfHigher } from "../products/productService.js";
+import { findSupplierProduct, updateProductUnitCostIfHigher } from "../products/supplierProductService.js";
+import { buildStockKey, parseStockKey } from "../../../utils/formattersUtils.js";
+import { AppError } from "../../../errors/AppError.js";
 
 const REFERENCE_NUMBER_TYPE = 'REC';
 const MOVEMENT_TYPE_IN = 'IN';
@@ -32,7 +35,7 @@ export const findAllGoodsReceipts = async ({
         }
         : {};
 
-    const goodsReceipts = await prisma.goodsReceipt.findMany({
+    const goodsReceipts = await getDb().goodsReceipt.findMany({
         skip,
         take,
         where,
@@ -41,6 +44,8 @@ export const findAllGoodsReceipts = async ({
         },
         select: {
             referenceNumber: true,
+            invoice: true,
+            isInvoiced: true,
             receivedById: true,
             receivedByName: true,
             supplierId: true,
@@ -73,8 +78,8 @@ export const findAllGoodsReceipts = async ({
         }
     });
 
-    const total = await prisma.goodsReceipt.count();
-    const filtered = await prisma.goodsReceipt.count({ where });
+    const total = await getDb().goodsReceipt.count();
+    const filtered = await getDb().goodsReceipt.count({ where });
 
     return {
         data: goodsReceipts,
@@ -85,83 +90,137 @@ export const findAllGoodsReceipts = async ({
 
 export const createGoodsReceipt = async ({ goodsReceiptDto }) => {
 
-    const { receivedById, supplierId, details, ...goodsReceiptData } = goodsReceiptDto;
+    try {
 
-    const supplier = await findUniqueSupplier({ id: supplierId });
+        const { receivedById, supplierId, details, ...goodsReceiptData } = goodsReceiptDto;
 
-    const receivedBy = await findProfileById({ id: receivedById });
+        const supplier = await findUniqueSupplier({ id: supplierId });
 
-    if (!receivedBy) throw new ProfileReceivedByNotFound();
+        const receivedBy = await findProfileById({ id: receivedById });
 
-    const processedDetails = await buildGoodsReceiptDetails(details);
+        if (!receivedBy) throw new ProfileReceivedByNotFound();
 
-    const totals = processedDetails.reduce((acc, d) => {
-        acc.totalQuantity += d.quantity;
-        acc.totalNetPurchaseAmount += d.netPurchaseAmount;
-        acc.totalGrossPurchaseAmount += d.grossPurchaseAmount;
-        return acc;
-    }, {
-        totalQuantity: 0,
-        totalNetPurchaseAmount: 0,
-        totalGrossPurchaseAmount: 0
-    });
+        const processedDetails = await buildGoodsReceiptDetails(details);
 
-    const result = await prisma.$transaction(async (tx) => {
+        const totals = processedDetails.reduce((acc, d) => {
+            acc.totalQuantity += d.quantity;
+            acc.totalNetPurchaseAmount += d.netPurchaseAmount;
+            acc.totalGrossPurchaseAmount += d.grossPurchaseAmount;
+            return acc;
+        }, {
+            totalQuantity: 0,
+            totalNetPurchaseAmount: 0,
+            totalGrossPurchaseAmount: 0
+        });
 
-        const referenceNumber = await generateReferenceNumber({ type: REFERENCE_NUMBER_TYPE, tx });
+        const grouped = new Map();
+        
+        for (const detail of processedDetails) {
+            const key = buildStockKey(detail.productId, supplierId);
+            grouped.set(
+                key,
+                Number((grouped.get(key) || 0)) + Number(detail.quantity)
+            );
+        }
 
-        const goodsReceipt = await tx.goodsReceipt.create({
-            data: {
-                ...goodsReceiptData,
-                ...totals,
-                referenceNumber,
-                supplierName: supplier.tradeName,
-                receivedByName: receivedBy.fullName,
-                status: {
-                    connect: {
-                        name: STATUS_CONFIRMED
+        const filters = Array.from(grouped.keys()).map(key => parseStockKey(key));
+
+        const supplierProducts = await findSupplierProduct({
+            where: {
+                OR: filters
+            },
+            select: {
+                id: true,
+                productId: true,
+                supplierId: true,
+                currentStock: true,
+                product: {
+                    select: {
+                        base: true,
+                        height: true,
+                        name: true
                     }
                 },
                 supplier: {
-                    connect: {
-                        id: supplierId
-                    }
-                },
-                receivedBy: {
-                    connect: {
-                        id: receivedById
-                    }
-                },
-                details: {
-                    createMany: {
-                        data: processedDetails
+                    select: {
+                        tradeName: true
                     }
                 }
-            },
-            include: {
-                details: true
             }
         });
 
-        const impactedProductIds = await applyInventoryMovement({
-            tx,
-            goodsReceiptId: goodsReceipt.id,
-            details: goodsReceipt.details,
-            movementType: MOVEMENT_TYPE_IN
+        const result = await getDb().$transaction(async (tx) => {
+
+            const referenceNumber = await generateReferenceNumber({ type: REFERENCE_NUMBER_TYPE, tx });
+
+            const goodsReceipt = await tx.goodsReceipt.create({
+                data: {
+                    ...goodsReceiptData,
+                    ...totals,
+                    referenceNumber,
+                    supplierName: supplier.tradeName,
+                    receivedByName: receivedBy.fullName,
+                    status: {
+                        connect: {
+                            name: STATUS_CONFIRMED
+                        }
+                    },
+                    supplier: {
+                        connect: {
+                            id: supplierId
+                        }
+                    },
+                    receivedBy: {
+                        connect: {
+                            id: receivedById
+                        }
+                    },
+                    details: {
+                        createMany: {
+                            data: processedDetails
+                        }
+                    }
+                },
+                include: {
+                    details: {
+                        select: {
+                            id: true,
+                            productId: true,
+                            quantity: true,
+                            conversionUnitCost: true
+                        }
+                    }
+                }
+            });
+
+            await applyInventoryMovement({
+                tx,
+                reference: { goodsReceiptId: goodsReceipt.id },
+                details: goodsReceipt.details.map(detail => ({
+                    productId: detail.productId,
+                    goodsReceiptDetailId: detail.id,
+                    supplierId: goodsReceipt.supplierId,
+                    quantity: detail.quantity
+                })),
+                movementType: MOVEMENT_TYPE_IN,
+                grouped,
+                supplierProducts
+            });
+
+            return goodsReceipt;
         });
 
         await updateProductUnitCostIfHigher({
-            tx,
-            details: goodsReceipt.details
+            supplierId: result.supplierId,
+            details: result.details
         });
 
-        await updateConvertedQuantityByCurrentStock({
-            tx,
-            productIds: impactedProductIds
-        });
+        return result;
 
-        return { goodsReceipt, impactedProductIds };
-    });
+    } catch (err) {
 
-    return result;
+        if (err instanceof AppError) throw err;
+
+        throw new GoodsReceiptCreateDatabaseError();
+    }
 }

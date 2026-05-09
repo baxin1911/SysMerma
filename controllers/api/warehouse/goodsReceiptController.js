@@ -29,7 +29,7 @@ export const getAllGoodsReceipts = async (req, res) => {
         orderDir
     });
 
-    res.status(200).json(result);
+    return res.status(200).json(result);
 }
 
 export const registerGoodsReceipt = async (req, res) => {
@@ -37,11 +37,11 @@ export const registerGoodsReceipt = async (req, res) => {
     const goodsReceiptDto = createGoodsReceiptDtoForRegister(req.body);
     const sanitizedGoodsReceiptDto = sanitizeEmptyStrings(goodsReceiptDto);
 
-    const { goodsReceipt, impactedProductIds } = await createGoodsReceipt({
+    const goodsReceipt = await createGoodsReceipt({
         goodsReceiptDto: sanitizedGoodsReceiptDto
     });
 
-    res.status(200).json({
+    return res.status(200).json({
         goodsReceipt,
         code: successCodeMessages.CREATED_GOODS_RECEIPT
     });

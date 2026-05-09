@@ -1,4 +1,4 @@
-import { prisma } from "../lib/prisma.js";
+import { getDb } from "../repository/baseRepository.js";
 
 export const findAllDepartments = async ({
     skip = 0,
@@ -17,7 +17,7 @@ export const findAllDepartments = async ({
         })
     };
 
-    const departments = await prisma.department.findMany({
+    const departments = await getDb().department.findMany({
         skip,
         take,
         where,
@@ -26,8 +26,8 @@ export const findAllDepartments = async ({
         }
     });
 
-    const total = await prisma.department.count();
-    const filtered = await prisma.department.count({ where });
+    const total = await getDb().department.count();
+    const filtered = await getDb().department.count({ where });
 
     return {
         data: departments,

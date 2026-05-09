@@ -1,5 +1,5 @@
 import express from 'express';
-import { authorizeUserApi, verifyCookiesAuthTokenRequired } from '../../../middleware/authMiddleware.js';
+import { authorizeUserApi, verifyApiTokenRequired } from '../../../middleware/authMiddleware.js';
 import { validate } from '../../../middleware/validatorMiddleware.js';
 import {
     getAllGoodsReceipts,
@@ -15,14 +15,14 @@ const goodsReceiptPermissions = {
 
 router.get(
     '/',
-    verifyCookiesAuthTokenRequired,
+    verifyApiTokenRequired,
     authorizeUserApi(goodsReceiptPermissions),
     getAllGoodsReceipts
 );
 
 router.post(
     '/',
-    verifyCookiesAuthTokenRequired,
+    verifyApiTokenRequired,
     goodsReceiptValidation,
     validate,
     authorizeUserApi(goodsReceiptPermissions),

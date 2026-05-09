@@ -4,13 +4,15 @@ import { getGoodsReceiptsPage } from '../../../controllers/web/warehouse/goodsRe
 
 const router = express.Router();
 
+const goodsReceiptPagePermissions = {
+    roles: ['Almacenista', 'Coordinador', 'Auxiliar', 'Administrador del sistema'],
+    departments: ['ALMACÉN Y PROVEDURÍA', 'SISTEMAS']
+};
+
 router.get(
     '/',
     verifyCookiesAuthTokenRequired,
-    authorizeUserWeb({
-        roles: ['Almacenista', 'Coordinador', 'Auxiliar', 'Administrador del sistema'],
-        departments: ['ALMACÉN Y PROVEDURÍA', 'SISTEMAS']
-    }),
+    authorizeUserWeb(goodsReceiptPagePermissions),
     getGoodsReceiptsPage
 );
 

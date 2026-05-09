@@ -33,7 +33,7 @@ export const toggleErrorMessages = (form, errors) => {
 const setInputSelectError = (form, key, message = null) => {
 
     const feedback = form.querySelector(`[data-error-for='${ key }']`);
-
+console.log(feedback)
     if (!feedback) return;
 
     if (message) {
@@ -61,7 +61,22 @@ export const toggleInputSelectErrors = (form, errors) => {
 
             if (value) $(input).next('.select2-container').find('.select2-selection').addClass('is-invalid');
             else $(input).next('.select2-container').find('.select2-selection').removeClass('is-invalid');
+        } else {
+
+            if (value) input.classList.add('is-invalid');
+            else input.classList.remove('is-invalid');
         }
+    });
+
+    form.querySelectorAll('input[type="checkbox"]').forEach(input => {
+
+        const key = input.name;
+        const value = errors[key];
+
+        setInputSelectError(form, key, value);
+
+        if (value) input.classList.add('is-invalid');
+        else input.classList.remove('is-invalid');
     });
 }
 
@@ -123,6 +138,14 @@ export const toggleTableErrors = (form, errors) => {
         const value = errors[key];
         setTableError(form, key, value);
     }
+}
+
+export const normalizeFormErrors = ({ form, errors }) => {
+
+    toggleTableErrors(form, errors);
+    toggleInputSelectErrors(form, errors);
+
+    return errors;
 }
 
 export const clearFormErrors = (form) => {
@@ -222,15 +245,15 @@ export const updateTotals = ({
 
     const instanceTotalQuantity = initMdbWrapperInput({
         selector: TOTAL_FIELDS.quantity,
-        value: totalQuantity
+        value: totalQuantity.toFixed(2)
     });
     const instanceTotalNetPurchaseAmount = initMdbWrapperInput({
         selector: TOTAL_FIELDS.net,
-        value: totalNetPurchaseAmount
+        value: totalNetPurchaseAmount.toFixed(2)
     });
     const instanceTotalGrossPurchaseAmount = initMdbWrapperInput({
         selector: TOTAL_FIELDS.gross,
-        value: totalGrossPurchaseAmount
+        value: totalGrossPurchaseAmount.toFixed(2)
     });
 
     updateMdbWrapperInput(instanceTotalQuantity);

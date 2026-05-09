@@ -1,9 +1,10 @@
 import { useForm } from "../../application/form.js";
-import { approveGoodsIssue, cancelGoodsIssue, confirmGoodsIssue, editGoodsIssueDetails, registerGoodsIssue, rejectGoodsIssue } from "../../application/warehouse/goodsIssues.js";import { validateGoodsIssueDetailValidators, validateGoodsIssueValidators } from "../../utils/validations/validators.js";
+import { editGoodsIssueDetails, registerGoodsIssue } from "../../application/warehouse/goodsIssues.js";
+import { validateGoodsIssueDetailValidators, validateGoodsIssueValidators } from "../../utils/validations/validators.js";
 import { refreshProductTable } from "../../plugins/datatable/baseDatatable.js";
-import { createGoodsIssueDatatable, details, initDetailsGoodsIssueTable, updateDetailRow } from "../../plugins/datatable/goodsIssueDatatable.js";
+import { createGoodsIssueDatatable, details, initDetailsGoodsIssueTable } from "../../plugins/datatable/goodsIssueDatatable.js";
 import { initGoodsIssueFormSelect2, setGoodsIssueFormSelectOptions } from "../../plugins/select2/modules/goodsIssueSelect.js";
-import { toggleInputSelectErrors, toggleTableErrors, setFormReadOnly, toggleButtons, clearAddedProductInput, clearFormErrors } from "../../ui/formUI.js";
+import { setFormReadOnly, toggleButtons, clearAddedProductInput, clearFormErrors } from "../../ui/formUI.js";
 import { on } from "../../utils/domUtils.js";
 import { formatDateLongWithTime } from "../../utils/formatters.js";
 import { handleAction, handleSubmit, validateDetailsFields, validateFields } from "../../utils/formUtils.js";
@@ -19,26 +20,25 @@ const context = window.meta || {};
 
 createGoodsIssueDatatable(context);
 
+const normalizeGoodsIssueData = ({ form, formData }) => {
+    const { mode } = form.dataset;
+
+    if (mode === MODE_EDIT_DETAIL) {
+        return {
+            id: form.dataset.id,
+            details
+        };
+    }
+
+    return {
+        ...formData,
+        details
+    };
+};
+
 useForm({
     selector: formId,
-    normalizeData: ({ form, formData }) => {
-
-        const { mode } = form.dataset;
-
-        if (mode === MODE_EDIT_DETAIL) {
-
-            formData = {
-                id: form.dataset.id,
-                details
-            };
-
-        } else {
-
-            formData.details = details;
-        }
-
-        return formData;
-    },
+    normalizeData: normalizeGoodsIssueData,
     getErrors: ({ form, formData }) => {
 
         const { mode } = form.dataset;
@@ -46,11 +46,6 @@ useForm({
         if (mode === MODE_EDIT_DETAIL) return validateDetailsFields(validateGoodsIssueDetailValidators, details);
 
         return validateFields(validateGoodsIssueValidators, formData);
-    },
-    normalizeErrors: ({ form, errors }) => {
-
-        toggleTableErrors(form, errors);
-        toggleInputSelectErrors(form, errors);
     },
     sendRequest: async ({ formData, form }) => {
 
@@ -61,11 +56,6 @@ useForm({
             update: editGoodsIssueDetails
         });
     },
-    normalizeServerErrors: (form, serverErrors) => {
-
-        toggleTableErrors(form, serverErrors);
-        toggleInputSelectErrors(form, serverErrors);
-    }
 });
 
 export const openGoodsIssueModal = async ({ mode, data = null }) => {
@@ -162,8 +152,16 @@ const addProduct = () => {
 
     let convertedQuantity;
 
-    if (!productBase || !productHeight) convertedQuantity = quantity;
-    else convertedQuantity = Number((productBase * productHeight * quantity).toFixed(2));
+    if (!productBase || !productHeight) {
+
+        productBase = null;
+        productHeight = null;
+        convertedQuantity = quantity;
+
+    } else {
+
+        convertedQuantity = Number((productBase * productHeight * quantity).toFixed(2));
+    }
 
     const product = {
         productId,
@@ -188,18 +186,22 @@ const addProduct = () => {
 on('click', '#addProductBtn', addProduct);
 on('change', '.supply-checkbox', (e, checkbox) => {
     const { id } = checkbox.dataset;
-    const product = details.find(detail => detail.id === id);
+    const product = details.find(detail => detail.productId === id);
     product.isSupplied = checkbox.checked;
 });
 on('input', '.project-converted-quantity-input', (e, input) => {
+
     const { id } = input.dataset;
     const value = Number(input.value);
-    const product = details.find(detail => detail.id === id);
+    const product = details.find(detail => detail.productId === id);
 
     if (!product) return;
 
     product.projectConvertedQuantity = value;
-    product.convertedQuantityDifference = product.convertedQuantity - product.projectConvertedQuantity;
+    product.convertedQuantityDifference = (product.convertedQuantity - product.projectConvertedQuantity).toFixed(2);
 
-    updateDetailRow(input, product);
+    const currenTd = input.closest('td');
+    const nextTd = currenTd.nextElementSibling;
+
+    if (nextTd) nextTd.textContent = product.convertedQuantityDifference;
 });

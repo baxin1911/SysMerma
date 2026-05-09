@@ -14,6 +14,13 @@ export class SupplierNotFound extends AppError {
     }
 }
 
+export class GoodsReceiptCreateDatabaseError extends AppError {
+
+    constructor () {
+        super('Error de base de datos al crear la compra', 'GOODS_RECEIPT_CREATE_DB_ERROR', 500);
+    }
+}
+
 export class ProfileReceivedByNotFound extends AppError {
 
     constructor() {

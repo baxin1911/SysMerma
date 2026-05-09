@@ -4,13 +4,15 @@ import { getGoodsIssuesPage } from '../../../controllers/web/warehouse/goodsIssu
 
 const router = express.Router();
 
+const goodsIssuePagePermissions = {
+    roles: ['Almacenista', 'Coordinador', 'Auxiliar', 'Administrador del sistema'],
+    departments: ['ALMACÉN Y PROVEDURÍA', 'SISTEMAS']
+};
+
 router.get(
     '/',
     verifyCookiesAuthTokenRequired,
-    authorizeUserWeb({
-        roles: ['Almacenista', 'Coordinador', 'Auxiliar', 'Administrador del sistema'],
-        departments: ['ALMACÉN Y PROVEDURÍA', 'SISTEMAS']
-    }),
+    authorizeUserWeb(goodsIssuePagePermissions),
     getGoodsIssuesPage
 );
 

@@ -1,10 +1,10 @@
 import express from 'express';
-import { authorizeUserApi, verifyCookiesAuthTokenRequired } from '../../../middleware/authMiddleware.js';
+import { authorizeUserApi, verifyApiTokenRequired } from '../../../middleware/authMiddleware.js';
 import { validate } from '../../../middleware/validatorMiddleware.js';
 import {
     editGoodsIssueDetails,
     getAllGoodsIssues,
-    registerGoodsIssue
+    registerGoodsIssue,
 } from '../../../controllers/api/warehouse/goodsIssueController.js';
 import { goodsIssueDetailsValidation, goodsIssueValidation } from '../../../validators/forms/goodsIssueValidations.js';
 
@@ -35,14 +35,14 @@ const goodsIssueDetailsPermissions = {
 
 router.get(
     '/',
-    verifyCookiesAuthTokenRequired,
+    verifyApiTokenRequired,
     authorizeUserApi(goodsIssuePermissions),
     getAllGoodsIssues
 );
 
 router.post(
     '/',
-    verifyCookiesAuthTokenRequired,
+    verifyApiTokenRequired,
     goodsIssueValidation,
     validate,
     authorizeUserApi(goodsIssuePermissions),
@@ -51,15 +51,11 @@ router.post(
 
 router.patch(
     '/:id/details',
-    verifyCookiesAuthTokenRequired,
+    verifyApiTokenRequired,
     goodsIssueDetailsValidation,
     validate,
     authorizeUserApi(goodsIssueDetailsPermissions),
     editGoodsIssueDetails
 );
-
-
-
-
 
 export default router;

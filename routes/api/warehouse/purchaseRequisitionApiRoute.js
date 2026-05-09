@@ -1,5 +1,5 @@
 import express from 'express';
-import { authorizeUserApi, verifyCookiesAuthTokenRequired } from '../../../middleware/authMiddleware.js';
+import { authorizeUserApi, verifyApiTokenRequired } from '../../../middleware/authMiddleware.js';
 import { validate } from '../../../middleware/validatorMiddleware.js';
 import {
     cancelPurchaseRequisitionStatus,
@@ -14,7 +14,7 @@ const router = express.Router();
 
 const purchaseRequisitionPermissions = {
     roles: ['Administrador del sistema', 'Coordinador', 'Auxiliar', 'Operador', 'Instalador', 'Almacenista'],
-    ddepartments: [
+    departments: [
         'DIRECCIÓN',
         'ACABADOS',
         'ADMINISTRATIVO',
@@ -37,14 +37,14 @@ const purchaseRequisitionWarehousePermissions = {
 
 router.get(
     '/',
-    verifyCookiesAuthTokenRequired,
+    verifyApiTokenRequired,
     authorizeUserApi(purchaseRequisitionPermissions),
     getAllPurchaseRequisitions
 );
 
 router.post(
     '/',
-    verifyCookiesAuthTokenRequired,
+    verifyApiTokenRequired,
     purchaseRequisitionValidation,
     validate,
     authorizeUserApi(purchaseRequisitionPermissions),
@@ -53,7 +53,7 @@ router.post(
 
 router.put(
     '/:id',
-    verifyCookiesAuthTokenRequired,
+    verifyApiTokenRequired,
     purchaseRequisitionValidation,
     validate,
     authorizeUserApi(purchaseRequisitionPermissions),
@@ -62,14 +62,14 @@ router.put(
 
 router.patch(
     '/:id/confirm',
-    verifyCookiesAuthTokenRequired,
+    verifyApiTokenRequired,
     authorizeUserApi(purchaseRequisitionWarehousePermissions),
     confirmPurchaseRequisitionStatus
 );
 
 router.patch(
     '/:id/cancel',
-    verifyCookiesAuthTokenRequired,
+    verifyApiTokenRequired,
     authorizeUserApi(purchaseRequisitionWarehousePermissions),
     cancelPurchaseRequisitionStatus
 );

@@ -4,13 +4,15 @@ import { getPurchaseRequisitionsPage } from '../../../controllers/web/warehouse/
 
 const router = express.Router();
 
+const purchaseRequisitionPagePermissions = {
+    roles: ['Almacenista', 'Coordinador', 'Auxiliar', 'Administrador del sistema'],
+    departments: ['ALMACÉN Y PROVEDURÍA', 'SISTEMAS']
+};
+
 router.get(
     '/',
     verifyCookiesAuthTokenRequired,
-    authorizeUserWeb({
-        roles: ['Almacenista', 'Coordinador', 'Auxiliar', 'Administrador del sistema'],
-        departments: ['ALMACÉN Y PROVEDURÍA', 'SISTEMAS']
-    }),
+    authorizeUserWeb(purchaseRequisitionPagePermissions),
     getPurchaseRequisitionsPage
 );
 

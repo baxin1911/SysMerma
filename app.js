@@ -33,6 +33,7 @@ import { Server } from 'socket.io';
 import { publicDir, viewsDir } from './utils/pathsUtils.js';
 import { errorMap } from './messages/codeMessages.js';
 import { initSocket } from './utils/socketUtils.js';
+import { AppError } from './errors/AppError.js';
 
 const app = express();
 const server = http.createServer(app);
@@ -104,6 +105,12 @@ app.use((req, res, next) => {
 
 app.use((err, req, res, next) => {
     console.error(err.stack);
+
+    if (err instanceof AppError) return res.status(err.statusCode).json({
+        code: err.code,
+        meta: err.meta
+    });
+    
     res.status(500).json({ code: errorMap.message.SERVER_ERROR });
 });
 

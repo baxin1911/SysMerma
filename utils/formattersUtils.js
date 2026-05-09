@@ -28,3 +28,11 @@ export const roundTo = (value, decimals = 2) => {
     const factor = 10 ** decimals;
     return Math.round((Number(value) + Number.EPSILON) * factor) / factor;
 };
+
+export const buildStockKey = (productId, supplierId) =>
+    `${productId}:${supplierId}`;
+
+export const parseStockKey = (key) => {
+    const [productId, supplierId] = key.split(':');
+    return { productId, supplierId };
+};

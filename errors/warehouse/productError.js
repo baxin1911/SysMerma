@@ -56,17 +56,3 @@ export class ProductUnitCostUpdateDatabaseError extends AppError {
         super('Error de base de datos al editar el costo unitario del producto', 'PRODUCT_UNIT_COST_UPDATE_DB_ERROR', 500);
     }
 }
-
-export class ProductQuantityUpdateDatabaseError extends AppError {
-
-    constructor () {
-        super('Error de base de datos al editar la cantidad del producto', 'PRODUCT_QUANTITY_UPDATE_DB_ERROR', 500);
-    }
-}
-
-export class ProductCurrentStockUpdateDatabaseError extends AppError {
-
-    constructor () {
-        super('Error de base de datos al editar el stock actual del producto', 'PRODUCT_CURRENT_STOCK_UPDATE_DB_ERROR', 500);
-    }
-}

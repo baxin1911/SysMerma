@@ -44,7 +44,7 @@ const configureStockRealtime = (table) => {
 
 export const createProductDatatable = (context) => {
 
-    const { isWarehouse, isSystem } = hasPermission(context);
+    const { isWarehouse, isSystem, isSales } = hasPermission(context);
 
     const columns = [
         { 
@@ -61,15 +61,16 @@ export const createProductDatatable = (context) => {
         { data: 'unitMeasure.name', title: 'Unidad' }
     ];
 
+    if (isWarehouse || isSystem || isSales) {
+        columns.push({ data: 'maxUnitCost', title: 'Costo Unitario de Conversión' });
+    }
+
     if (isWarehouse || isSystem) {
-        columns.push(...[
-            { data: 'maxUnitCost', title: 'Costo Unitario de Conversión' },
-            {
-                data: null,
-                title: 'Acciones',
-                render: () => renderActionButtons({ status: 'Abierta', context: 'product' }) // Pasamos 'Abierta' para mostrar siempre el botón de editar, ya que no tenemos un estado específico para los productos
-            }
-        ]);
+        columns.push({
+            data: null,
+            title: 'Acciones',
+            render: () => renderActionButtons({ status: 'Abierta', context: 'product' })
+        });
     }
 
     const table = createDataTable({

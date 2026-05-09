@@ -1,5 +1,5 @@
 import { ClientFindDatabaseError, ClientNotFound } from "../../errors/sales/clientError.js";
-import { prisma } from "../../lib/prisma.js";
+import { getDb } from "../../repository/baseRepository.js";
 
 export const findAllClients = async ({
     advisorId,
@@ -20,7 +20,7 @@ export const findAllClients = async ({
         })
     };
 
-    const clients = await prisma.client.findMany({
+    const clients = await getDb().client.findMany({
         skip,
         take,
         where,
@@ -29,8 +29,8 @@ export const findAllClients = async ({
         }
     });
 
-    const total = await prisma.client.count();
-    const filtered = await prisma.client.count({ where });
+    const total = await getDb().client.count();
+    const filtered = await getDb().client.count({ where });
 
     return {
         data: clients,
@@ -41,7 +41,7 @@ export const findAllClients = async ({
 
 export const findClientById = async ({ tx, id }) => {
 
-    const db = tx || prisma;
+    const db = getDb(tx);
     let client;
 
     try {

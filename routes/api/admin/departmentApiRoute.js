@@ -1,9 +1,9 @@
 import express from 'express';
-import { authorizeUserApi, verifyCookiesAuthTokenRequired } from "../../../middleware/authMiddleware.js";
+import { authorizeUserApi, verifyApiTokenRequired } from "../../../middleware/authMiddleware.js";
 import { getAllDepartments } from '../../../controllers/api/admin/departmentController.js';
 
 const router = express.Router();
-const profilePermissions = {
+const departmentReadPermissions = {
     roles: [ 'Administrador del sistema', 'Coordinador', 'Auxiliar', 'Operador', 'Instalador', 'Diseñador', 'Almacenista', 'Vendedor', 'Repartidor' ],
     departments: [
         'DIRECCIÓN',
@@ -23,8 +23,8 @@ const profilePermissions = {
 
 router.get(
     '/',
-    verifyCookiesAuthTokenRequired,
-    authorizeUserApi(profilePermissions),
+    verifyApiTokenRequired,
+    authorizeUserApi(departmentReadPermissions),
     getAllDepartments
 );
 

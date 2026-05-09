@@ -1,10 +1,9 @@
 import { openGoodsReceiptModal } from "../../pages/warehouse/goodsReceiptsPage.js";
-import { createDataTable, refreshProductTable, renderActionButtons } from "./baseDatatable.js";
+import { createDataTable, renderActionButtons } from "./baseDatatable.js";
 import { GOODS_RECEIPTS_API_ROUTE } from "../../services/warehouse/goodsReceiptService.js";
 import { initMdbWrapperInput, updateMdbWrapperInput } from "../mdb/baseInstance.js";
-import { updateTotals } from "../../ui/formUI.js";
 import { buildDetailsColumns, buildDetailsHeader } from "./utils/builderDetailDatatable.js";
-import { renderMaterialName } from "./utils/renderProductDatatable.js";
+import { handleDelete, renderMaterialName } from "./utils/renderProductDatatable.js";
 
 export let details = [];
 const selectorProductTable = '#productTable';
@@ -109,17 +108,11 @@ export const initDetailsGoodsReceiptTable = (mode) => {
 
 $(selectorProductTable).on('click', '.delete-btn', function () {
 
-    const index = $(this).data('index');
-    const product = details[index];
-
-    details.splice(index, 1);
-
-    updateTotals({
-        quantity: product.quantity,
-        net: product.netPurchaseAmount,
-        gross: product.grossPurchaseAmount,
-        operation: 'substract'
-    });
-
-    refreshProductTable(details);
+    const id = $(this).data('id');
+    
+    handleDelete({
+        id,
+        details,
+        context: 'receipt'
+    })
 });

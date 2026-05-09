@@ -1,3 +1,5 @@
+import { normalizeHttpError } from "../api/utils.js";
+
 const api = axios.create({
     baseURL: 'http://localhost:3000',
     timeout: 5000,
@@ -23,11 +25,19 @@ api.interceptors.response.use(
 
             try {
 
-                await axios.post("/api/auth/refresh");
+                await axios.post("/api/auth/refresh", {}, { withCredentials: true });
                 queue.forEach(cb => cb());
                 queue = [];
 
                 return api(original);
+
+            } catch (refreshErr) {
+
+                queue.forEach(p => p.reject(refreshErr));
+                queue = [];
+
+                window.location.href = '/';
+                return Promise.reject(refreshErr);
 
             } finally {
 
@@ -35,20 +45,8 @@ api.interceptors.response.use(
             }
         }
 
-        return Promise.reject(err);
+        return Promise.reject(normalizeHttpError(err));
     }
 );
 
-export const apiRequest = async ({ method, url, params, data }) =>{
-
-    try {
-
-        const response = await api({ method, url, params, data });
-
-        return response;
-
-    } catch (error) {
-
-        throw error;
-    }
-}
+export const apiRequest = async ({ method, url, params, data }) => await api({ method, url, params, data });

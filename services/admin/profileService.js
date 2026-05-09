@@ -1,5 +1,5 @@
 import { ProfileFindDatabaseError } from "../../errors/admin/profileError.js";
-import { prisma } from "../../lib/prisma.js";
+import { getDb } from "../../repository/baseRepository.js";
 
 export const findAllProfiles = async ({
     departments = [],
@@ -13,7 +13,7 @@ export const findAllProfiles = async ({
     const where = {
         isActive: true,
         ...(search && {
-            name: {
+            fullName: {
                 contains: search,
                 mode: 'insensitive'
             }
@@ -30,8 +30,8 @@ export const findAllProfiles = async ({
             }
         })
     };
-    
-    const profiles = await prisma.profile.findMany({
+
+    const profiles = await getDb().profile.findMany({
         skip,
         take,
         where,
@@ -40,8 +40,8 @@ export const findAllProfiles = async ({
         }
     });
 
-    const total = await prisma.profile.count();
-    const filtered = await prisma.profile.count({ where });
+    const total = await getDb().profile.count();
+    const filtered = await getDb().profile.count({ where });
 
     return {
         data: profiles,
@@ -52,13 +52,13 @@ export const findAllProfiles = async ({
 
 export const findProfileById = async ({ tx, id }) => {
 
-    const db = tx || prisma;
+    const db = getDb(tx);
     let profile;
 
     try {
 
         profile = await db.profile.findUnique({
-            where: { 
+            where: {
                 id,
                 isActive: true
             },
@@ -78,13 +78,13 @@ export const findProfileById = async ({ tx, id }) => {
 
 export const findProfileByUserId = async ({ tx, userId }) => {
 
-    const db = tx || prisma;
+    const db = getDb(tx);
     let profile;
 
     try {
 
         profile = await db.profile.findFirst({
-            where: { 
+            where: {
                 isActive: true,
                 users: {
                     some: {
@@ -103,4 +103,4 @@ export const findProfileByUserId = async ({ tx, userId }) => {
     }
 
     return profile?.id || null;
-}
+};

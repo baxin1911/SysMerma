@@ -13,6 +13,7 @@ export const hasPermission = (user) => {
         isAdmin: hasRole('Administrador del sistema'),
         isWarehouse: hasDepartment('ALMACÉN Y PROVEDURÍA'),
         isSystem: hasDepartment('SISTEMAS'),
+        isSales: hasDepartment('VENTAS Y PROYECTOS ESPECIALES'),
         isCoordinatorOfArea: (dept) => hasRole('Coordinador') && hasDepartment(dept)
     }
 }

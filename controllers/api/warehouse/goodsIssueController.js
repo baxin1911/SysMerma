@@ -1,9 +1,9 @@
-import { createGoodsIssueDetailsDtoForUpdate, createGoodsIssueDtoForRegister } from "../../../dtos/goodsIssueDTO.js";
+import { createGoodsIssueDetailsDtoForEdit, createGoodsIssueDtoForRegister } from "../../../dtos/goodsIssueDTO.js";
 import { successCodeMessages } from "../../../messages/codeMessages.js";
 import {
     createGoodsIssue,
     findAllGoodsIssues,
-    updateGoodsIssue
+    updateGoodsIssueDetails
 } from "../../../services/warehouse/goodsIssues/goodsIssueService.js";
 import { createStockNotification, notifyProductStockStatusChanges } from "../../../services/warehouse/notificationService.js";
 import { emitStockUpdated } from "../../../utils/socketUtils.js";
@@ -47,11 +47,12 @@ export const registerGoodsIssue = async (req, res) => {
 };
 
 export const editGoodsIssueDetails = async (req, res) => {
-    const goodsIssueDto = createGoodsIssueDetailsDtoForUpdate(req.body);
+
+    const goodsIssueDto = createGoodsIssueDetailsDtoForEdit(req.body);
     const sanitizedGoodsIssueDto = sanitizeEmptyStrings(goodsIssueDto);
 
-    const goodsIssue = await updateGoodsIssue({
-        goodsIssueDto: sanitizedGoodsIssueDto,
+    const goodsIssue = await updateGoodsIssueDetails({
+        goodsIssueDto: sanitizedGoodsIssueDto, 
         id: req.params.id
     });
 
@@ -60,4 +61,3 @@ export const editGoodsIssueDetails = async (req, res) => {
         code: successCodeMessages.UPDATED_GOODS_ISSUE
     });
 };
-

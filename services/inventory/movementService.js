@@ -1,30 +1,37 @@
-import { prisma } from "../../lib/prisma.js";
-import { updateProductCurrentStock } from "../warehouse/products/productService.js";
+import { MovementDetailRelationConflict } from "../../errors/inventory/movementError.js";
+import { getDb } from "../../repository/baseRepository.js";
+import { buildStockKey } from "../../utils/formattersUtils.js";
+import { updateSupplierProductStock } from "../warehouse/products/supplierProductService.js";
 
 const REFERENCE_TYPE_GOODS_RECEIPT = 'GOODS_RECEIPT';
 const REFERENCE_TYPE_GOODS_ISSUE = 'GOODS_ISSUE';
 const REFERENCE_TYPE_PURCHASE_REQUISITION = 'PURCHASE_REQUISITION';
 
-export const applyInventoryMovement = async ({ 
-    tx, 
-    goodsReceiptId,
-    details, 
-    movementType 
+export const applyInventoryMovement = async ({
+    tx,
+    reference = {},
+    details,
+    movementType,
+    grouped,
+    supplierProducts
 }) => {
 
-    const db = tx || prisma;
+    for (const detail of details) {
 
-    const data = {};
+        if (!detail.productId || !detail.supplierId) throw new MovementDetailRelationConflict();
+    }
 
-    if (goodsReceiptId) {
-        
-        data.goodsReceiptId = goodsReceiptId;
-        data.date = new Date();
-        data.details = {
+    const db = getDb(tx);
+
+    const data = {
+        ...reference,
+        details: {
             create: details.map(detail => ({
-                goodsReceiptDetailId: detail.id,
                 productId: detail.productId,
-                quantity: detail.quantity
+                supplierId: detail.supplierId,
+                quantity: detail.quantity,
+                ...(detail.goodsReceiptDetailId && { goodsReceiptDetailId: detail.goodsReceiptDetailId }),
+                ...(detail.goodsIssueDetailId && { goodsIssueDetailId: detail.goodsIssueDetailId })
             }))
         }
     };
@@ -35,23 +42,19 @@ export const applyInventoryMovement = async ({
             details: {
                 select: {
                     productId: true,
+                    supplierId: true,
                     quantity: true
                 }
             }
         }
     });
 
-    const grouped = [];
-
-    for (const detail of movement.details) {
-        grouped[detail.productId] = (grouped[detail.productId] || 0) + detail.quantity;
-    }
-
-    await updateProductCurrentStock({
+    await updateSupplierProductStock({
         tx,
         grouped,
-        movementType
+        movementType,
+        supplierProducts
     });
 
-    return movement.details.map((detail) => detail.productId);
-}
+    return movement;
+};

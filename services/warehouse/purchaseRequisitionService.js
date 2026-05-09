@@ -7,7 +7,7 @@ import {
     RequesterProfileNotFound,
     PurchaseRequisitionApproverProfileNotFound
 } from "../../errors/warehouse/purchaseRequisitionError.js";
-import { prisma } from "../../lib/prisma.js";
+import { getDb } from "../../repository/baseRepository.js";
 import { generateReferenceNumber } from "../document/referenceNumberService.js";
 
 const allowedDepartments = ['Almcén', 'Sistemas'];
@@ -45,7 +45,7 @@ export const findAllPurchaseRequisitions = async ({
         })
     };
 
-    const purchaseRequisitions = await prisma.purchaseRequisition.findMany({
+    const purchaseRequisitions = await getDb().purchaseRequisition.findMany({
         skip,
         take,
         where,
@@ -99,7 +99,7 @@ export const findAllPurchaseRequisitions = async ({
         }
     });
 
-    const total = await prisma.purchaseRequisition.count({
+    const total = await getDb().purchaseRequisition.count({
         where: currentDepartment && !allowedDepartments.includes(currentDepartment)
             ? {
                 department: {
@@ -108,7 +108,7 @@ export const findAllPurchaseRequisitions = async ({
             }
             : {}
     });
-    const filtered = await prisma.purchaseRequisition.count({ where });
+    const filtered = await getDb().purchaseRequisition.count({ where });
 
     return {
         data: purchaseRequisitions,
@@ -151,7 +151,7 @@ export const createPurchaseRequisition = async ({
 
     const { requester, departmentId } = await validatePurchaseRequisitionRelations({ projectId, userId });
 
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await getDb().$transaction(async (tx) => {
 
         const referenceNumber = await generateReferenceNumber({ type: REFERENCE_NUMBER_TYPE, tx });
 
@@ -208,7 +208,7 @@ export const updatePurchaseRequisition = async ({
 
     const { requester } = await validatePurchaseRequisitionRelations({ projectId, userId });
 
-    const purchaseRequisitionExists = await prisma.purchaseRequisition.findUnique({
+    const purchaseRequisitionExists = await getDb().purchaseRequisition.findUnique({
         where: { id },
         select: {
             id: true
@@ -219,9 +219,9 @@ export const updatePurchaseRequisition = async ({
 
     try {
 
-        const result = await prisma.$transaction(async (prisma) => {
+        const result = await getDb().$transaction(async (prisma) => {
 
-            const purchaseRequisition = await prisma.purchaseRequisition.update({
+            const purchaseRequisition = await getDb().purchaseRequisition.update({
                 data: {
                     ...purchaseRequisitionData,
                     project: {
@@ -243,13 +243,13 @@ export const updatePurchaseRequisition = async ({
 
             if (incomingDetailsIds.length) deleteFilter.id = { notIn: incomingDetailsIds };
 
-            await prisma.detailPurchaseRequisitionProduct.deleteMany({
+            await getDb().detailPurchaseRequisitionProduct.deleteMany({
                 where: deleteFilter
             });
 
             const detailsPurchaseRequisition = await Promise.all(details.map(async detail => {
 
-                return await prisma.detailPurchaseRequisitionProduct.create({
+                return await getDb().detailPurchaseRequisitionProduct.create({
                     data: {
                         ...detail,
                         purchaseRequisitionId: id
@@ -274,7 +274,7 @@ export const updatePurchaseRequisition = async ({
 
 const updatePurchaseRequisitionStatus = async ({ id, statusName, userId }) => {
 
-    const purchaseRequisition = await prisma.purchaseRequisition.findUnique({
+    const purchaseRequisition = await getDb().purchaseRequisition.findUnique({
         where: { id },
         select: {
             id: true,
@@ -312,7 +312,7 @@ const updatePurchaseRequisitionStatus = async ({ id, statusName, userId }) => {
         };
 
         if (statusName === STATUS_CONFIRMED) {
-            const approver = await prisma.profile.findFirst({
+            const approver = await getDb().profile.findFirst({
                 where: {
                     isActive: true,
                     users: {
@@ -337,7 +337,7 @@ const updatePurchaseRequisitionStatus = async ({ id, statusName, userId }) => {
             data.approveDate = new Date();
         }
 
-        const updatedPurchaseRequisition = await prisma.purchaseRequisition.update({
+        const updatedPurchaseRequisition = await getDb().purchaseRequisition.update({
             where: { id },
             data,
             select: {

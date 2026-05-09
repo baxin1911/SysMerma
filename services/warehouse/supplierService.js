@@ -1,5 +1,6 @@
+import { AppError } from "../../errors/AppError.js";
 import { SupplierCodeFindDatabaseError, SupplierCodeNotFound, SupplierCreateDatabaseError, SupplierFindDatabaseError, SupplierNotFound, SupplierUpdateDatabaseError } from "../../errors/warehouse/supplierError.js";
-import { prisma } from "../../lib/prisma.js";
+import { getDb } from "../../repository/baseRepository.js";
 import { incrementReferenceNumberCounter } from "../document/referenceNumberService.js";
 
 const SUPPLIER_CODE_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -17,7 +18,6 @@ const numberToSupplierCode = (number) => {
 
     return code;
 };
-
 export const findAllSuppliers = async ({
     skip = 0,
     take = 10,
@@ -35,7 +35,7 @@ export const findAllSuppliers = async ({
         }
         : {};
 
-    const suppliers = await prisma.supplier.findMany({
+    const suppliers = await getDb().supplier.findMany({
         skip,
         take,
         where,
@@ -44,8 +44,8 @@ export const findAllSuppliers = async ({
         }
     });
 
-    const total = await prisma.supplier.count();
-    const filtered = await prisma.supplier.count({ where });
+    const total = await getDb().supplier.count();
+    const filtered = await getDb().supplier.count({ where });
 
     return {
         data: suppliers,
@@ -59,14 +59,14 @@ export const findUniqueSupplier = async ({
     id
 }) => {
 
-    const db = tx || prisma;
+    const db = getDb(tx);
     let supplier;
 
     try {
 
         supplier = await db.supplier.findUnique({
             where: { id },
-            select: { 
+            select: {
                 id: true,
                 tradeName: true,
             }
@@ -80,38 +80,29 @@ export const findUniqueSupplier = async ({
     if (!supplier) throw new SupplierNotFound();
 
     return supplier;
-}
+};
 
 export const findUniqueSupplierCode = async ({
     tx,
     id
 }) => {
 
-    const db = tx || prisma;
-    let supplier;
-
-    try {
-
-        supplier = await db.supplier.findUnique({
-            where: { id },
-            select: { code: true }
-        });
-
-    } catch (err) {
-
-        throw new SupplierCodeFindDatabaseError();
-    }
+    const db = getDb(tx);
+    const supplier = await db.supplier.findUnique({
+        where: { id },
+        select: { code: true }
+    });
 
     if (!supplier) throw new SupplierCodeNotFound();
 
     return supplier;
-}
+};
 
 export const createSupplier = async (supplierDto) => {
 
     try {
 
-        const supplier = await prisma.$transaction(async (tx) => {
+        const supplier = await getDb().$transaction(async (tx) => {
 
             const counter = await incrementReferenceNumberCounter({
                 type: 'PRO',
@@ -140,32 +131,24 @@ export const createSupplier = async (supplierDto) => {
 
 export const updateSupplier = async (supplierDto, id) => {
 
-    const supplierExists = await prisma.supplier.findUnique({
-        where: {
-            id
-        },
-        select: {
-            id: true
-        }
+    const supplierExists = await getDb().supplier.findUnique({
+        where: { id },
+        select: { id: true }
     });
 
     if (!supplierExists) throw new SupplierNotFound();
 
     try {
 
-        const supplier = await prisma.supplier.update({
+        return await getDb().supplier.update({
             data: { ...supplierDto },
-            where: {
-                id
-            }
+            where: { id }
         });
-
-        return supplier;
 
     } catch (err) {
 
-        if (err.code === 'P2025') throw new SupplierNotFound();
+        if (err instanceof AppError) throw err;
 
         throw new SupplierUpdateDatabaseError();
     }
-}
+};

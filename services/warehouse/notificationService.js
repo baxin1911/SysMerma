@@ -1,4 +1,4 @@
-import { prisma } from "../../lib/prisma.js";
+import { getDb } from "../../repository/baseRepository.js";
 
 const ROLE_SYSTEM_ADMIN = 'Administrador del sistema';
 const DEPARTMENT_WAREHOUSE = 'Almacén';
@@ -10,7 +10,7 @@ const getNotificationWhereByUser = async (departments, roles) => {
 
     if (!departments?.length || !roles?.length) return {};
 
-    const dbDepartments = await prisma.department.findMany({
+    const dbDepartments = await getDb().department.findMany({
         where: {
             name: { in: departments }
         }
@@ -62,7 +62,7 @@ export const createStockNotification = async ({
     departmentId = null
 }) => {
 
-    return prisma.notification.create({
+    return getDb().notification.create({
         data: {
             title,
             message,
@@ -80,7 +80,7 @@ export const createNotifications = async (notifications = []) => {
 
     if (!notifications.length) return [];
 
-    await prisma.notification.createMany({
+    await getDb().notification.createMany({
         data: notifications
     });
 
@@ -92,7 +92,7 @@ export const notifyProductStockStatusChanges = async ({ productIds = [], userId 
     if (!productIds.length) return [];
 
     const uniqueProductIds = [...new Set(productIds)];
-    const products = await prisma.product.findMany({
+    const products = await getDb().product.findMany({
         where: {
             id: {
                 in: uniqueProductIds
@@ -106,7 +106,7 @@ export const notifyProductStockStatusChanges = async ({ productIds = [], userId 
         }
     });
 
-    const latestNotifications = await prisma.notification.findMany({
+    const latestNotifications = await getDb().notification.findMany({
         where: {
             entityId: {
                 in: uniqueProductIds
@@ -167,7 +167,7 @@ export const notifyProductStockStatusChanges = async ({ productIds = [], userId 
 
     await createNotifications(notificationsToCreate);
 
-    return await prisma.notification.findMany({
+    return await getDb().notification.findMany({
         where: {
             entityId: {
                 in: notificationsToCreate.map(n => n.entityId)
@@ -188,14 +188,14 @@ export const findLatestNotifications = async ({ take = 10, departments, roles } 
     const where = await getNotificationWhereByUser(departments, roles);
 
     const [items, unreadCount] = await Promise.all([
-        prisma.notification.findMany({
+        getDb().notification.findMany({
             where,
             take,
             orderBy: {
                 createdAt: 'desc'
             }
         }),
-        prisma.notification.count({
+        getDb().notification.count({
             where: {
                 ...where,
                 isRead: false
@@ -213,7 +213,7 @@ export const markAllNotificationsAsRead = async ({ department, role }) => {
 
     const where = await getNotificationWhereByUser(department, role);
 
-    await prisma.notification.updateMany({
+    await getDb().notification.updateMany({
         where: {
             ...where,
             isRead: false

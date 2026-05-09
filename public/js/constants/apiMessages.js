@@ -47,11 +47,10 @@ export const errorMessages = {
     PRESENTATION_FIND_DB_ERROR: 'Error de base de datos al buscar la presentación.',
 
     UNIT_MEASURE_ID_REQUIRED: 'La unidad es requerida.',
-    UNIT_MEASURE_ID_REQUIRED: 'La unidad no es válida.',
+    UNIT_MEASURE_ID_INVALID_UUID: 'La unidad no es válida.',
     UNIT_MEASURE_NOT_FOUND: 'Unidad no encontrada.',
     UNIT_MEASURE_FIND_DB_ERROR: 'Error de base de datos al buscar la unidad.',
 
-    DEPARTMENT_NOT_FOUND: 'Área no encontrada.',
     DEPARTMENT_FIND_DB_ERROR: 'Error de la base de datos al buscar el área.',
 
     CLIENT_NOT_FOUND: 'Cliente no encontrado.',
@@ -125,17 +124,18 @@ export const errorMessages = {
     DETAILS_REQUIRED: 'La lista de detalles debe contener al menos un producto.',
     DETAILS_INVALID_FORMAT_REQUIRED: 'Cada detalle debe contener un producto, una cantidad y un costo por presentación.',
     DETAILS_INVALID_FORMAT_QUANTITY: 'La cantidad de cada detalle debe ser un número mayor a cero.',
-    DETAILS_INVALID_FROMAT_SUPPLIER: 'El proveedor de cada detalle es requerido.',
+    DETAILS_INVALID_FORMAT_SUPPLIER: 'El proveedor de cada detalle es requerido.',
     DETAILS_INVALID_FORMAT_COST_PER_UNIT_TYPE: 'El costo por presentación de cada detalle debe ser un número mayor a cero.',
 
-    PURCHASE_REQUISITION_NOT_FOUND: 'Requisición de compra no encontrada.',
-    PURCHASE_REQUISITION_STATUS_NOT_FOUND: 'Estado de requisición no encontrado.',
-    PURCHASE_REQUISITION_UPDATE_DB_ERROR: 'Error de base de datos al editar la requisición de compra.',
-    PURCHASE_REQUISITION_STATUS_UPDATE_DB_ERROR: 'Error de base de datos al editar el estado de la requisición.',
-    PURCHASE_REQUISITION_APPROVER_PROFILE_NOT_FOUND: 'Perfil aprobador activo no encontrado para el usuario.',
+    // Códigos de errores de dominio (/errors)
+    // Admin / catálogos
+    PROFILE_NOT_FOUND: 'Perfil no encontrado.',
+    PROFILE_FIND_DB_ERROR: 'Error de base de datos al buscar el perfil.',
+
+    // Warehouse
+    EXCEDED_MAX_RETRIES_SKU: 'Excedido el número máximo de intentos para generar un SKU único.',
     GOODS_RECEIPT_NOT_FOUND: 'Recibo de mercancía no encontrado.',
-    GOODS_ISSUE_NOT_FOUND: 'Salida de almacén no encontrada.',
-    GOODS_ISSUE_UPDATE_DB_ERROR: 'Error de base de datos al editar la salida de almacén.',
+    GOODS_RECEIPT_CREATE_DB_ERROR: 'Error de base de datos al crear la compra.',
     PRODUCT_NOT_FOUND: 'Producto no encontrado.',
     PRODUCT_CREATE_DB_ERROR: 'Error de base de datos al crear el producto.',
     PRODUCT_UPDATE_DB_ERROR: 'Error de base de datos al editar el producto.',
@@ -143,15 +143,53 @@ export const errorMessages = {
     PRODUCT_UNIT_COST_UPDATE_DB_ERROR: 'Error de base de datos al editar el costo unitario del producto.',
     SUPPLIER_PRODUCT_CREATE_DB_ERROR: 'Error de base de datos al relacionar el producto a un proveedor.',
     SUPPLIER_PRODUCT_DELETE_DB_ERROR: 'Error de base de datos al eliminar la relación entre producto y proveedor.',
-    
-    EXCEDED_MAX_RETRIES_SKU: 'Excedido el número máximo de intentos para generar un SKU único.',
-    
-    PROFILE_NOT_FOUND: 'Perfil no encontrado.',
-    PROFILE_FIND_DB_ERROR: 'Error de base de datos al buscar el perfil.',
+    GOODS_ISSUE_NOT_FOUND: 'Salida de almacén no encontrada.',
+    GOODS_ISSUE_CREATE_DB_ERROR: 'Error de base de datos al crear la salida de almacén.',
+    GOODS_ISSUE_UPDATE_DB_ERROR: 'Error de base de datos al editar la salida de almacén.',
+    GOODS_ISSUE_INEXISTENT_STOCK: (meta) => {
 
-    REFERENCE_NUMBER_UPDATE_DB_ERROR: 'Error de base de datos al actualizar el folio.',
+        const hasDimensions =
+            meta.base != null &&
+            meta.height != null;
 
-    GOODS_ISSUE_INSUFFICIENT_STOCK: 'Stock insuficiente para realizar la salida.'
+        const dimensions = hasDimensions
+            ? ` (${ meta.base } x ${ meta.height })`
+            : '';
+
+        const supplier = meta.supplierName
+            ? ` y proveedor: ${ meta.supplierName }`
+            : '';
+
+        return `Stock inexistente para realizar la salida con el producto: ${ meta.productName }${ dimensions }${ supplier }.`;
+    },
+    GOODS_ISSUE_INSUFFICIENT_STOCK: (meta) => {
+
+        const hasDimensions =
+            meta.base != null &&
+            meta.height != null;
+
+        const dimensions = hasDimensions
+            ? ` (${ meta.base } x ${ meta.height })`
+            : '';
+
+        const supplier = meta.supplierName
+            ? ` y proveedor: ${ meta.supplierName }`
+            : '';
+
+        return `Stock insuficiente para realizar la salida con el producto: ${ meta.productName }${ dimensions }${ supplier }.`;
+    },
+    GOODS_ISSUE_MISSING_MAX_UNIT_COST: (meta) => `No se puede realizar la salida porque el producto: ${ meta.productName } y proveedor: ${ meta.supplierName } no tiene costo unitario máximo configurado.`,
+    GOODS_ISSUE_FULFILLMENT_COMPLETE_CONFLICT: 'La salida ya está completamente surtida y no puede modificarse.',
+    MOVEMENT_DETAIL_RELATION_CONFLICT: 'El detalle del movimiento no está asociado a un producto o proveedor.',
+    PURCHASE_REQUISITION_NOT_FOUND: 'Requisición de compra no encontrada.',
+    PROJECT_NOT_FOUND: 'Proyecto no encontrado.',
+    PURCHASE_REQUISITION_STATUS_NOT_FOUND: 'Estado de requisición no encontrado.',
+    PURCHASE_REQUISITION_UPDATE_DB_ERROR: 'Error de base de datos al editar la requisición de compra.',
+    PURCHASE_REQUISITION_STATUS_UPDATE_DB_ERROR: 'Error de base de datos al editar el estado de la requisición.',
+    PURCHASE_REQUISITION_APPROVER_PROFILE_NOT_FOUND: 'Perfil aprobador activo no encontrado para el usuario.',
+
+    // Documento / folios
+    REFERENCE_NUMBER_UPDATE_DB_ERROR: 'Error de base de datos al actualizar el folio.'
 };
 
 const successMessages = {
@@ -171,16 +209,18 @@ const successMessages = {
     CANCELED_PURCHASE_REQUISITION: '¡Requisición de compra cancelada exitosamente!'
 };
 
-export const getErrorMessage = (error) => {
+export const getErrorMessage = (data) => {
 
-    if (typeof error === 'string') return errorMessages[error] ?? null;
+    const { code, meta } = data;
 
-    if (typeof error === 'object') {
+    if (meta) {
 
-        const fn = errorMessages[error.code];
+        const fn = errorMessages[code];
 
-        return typeof fn === 'function' ? fn(error.meta) : null;
+        return typeof fn === 'function' ? fn(meta) : null;
     }
+
+    if (code) return errorMessages[code] ?? null;
     
     return null;
 }

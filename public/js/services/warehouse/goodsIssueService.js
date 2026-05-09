@@ -13,23 +13,3 @@ export const editGoodsIssueDetailsRequest = (data, id) => apiRequest({
     url: `${ GOODS_ISSUES_API_ROUTE }/${ id }/details`,
     data
 });
-
-export const cancelGoodsIssueRequest = (id) => apiRequest({
-    method: 'patch',
-    url: `${ GOODS_ISSUES_API_ROUTE }/${ id }/cancel`
-});
-
-export const confirmGoodsIssueRequest = (id) => apiRequest({
-    method: 'patch',
-    url: `${ GOODS_ISSUES_API_ROUTE }/${ id }/confirm`
-});
-
-export const rejectGoodsIssueRequest = (id) => apiRequest({
-    method: 'patch',
-    url: `${ GOODS_ISSUES_API_ROUTE }/${ id }/reject`
-});
-
-export const approveGoodsIssueRequest = (id) => apiRequest({
-    method: 'patch',
-    url: `${ GOODS_ISSUES_API_ROUTE }/${ id }/approve`
-});

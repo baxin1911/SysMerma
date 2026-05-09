@@ -1,5 +1,5 @@
 import express from 'express';
-import { authorizeUserApi, verifyCookiesAuthTokenRequired } from '../../../middleware/authMiddleware.js';
+import { authorizeUserApi, verifyApiTokenRequired } from '../../../middleware/authMiddleware.js';
 import { getLatestNotifications, readAllNotifications } from '../../../controllers/api/warehouse/notificationController.js';
 
 const router = express.Router();
@@ -25,14 +25,14 @@ const notificationPermissions = {
 
 router.get(
     '/',
-    verifyCookiesAuthTokenRequired,
+    verifyApiTokenRequired,
     authorizeUserApi(notificationPermissions),
     getLatestNotifications
 );
 
 router.patch(
     '/read-all',
-    verifyCookiesAuthTokenRequired,
+    verifyApiTokenRequired,
     authorizeUserApi(notificationPermissions),
     readAllNotifications
 );

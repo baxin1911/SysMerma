@@ -5,13 +5,9 @@ import { fileURLToPath } from 'url';
 import path from 'path';
 
 const toDecimal = (value) => {
-
-    const normalized = String(value).replace(',', '.');
-
-    const parsed = parseFloat(normalized);
-
-    return parsed;
-}
+    if (value === null || value === undefined || value === '') return NaN;
+    return Number(value);
+};
 
 const cleanValue = val => {
     if (val === 0 || val === "0" || val == null) return null;
@@ -43,31 +39,6 @@ async function main() {
         data: departmentParsed,
         skipDuplicates: true
     });
-    
-    const relationDepartmentSheet = workbook1.Sheets['RELACIONES_PERFIL'];
-    const relationProfileDepartmentRows = XLSX.utils.sheet_to_json(relationDepartmentSheet, {
-        defval: null,
-    });
-
-    const profileParsed = relationProfileDepartmentRows.map(row => {
-        const fullName = cleanValue(row.fullName);
-        if (!fullName) return null;
-
-        return { fullName };
-    }).filter(Boolean);
-
-    await prisma.profile.createMany({
-        data: profileParsed,
-        skipDuplicates: true
-    });
-
-    const profiles = await prisma.profile.findMany({
-        select: {
-            id: true,
-            fullName: true
-        }
-    });
-    const profileMap = new Map(profiles.map(p => [cleanValue(p.fullName), p.id]));
 
     const departments = await prisma.department.findMany({
         select: {
@@ -75,37 +46,67 @@ async function main() {
             name: true
         }
     });
-    const departmentMap = new Map(departments.map(d => [cleanValue(d.name), d.id]));
+    
+    const countProfile = await prisma.profile.count();
 
-    const relationProfileDepartmentParsed = relationProfileDepartmentRows.map(row => {
+    if (countProfile < 1) {
+        const relationDepartmentSheet = workbook1.Sheets['RELACIONES_PERFIL'];
+        const relationProfileDepartmentRows = XLSX.utils.sheet_to_json(relationDepartmentSheet, {
+            defval: null,
+        });
 
-        const fullName = cleanValue(row.fullName);
-        const department = cleanValue(row.department);
+        const profileParsed = relationProfileDepartmentRows.map(row => {
+            const fullName = cleanValue(row.fullName);
+            if (!fullName) return null;
 
-        if (!fullName || !department) {
-            console.log('Error en fila: ', row);
-            return null;
-        }
+            return { fullName };
+        }).filter(Boolean);
 
-        const profileId = profileMap.get(fullName);
-        const departmentId = departmentMap.get(department);
+        await prisma.profile.createMany({
+            data: profileParsed,
+            skipDuplicates: true
+        });
 
-        if (!profileId || !departmentId) {
-            console.log('No encontrado en Map: ', { fullName, department });
-            return null;
-        }
+        const profiles = await prisma.profile.findMany({
+            select: {
+                id: true,
+                fullName: true
+            }
+        });
+        const profileMap = new Map(profiles.map(p => [cleanValue(p.fullName), p.id]));
 
-        return {
-            profileId,
-            departmentId
-        };
+        const departmentMap = new Map(departments.map(d => [cleanValue(d.name), d.id]));
 
-    }).filter(Boolean);
+        const relationProfileDepartmentParsed = relationProfileDepartmentRows.map(row => {
 
-    await prisma.departmentProfile.createMany({
-        data: relationProfileDepartmentParsed,
-        skipDuplicates: true
-    });
+            const fullName = cleanValue(row.fullName);
+            const department = cleanValue(row.department);
+
+            if (!fullName || !department) {
+                console.log('Error en fila: ', row);
+                return null;
+            }
+
+            const profileId = profileMap.get(fullName);
+            const departmentId = departmentMap.get(department);
+
+            if (!profileId || !departmentId) {
+                console.log('No encontrado en Map: ', { fullName, department });
+                return null;
+            }
+
+            return {
+                profileId,
+                departmentId
+            };
+
+        }).filter(Boolean);
+
+        await prisma.departmentProfile.createMany({
+            data: relationProfileDepartmentParsed,
+            skipDuplicates: true
+        });
+    }
 
     const clientSheet = workbook1.Sheets['CLIENTES'];
     const clientRows = XLSX.utils.sheet_to_json(clientSheet, {
@@ -153,40 +154,45 @@ async function main() {
 
     // const hashedPassword = await bcrypt.hash('A%54321', 10)
 
-    const user = await prisma.user.upsert({
-        where: {
-            name: 'Soporte01',
-        },
-        update: {},
-        create: {
-            id: '00000000-0000-0000-0000-000000000040',
-            name: 'Soporte01',
-            password: 'A%54321',
-            isActive: true,
-        },
-    });
+    const countUser = await prisma.user.count();
 
-    const roles = await prisma.role.findMany({
-        select: { id: true, name: true }
-    });
-    const roleByName = Object.fromEntries(roles.map((role) => [role.name, role.id]));
+    if (countUser < 1) {
 
-    for (const dept of departments) {
-        await prisma.userRoleDepartment.upsert({
+        const user = await prisma.user.upsert({
             where: {
-                userId_roleId_departmentId: {
-                    userId: user.id,
-                    roleId: '00000000-0000-0000-0000-000000000020', // Admin
-                    departmentId: dept.id
-                }
+                name: 'Soporte01',
             },
             update: {},
             create: {
-                userId: user.id,
-                roleId: '00000000-0000-0000-0000-000000000020',
-                departmentId: dept.id
-            }
+                id: '00000000-0000-0000-0000-000000000040',
+                name: 'Soporte01',
+                password: 'A%54321',
+                isActive: true,
+            },
         });
+
+        const roles = await prisma.role.findMany({
+            select: { id: true, name: true }
+        });
+        const roleByName = Object.fromEntries(roles.map((role) => [role.name, role.id]));
+
+        for (const dept of departments) {
+            await prisma.userRoleDepartment.upsert({
+                where: {
+                    userId_roleId_departmentId: {
+                        userId: user.id,
+                        roleId: '00000000-0000-0000-0000-000000000020', // Admin
+                        departmentId: dept.id
+                    }
+                },
+                update: {},
+                create: {
+                    userId: user.id,
+                    roleId: '00000000-0000-0000-0000-000000000020',
+                    departmentId: dept.id
+                }
+            });
+        }
     }
 
     await prisma.fulfillmentStatus.createMany({
@@ -234,24 +240,32 @@ async function main() {
     const presentationMap = new Map(presentations.map(p => [p.name, p.id]));
     const unitMeasureMap = new Map(unitMeasures.map(um => [um.symbol, um.id]));
 
-    const filePath2 = path.join(__dirname, 'inventario_BD - UNIDAD DE MEDIDA.xlsx');
+    const filePath2 = path.join(__dirname, 'inventario_BD - PRECIOS.xlsx');
     const workbook2 = XLSX.readFile(filePath2);
     const productSheet = workbook2.Sheets['PRODUCTOS'];
     const productRows = XLSX.utils.sheet_to_json(productSheet, {
         defval: null,
     });
 
-    const productParsed = productRows.map(row => ({
-        name: row.name,
-        sku: row.sku,
-        currentStock: isNaN(toDecimal(row.currentStock)) ? 0 : toDecimal(row.currentStock),
-        minStock: isNaN(toDecimal(row.minStock)) ? 0 : toDecimal(row.minStock),
-        base: isNaN(toDecimal(row.base)) || row.base === 0 ? null : toDecimal(row.base),
-        height: isNaN(toDecimal(row.height)) || row.height === 0 ? null : toDecimal(row.height),
-        convertedQuantity: 0,
-        presentationId: presentationMap.get(row.presentation.trim()) || null,
-        unitMeasureId: unitMeasureMap.get(row.unitMeasure.trim()) || null,
-    }));
+    const productParsed = productRows.map(row => {
+
+        const base = toDecimal(row.base);
+        const height = toDecimal(row.height);
+        const minStock = toDecimal(row.minStock);
+
+        return {
+            name: row.name,
+            sku: row.sku,
+
+            minStock: isNaN(minStock) ? 0 : minStock,
+
+            base: (!base || isNaN(base)) ? null : base,
+            height: (!height || isNaN(height)) ? null : height,
+
+            presentationId: presentationMap.get(row.presentation.trim()) || null,
+            unitMeasureId: unitMeasureMap.get(row.unitMeasure.trim()) || null,
+        };
+    });
 
     if(productParsed.some(p => !p.presentationId || !p.unitMeasureId)) {
         console.log('Error: Algunos productos tienen presentación o unidad de medida no encontrados');
@@ -337,8 +351,11 @@ async function main() {
 
         const productId = productMap.get(row.skuProduct);
         const supplierId = supplierMap.get(row.supplier);
+        const currentStock = toDecimal(row.currentStock);
+        const convertedQuantity = toDecimal(row.convertedQuantity);
+        const maxUnitCost = toDecimal(row.maxUnitCost); 
 
-        if (!supplierId || !productId) {
+        if (!supplierId || !productId || !maxUnitCost) {
             console.log('Error en fila: ',row);
             return null;
         }
@@ -346,6 +363,9 @@ async function main() {
         return {
             productId,
             supplierId,
+            currentStock: isNaN(currentStock) ? 0 : currentStock,
+            convertedQuantity: isNaN(convertedQuantity) ? 0 : convertedQuantity,
+            maxUnitCost: isNaN(maxUnitCost) ? 0 : maxUnitCost,
             sku: row.sku
         }
     }).filter(Boolean);

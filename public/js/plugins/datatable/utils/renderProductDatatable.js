@@ -1,5 +1,6 @@
+import { updateTotals } from "../../../ui/formUI.js";
 import { hasPermission } from "../../../utils/permissions.js";
-import { createDataTable } from "../baseDatatable.js";
+import { createDataTable, refreshProductTable } from "../baseDatatable.js";
 import { buildDetailsColumns, buildDetailsHeader } from "./builderDetailDatatable.js";
 
 export const renderMaterialName = (row, supplierOverride) => {
@@ -41,4 +42,27 @@ export const initDetailsTable = ({ selector, type, mode, context, data }) => {
             columns
         }
     });
+};
+
+export const handleDelete = ({ id, details, context }) => {
+
+    const index = details.findIndex(p => p.productId === id);
+
+    if (index < 0) return;
+
+    const product = details[index];
+
+    details.splice(index, 1);
+
+    if (context === 'receipt') {
+
+        updateTotals({
+            quantity: product.quantity,
+            net: product.netPurchaseAmount,
+            gross: product.grossPurchaseAmount,
+            operation: 'substract'
+        });
+    }
+
+    refreshProductTable(details);
 };

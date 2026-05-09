@@ -3,7 +3,7 @@ import { GOODS_ISSUES_API_ROUTE } from "../../services/warehouse/goodsIssueServi
 import { hasPermission } from "../../utils/permissions.js";
 import { createDataTable, refreshProductTable, renderActionButtons } from "./baseDatatable.js";
 import { buildDetailsColumns, buildDetailsHeader } from "./utils/builderDetailDatatable.js";
-import { renderMaterialName } from "./utils/renderProductDatatable.js";
+import { handleDelete, renderMaterialName } from "./utils/renderProductDatatable.js";
 
 export let details = [];
 const selectorProductTable = '#productTable';
@@ -45,33 +45,7 @@ export const createGoodsIssueDatatable = (context) => {
                 return `<div>${ row.projectNumber }<br><small>${ row.clientName }</small></div>`;
             }
         },
-        {
-            data: null,
-            title: 'Aprobación',
-            render: (data, type, row) => {
-
-                if (!row.approverId || !row.approvedDate) return '<small>Sin Autorizar</small>';
-
-                const approver = `${ row.approver.name } ${ row.approver.lastName }`;
-                const approvedDate = new Date(row.approvedDate).toLocaleString();
-
-                return `<div>${ approver }<br><small>${ approvedDate }</small></div>`;
-            }
-        },
-        {
-            data: null,
-            title: 'Entrega',
-            render: (data, type, row) => {
-
-                if (!row.warehouseStaff || !row.deliveryDate) return '<small>Sin entrega</small>';
-
-                const deliveredBy = `${ row.warehouseStaff.name } ${ row.warehouseStaff.lastName }`;
-                const deliveryDate = new Date(row.deliveryDate).toLocaleString();
-
-                return `<div>${ deliveredBy }<br><small>${ deliveryDate }</small></div>`;
-            }
-        },
-        { data: 'dispatchStatus', title: 'Estado surtido' },
+        { data: 'fulfillmentStatus.name', title: 'Estado surtido' },
         {
             data: 'id',
             title: 'Acciones',
@@ -143,17 +117,11 @@ export const initDetailsGoodsIssueTable = (mode, context) => {
 
 $(selectorProductTable).on('click', '.delete-btn', function () {
 
-    const index = $(this).data('index');
+    const id = $(this).data('id');
 
-    details.splice(index, 1);
-
-    refreshProductTable(details);
+    handleDelete({
+        id,
+        details,
+        context: 'issue'
+    })
 });
-
-export const updateDetailRow = (input, product) => {
-
-    const row = productTable.row(input.closest('tr'));
-    const rowData = row.data();
-    rowData.convertedQuantityDifference = product.convertedQuantityDifference;
-    row.data(rowData).invalidate();
-}

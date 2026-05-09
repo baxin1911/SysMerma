@@ -1,11 +1,50 @@
-import { ProductSnapshotFindDatabaseError, ProductCreateDatabaseError, ProductCurrentStockUpdateDatabaseError, ProductNotFound, ProductQuantityUpdateDatabaseError, ProductUpdateDatabaseError } from "../../../errors/warehouse/productError.js";
-import { prisma } from "../../../lib/prisma.js";
+import { ProductSnapshotFindDatabaseError, ProductCreateDatabaseError, ProductNotFound, ProductUpdateDatabaseError } from "../../../errors/warehouse/productError.js";
+import { getDb } from "../../../repository/baseRepository.js";
 import { findAllSupplierProducts, findSupplierProductByIds } from "./supplierProductService.js";
 import { prepareProductData, withRetry } from "./productHelpers.js";
 import { syncSupplierProduct } from "./productRelations.js";
+import { AppError } from "../../../errors/AppError.js";
 
 const REFERENCE_MOVEMENT_IN = 'IN';
 const PRISMA_RECORD_NOT_FOUND = 'P2025';
+
+const createProductInTransaction = async ({
+    tx,
+    productDto
+}) => {
+
+    const {
+        rest,
+        relations
+    } = await prepareProductData({ tx, productDto });
+
+    const createdProduct = await tx.product.create({
+        data: {
+            ...rest,
+            presentation: {
+                connect: { id: relations.presentationId }
+            },
+            unitMeasure: {
+                connect: { id: relations.unitMeasureId }
+            }
+        },
+        select: {
+            id: true
+        }
+     });
+
+    await syncSupplierProduct({
+        tx,
+        supplierId: relations.supplierId,
+        productId: createdProduct.id,
+    });
+
+    return findSupplierProductByIds({
+        tx,
+        productId: createdProduct.id,
+        supplierId: relations.supplierId
+    });
+};
 
 export const findAllProducts = async ({
     skip = 0,
@@ -31,106 +70,43 @@ export const findProductsSnapshot = async ({
     productIds
 }) => {
 
-    const db = tx || prisma;
+    const db = getDb(tx);
 
-    try {
-
-        const products = await db.product.findMany({
-            where: {
-                id: {
-                    in: productIds
-                }
-            },
-            select: {
-                id: true,
-                name: true,
-                minStock: true,
-                base: true,
-                height: true,
-                presentation: true,
-                unitMeasure: true,
-                maxUnitCost: true
+    const products = await db.product.findMany({
+        where: {
+            id: {
+                in: productIds
             }
-        });
-
-        return products;
-
-    } catch (err) {
-
-        throw new ProductSnapshotFindDatabaseError();
-    }
-}
-
-export const findExistingSkus = (tx) => async ({ 
-    baseSku, 
-    excludeProductId 
-}) => {
-
-    const where = {
-        sku: {
-            startsWith: baseSku
+        },
+        select: {
+            id: true,
+            name: true,
+            minStock: true,
+            base: true,
+            height: true,
+            presentation: true,
+            unitMeasure: true
         }
-    };
-
-    if (excludeProductId) {
-        where.NOT = {
-            id: excludeProductId
-        };
-    }
-
-    return tx.product.findMany({
-        where,
-        select: { sku: true }
     });
-};
+
+    return products;
+}
 
 export const createProduct = async (productDto) => {
 
     return withRetry(async () => {
 
-        return await prisma.$transaction(async (tx) => {
-
-            const {
-                rest,
-                sku,
-                supplier,
-                relations
-            } = await prepareProductData({ tx, productDto });
-
-            const createdProduct = await tx.product.create({
-                data: {
-                    ...rest,
-                    sku,
-                    presentation: {
-                        connect: { id: relations.presentationId }
-                    },
-                    unitMeasure: {
-                        connect: { id: relations.unitMeasureId }
-                    }
-                },
-                select: {
-                    id: true
-                }
-             });
-
-            await syncSupplierProduct({
+        return getDb().$transaction((tx) =>
+            createProductInTransaction({
                 tx,
-                supplierId: relations.supplierId,
-                productId: createdProduct.id,
-                sku,
-                supplierCode: supplier.code
-            });
+                productDto
+            })
+        );
 
-            const fullProduct = await findSupplierProductByIds({
-                tx,
-                productId: createdProduct.id,
-                supplierId: relations.supplierId
-            });
+    }).catch(() => {
 
-            return fullProduct;
-        });
-
-    }).catch((err) => {
+        if (err instanceof AppError) throw err;
+        
         throw new ProductCreateDatabaseError();
     });
 };
@@ -139,7 +115,7 @@ export const updateProduct = async (productDto, id) => {
 
     return withRetry(async () => {
 
-        return await prisma.$transaction(async (tx) => {
+        return await getDb().$transaction(async (tx) => {
 
             const productExists = await tx.product.findUnique({
                 where: { id },
@@ -150,8 +126,6 @@ export const updateProduct = async (productDto, id) => {
 
             const {
                 rest,
-                sku,
-                supplier,
                 relations
             } = await prepareProductData({
                 tx,
@@ -163,7 +137,6 @@ export const updateProduct = async (productDto, id) => {
                 where: { id },
                 data: {
                     ...rest,
-                    sku,
                     supplier: {
                         connect: { id: relations.supplierId }
                     },
@@ -180,12 +153,16 @@ export const updateProduct = async (productDto, id) => {
                 tx,
                 supplierId: relations.supplierId,
                 productId: id,
-                sku,
-                supplierCode: supplier.code,
                 isUpdate: true
             });
 
-            return updatedProduct;
+            const fullProduct = await findSupplierProductByIds({
+                tx,
+                productId: updatedProduct.id,
+                supplierId: relations.supplierId
+            });
+
+            return fullProduct;
         });
 
     }).catch((err) => {
@@ -194,136 +171,8 @@ export const updateProduct = async (productDto, id) => {
             throw new ProductNotFound();
         }
 
+        if (err instanceof AppError) throw err;
+
         throw new ProductUpdateDatabaseError();
     });
 };
-
-export const updateConvertedQuantityByCurrentStock = async ({ 
-    tx, 
-    productIds 
-}) => {
-
-    const db = tx || prisma;
-    const uniqueProductIds = [...new Set(productIds)];
-
-    if (!uniqueProductIds.length) return;
-
-    try {
-
-        const products = await db.product.findMany({
-            where: {
-                id: {
-                    in: uniqueProductIds
-                }
-            },
-            select: {
-                id: true,
-                currentStock: true,
-                base: true,
-                height: true
-            }
-        });
-
-        await Promise.all(products.map((product) => {
-
-            const { base, height, currentStock } = product;
-            const hasDimensions = base !== null && height !== null && base > 0 && height > 0;
-            const convertedQuantity = hasDimensions
-                ? currentStock * (base * height)
-                : currentStock;
-
-            return db.product.update({
-                where: { id: product.id },
-                data: {
-                    convertedQuantity
-                }
-            });
-        }));
-
-    } catch (err) {
-
-        throw new ProductQuantityUpdateDatabaseError();
-    }
-};
-
-export const updateProductUnitCostIfHigher = async ({
-    tx,
-    details
-}) => {
-
-    const db = tx || prisma;
-
-    try {
-
-        const maxCostByProduct = {};
-
-        for (const detail of details) {
-
-            const { productId, conversionUnitCost } = detail;
-
-            if (
-                !maxCostByProduct[productId] ||
-                conversionUnitCost > maxCostByProduct[productId]
-            ) {
-                maxCostByProduct[productId] = conversionUnitCost;
-            }
-        }
-
-        const productIds = Object.keys(maxCostByProduct);
-
-        const products = await db.product.findMany({
-            where: {
-                id: { in: productIds }
-            },
-            select: {
-                id: true,
-                maxUnitCost: true
-            }
-        });
-
-        await Promise.all(products.map(product => {
-
-            const newCost = maxCostByProduct[product.id];
-
-            if (newCost > product.maxUnitCost) {
-                return db.product.update({
-                    where: { id: product.id },
-                    data: { maxUnitCost: newCost }
-                });
-            }
-
-        }));
-
-    } catch (err) {
-
-        throw new ProductQuantityUpdateDatabaseError();
-    }
-};
-
-export const updateProductCurrentStock = async ({
-    tx,
-    grouped,
-    movementType
-}) => {
-
-    const db = tx || prisma;
-
-    try {
-        await Promise.all(
-            Object.entries(grouped).map(([productId, quantity]) =>
-                db.product.update({
-                    where: { id: productId },
-                    data: {
-                        currentStock: {
-                            [movementType === REFERENCE_MOVEMENT_IN ? 'increment' : 'decrement']: quantity
-                        }
-                    }
-                })
-            )
-        );
-
-    } catch (err) {
-
-        throw new ProductCurrentStockUpdateDatabaseError();
-    }
-}

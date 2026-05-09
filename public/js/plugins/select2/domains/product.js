@@ -49,7 +49,6 @@ const initProductSelect = ({
                         productBase: p.base,
                         productHeight: p.height,
                         supplierName: p.supplier.tradeName,
-                        unitCost: p.unitCost,
                         supplierId: p.supplier.id
                     }
                 })
@@ -81,16 +80,15 @@ const attachProductHandler = ({
 
     $(productSelector).off('select2:select').on('select2:select', (e) => {
 
-        const selected = e.params.data;
+        const { data } = e.params;
 
-        if (selected.newTag) {
+        if (data.newTag) {
 
-            const name = selected.id.replace('new:', '');
-            const supplierId = $(`${ modalSelector } ${ supplierSelector }`).val();
-            const supplierName = $(`${ modalSelector } ${ supplierSelector } option:selected`).text();
-            const [code, tradeName] = supplierName.split(' - ');
+            const name = data.id.replace('new:', '');
+            const id = $(`${ modalSelector } ${ supplierSelector }`).val();
+            const tradeName = $(`${ modalSelector } ${ supplierSelector } option:selected`).text();
 
-            if (!supplierId) {
+            if (!id) {
                 $(productSelector).val(null).trigger('change');
                 alert('Selecciona primero un proveedor para crear productos.');
                 return;
@@ -100,44 +98,32 @@ const attachProductHandler = ({
                 data: {
                     name,
                     supplier: {
-                        id: supplierId,
+                        id,
                         tradeName,
-                        code
                     }
                 },
                 onSave: (createdProduct) => {
+
+                    let text;
+
+                    if (!createdProduct.base || !createdProduct.height) text = `${ createdProduct.name } || ${ createdProduct.supplier.tradeName }`;
+                    else text = `${ createdProduct.name } (${ createdProduct.base } x ${ createdProduct.height }) || ${ createdProduct.supplier.tradeName }`;
 
                     toggleProductOption({
                         selector: productSelector,
                         data: {
                             id: createdProduct.id,
-                            text: createdProduct.name
+                            text,
+                            productName: createdProduct.name,
+                            presentationName: createdProduct.presentation.name,
+                            unitMeasureName: createdProduct.unitMeasure.name,
+                            productBase: createdProduct.base,
+                            productHeight: createdProduct.height,
+                            supplierName: createdProduct.supplier.tradeName,
+                            supplierId: createdProduct.supplier.id
                         }
                     });
-
-                    let text;
-
-                    if (!createdProduct.base || !createdProduct.height) text = `${ createdProduct.name } || ${ createdProduct.supplier.tradeName }`;
-                    else text = `${ p.name } (${ createdProduct.base } x ${ createdProduct.height }) || ${ createdProduct.supplier.tradeName }`;
-
-                    $(productSelector).trigger({
-                        type: 'select2:select',
-                        params: {
-                            data: {
-                                id: createdProduct.id,
-                                text,
-                                name: createdProduct.name,
-                                presentationName: createdProduct.presentation.name,
-                                unitMeasureName: createdProduct.unitMeasure.name,
-                                productBase: createdProduct.base,
-                                productHeight: createdProduct.height,
-                                supplierId: createdProduct.supplier.id,
-                                supplierName: createdProduct.supplier.tradeName,
-                                maxUnitCost: createdProduct.maxUnitCost
-                            }
-                        }
-                    });
-
+                    
                     setMdbWrapperInputValue({
                         selector: wrapperSelector,
                         value: createdProduct.presentation.name
@@ -148,7 +134,15 @@ const attachProductHandler = ({
             return;
         }
 
-        const value = selected.presentationName || '';
+        const option = document.querySelector('#productInput option:checked');
+
+        if (!option) return;
+
+        Object.entries(data).forEach(([key, value]) => {
+            option.dataset[key] = value;
+        });
+
+        const value = data.presentationName || '';
         setMdbWrapperInputValue({
             selector: wrapperSelector,
             value

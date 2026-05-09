@@ -5,38 +5,13 @@ import {
 
 export const registerGoodsReceipt = async (formData) => {
 
-    try {
+    const response = await registerGoodsReceiptRequest(formData);
 
-        const response = await registerGoodsReceiptRequest(formData);
+    const { data } = response;
+    const { code } = data;
+    let message = getSuccessMessage(code);
 
-        const { data } = response;
-        const { code } = data;
-        let message = getSuccessMessage(code);
-
-        return {
-            message
-        };
-
-    } catch (err) {
-
-        if (err.response) {
-
-            let message;
-            const { data, status } = err.response;
-
-            switch (status) {
-
-                case 404:
-                    message = getErrorMessage(data.code);
-                    err.message = message;
-                    throw err;
-                default:
-                    throw err;
-            }
-
-        } else {
-
-            throw err;
-        }
-    }
+    return {
+        message
+    };
 }

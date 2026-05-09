@@ -1,38 +1,43 @@
 import express from 'express';
-import { authorizeUserApi, verifyCookiesAuthTokenRequired } from '../../../middleware/authMiddleware.js';
+import { authorizeUserApi, verifyApiTokenRequired } from '../../../middleware/authMiddleware.js';
 import { editProduct, getAllProducts, registerProduct } from '../../../controllers/api/warehouse/productController.js';
 import { productValidation } from '../../../validators/forms/productValidations.js';
 import { validate } from '../../../middleware/validatorMiddleware.js';
 
 const router = express.Router();
 
-const productPermissions = {
+const productReadPermissions = {
+    roles: ['Almacenista', 'Coordinador', 'Auxiliar', 'Operador', 'Instalador', 'Vendedor', 'Administrador del sistema'],
+    departments: ['ALMACÉN Y PROVEDURÍA', 'SISTEMAS', 'VENTAS Y PROYECTOS ESPECIALES']
+};
+
+const productWritePermissions = {
     roles: ['Almacenista', 'Coordinador', 'Auxiliar', 'Administrador del sistema'],
     departments: ['ALMACÉN Y PROVEDURÍA', 'SISTEMAS']
 };
 
 router.get(
     '/',
-    verifyCookiesAuthTokenRequired,
-    authorizeUserApi(productPermissions),
+    verifyApiTokenRequired,
+    authorizeUserApi(productReadPermissions),
     getAllProducts
 );
 
 router.post(
     '/',
-    verifyCookiesAuthTokenRequired,
+    verifyApiTokenRequired,
     productValidation,
     validate,
-    authorizeUserApi(productPermissions),
+    authorizeUserApi(productWritePermissions),
     registerProduct
 );
 
 router.put(
     '/:id',
-    verifyCookiesAuthTokenRequired,
+    verifyApiTokenRequired,
     productValidation,
     validate,
-    authorizeUserApi(productPermissions),
+    authorizeUserApi(productWritePermissions),
     editProduct
 );
 

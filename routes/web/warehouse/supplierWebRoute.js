@@ -4,13 +4,15 @@ import { getSuppliers } from '../../../controllers/web/warehouse/supplierControl
 
 const router = express.Router();
 
+const supplierPagePermissions = {
+    roles: ['Almacenista', 'Coordinador', 'Auxiliar', 'Administrador del sistema'],
+    departments: ['ALMACÉN Y PROVEDURÍA', 'SISTEMAS']
+};
+
 router.get(
     '/',
     verifyCookiesAuthTokenRequired,
-    authorizeUserWeb({
-        roles: ['Almacenista', 'Coordinador', 'Auxiliar', 'Administrador del sistema'],
-        departments: ['ALMACÉN Y PROVEDURÍA', 'SISTEMAS']
-    }),
+    authorizeUserWeb(supplierPagePermissions),
     getSuppliers
 );
 

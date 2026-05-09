@@ -85,15 +85,12 @@ model Product {
   id                          String                             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name                        String                             @db.VarChar(200)
   sku                         String?                            @unique @db.VarChar(200)
-  currentStock                Decimal                            @default(0) @db.Decimal(10, 2)
   presentationId String @db.Uuid
   unitMeasureId String @db.Uuid
   isActive                    Boolean                            @default(true)
   minStock                    Decimal                           @default(0) @db.Decimal(10, 2)
   base                        Decimal?                           @db.Decimal(10, 3)
   height                      Decimal?                           @db.Decimal(10, 3)
-  maxUnitCost                    Decimal?                           @db.Decimal(10, 3)
-  convertedQuantity Decimal? @db.Decimal(10, 3)
   presentation Presentation @relation(fields: [presentationId], references: [id])
   unitMeasure UnitMeasure @relation(fields: [unitMeasureId], references: [id])
   goodsIssueDetails GoodsIssueDetail[]
@@ -130,12 +127,15 @@ model Supplier {
   goodsReceipts GoodsReceipt[]
   goodsIssueDetails GoodsIssueDetail[]
   products       SupplierProduct[]
+  movementDetails MovementDetail[]
 }
 
 model SupplierProduct {
   id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  price     Decimal?  @db.Decimal(10, 2)
+  maxUnitCost                    Decimal?                           @db.Decimal(10, 2)
   sku       String?  @db.VarChar(50)
+  currentStock Decimal @default(0) @db.Decimal(10, 2)
+  convertedQuantity Decimal @default(0) @db.Decimal(10, 2)
   supplierId String   @db.Uuid
   productId  String   @db.Uuid
   supplier   Supplier @relation(fields: [supplierId], references: [id])
@@ -198,37 +198,43 @@ model GoodsReceipt {
   referenceNumber String                      @unique @db.VarChar(50)
   receptionDate   DateTime
   observations    String?                     @db.VarChar(50)
-  totalQuantity     Decimal                     @db.Decimal(10, 3)
-  totalNetPurchaseAmount Decimal                     @db.Decimal(10, 3)
-  totalGrossPurchaseAmount Decimal                     @db.Decimal(10, 3)
+  totalQuantity     Decimal                     @db.Decimal(10, 2)
+  totalNetPurchaseAmount Decimal                     @db.Decimal(10, 2)
+  totalGrossPurchaseAmount Decimal                     @db.Decimal(10, 2)
   receivedBy      Profile                     @relation(fields: [receivedById], references: [id])
   supplier        Supplier                    @relation(fields: [supplierId], references: [id])
   status          Status                      @relation(fields: [statusId], references: [id])
   movements        InventoryMovement[]
   details         GoodsReceiptDetail[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model GoodsReceiptDetail {
   id               String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   productId        String         @db.Uuid
   goodsReceiptId   String         @db.Uuid
-  quantity         Decimal        @db.Decimal(10, 3)
-  conversionUnitCost         Decimal  @db.Decimal(10, 3)
-  costPerUnitType Decimal @db.Decimal(10, 3)
-  convertedQuantity           Decimal        @db.Decimal(10, 3)
-  netPurchaseAmount Decimal @db.Decimal(10, 3)
-  grossPurchaseAmount Decimal @db.Decimal(10, 3)
+  quantity         Decimal        @db.Decimal(10, 2)
+  conversionUnitCost         Decimal  @db.Decimal(10, 2)
+  costPerUnitType Decimal @db.Decimal(10, 2)
+  convertedQuantity           Decimal        @db.Decimal(10, 2)
+  netPurchaseAmount Decimal @db.Decimal(10, 2)
+  grossPurchaseAmount Decimal @db.Decimal(10, 2)
   presentationId String @db.Uuid
   presentationName String @db.VarChar(50)
   unitMeasureId String @db.Uuid
   unitMeasureName String @db.VarChar(20)
   unitMeasureSymbol String @db.VarChar(10)
   productName String @db.VarChar(200)
-  productBase                        Decimal?                           @db.Decimal(10, 3)
-  productHeight                      Decimal?                           @db.Decimal(10, 3)
+  productBase                        Decimal?                           @db.Decimal(10, 2)
+  productHeight                      Decimal?                           @db.Decimal(10, 2)
   goodsReceipt     GoodsReceipt   @relation(fields: [goodsReceiptId], references: [id])
   product          Product        @relation(fields: [productId], references: [id])
   movementDetails        MovementDetail[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model PurchaseRequisition {
@@ -254,6 +260,9 @@ model PurchaseRequisition {
   project     Project    @relation(fields: [projectId], references: [id])
 
   details PurchaseRequisitionDetail[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model PurchaseRequisitionDetail {
@@ -264,6 +273,9 @@ model PurchaseRequisitionDetail {
 
   purchaseRequisition PurchaseRequisition @relation(fields: [purchaseRequisitionId], references: [id])
   product             Product             @relation(fields: [productId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model GoodsIssue {
@@ -301,6 +313,9 @@ model GoodsIssue {
 
   details  GoodsIssueDetail[]
   movements InventoryMovement[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model GoodsIssueDetail {
@@ -313,17 +328,17 @@ model GoodsIssueDetail {
   unitMeasureId String @db.Uuid
   productName String @db.VarChar(200)
   supplierName String @db.VarChar(200)
-  productBase                        Decimal?                           @db.Decimal(10, 3)
-  productHeight                      Decimal?                           @db.Decimal(10, 3)
+  productBase                        Decimal?                           @db.Decimal(10, 2)
+  productHeight                      Decimal?                           @db.Decimal(10, 2)
   quantity     Decimal @db.Decimal(10, 2)
   applyWaste Boolean @default(false)
   presentationName String @db.VarChar(50)
-  convertedQuantity Decimal @db.Decimal(10, 3)
+  convertedQuantity Decimal @db.Decimal(10, 2)
   unitMeasureName String @db.VarChar(20)
   unitMeasureSymbol String @db.VarChar(10)
-  maxUnitCost                    Decimal                           @db.Decimal(10, 3)
-  projectConvertedQuantity Decimal? @db.Decimal(10, 3)
-  convertedQuantityDifference Decimal? @db.Decimal(10, 3)
+  maxUnitCost                    Decimal                           @db.Decimal(10, 2)
+  projectConvertedQuantity Decimal? @db.Decimal(10, 2)
+  convertedQuantityDifference Decimal? @db.Decimal(10, 2)
   suppliedQuantity Decimal? @db.Decimal(10, 2)
   isSupplied Boolean @default(false)
   fulfillmentStatusId String? @db.Uuid
@@ -335,6 +350,9 @@ model GoodsIssueDetail {
   goodsIssue       GoodsIssue     @relation(fields: [goodsIssueId], references: [id])
   fulfillmentStatus FulfillmentStatus? @relation(fields: [fulfillmentStatusId], references: [id])
   movementDetails  MovementDetail[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model FulfillmentStatus {
@@ -350,11 +368,14 @@ model InventoryMovement {
   goodsReceiptId String? @db.Uuid
   goodsIssueId String? @db.Uuid
 
-  date DateTime
+  date DateTime @default(now())
 
   goodsReceipt GoodsReceipt? @relation(fields: [goodsReceiptId], references: [id])
   goodsIssue GoodsIssue? @relation(fields: [goodsIssueId], references: [id])
   details MovementDetail[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model MovementDetail {
@@ -363,12 +384,17 @@ model MovementDetail {
   quantity Decimal @db.Decimal(10, 2)
 
   productId String  @db.Uuid
+  supplierId String @db.Uuid
   goodsReceiptDetailId String? @db.Uuid
   goodsIssueDetailId String? @db.Uuid
   movementId String            @db.Uuid
 
   product   Product @relation(fields: [productId], references: [id])
+  supplier Supplier @relation(fields: [supplierId], references: [id])
   goodsReceiptDetail GoodsReceiptDetail? @relation(fields: [goodsReceiptDetailId], references: [id])
   goodsIssueDetail GoodsIssueDetail? @relation(fields: [goodsIssueDetailId], references: [id])
   movement   InventoryMovement @relation(fields: [movementId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

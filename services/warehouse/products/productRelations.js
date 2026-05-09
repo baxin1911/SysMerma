@@ -4,8 +4,6 @@ export const syncSupplierProduct = async ({
     tx,
     supplierId,
     productId,
-    sku,
-    supplierCode,
     isUpdate = false
 }) => {
 
@@ -21,7 +19,5 @@ export const syncSupplierProduct = async ({
         tx,
         supplierId,
         productId,
-        skuProduct: sku,
-        skuSupllier: supplierCode
     });
 };

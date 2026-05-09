@@ -9,3 +9,8 @@
     }
   }) %>
 <% if (input.type === 'checkbox') { %> </div> <% } %>
+
+<%- include('./validationMessage', { 
+  name: input.name, 
+  errorClass: input.errorClass || 'invalid-feedback' 
+}) %>

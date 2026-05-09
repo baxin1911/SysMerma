@@ -192,6 +192,7 @@ export const validateGoodsIssueDetailsArray = (details) => {
         if (isNaN(detail.quantity) || parseFloat(detail.quantity) < 1) {
             return 'La cantidad de cada detalle debe ser un número mayor a cero.';
         }
+
     }
 
     return null;
