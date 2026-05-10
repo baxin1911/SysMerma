@@ -1,4 +1,4 @@
-import { includeSpace, includeUppercase, isDate, isEmptyOrNull, isLengthInRangeMax, isLengthInRangeMin, isNegative, isNumber, isNumberphone, isString } from "./baseValidations.js";
+import { includeSpace, includeUppercase, isDateTime, isEmptyOrNull, isLengthInRangeMax, isLengthInRangeMin, isNegative, isNumber, isNumberphone, isString } from "./baseValidations.js";
 
 export const validatePassword = (password) => {
 
@@ -95,7 +95,7 @@ export const validateDate = (date, fieldName) => {
 
     if (result) return result;
 
-    result = isDate(date, fieldName);
+    result = isDateTime(date, fieldName);
 
     return result;
 }
@@ -104,7 +104,7 @@ export const validateDateOptional = (date, fieldName) => {
 
     if (!date) return null;
 
-    const result = isDate(date, fieldName);
+    const result = isDateTime(date, fieldName);
 
     return result;
 }

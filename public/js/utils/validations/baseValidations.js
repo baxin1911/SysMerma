@@ -32,13 +32,19 @@ export const isNegative = (value, fieldName) => {
     return null;
 }
 
-export const isDate = (value, fieldName) => {
+export const isDateTime = (value, fieldName) => {
+
+    if (!value) return `${ fieldName } es requerido`;
+
+    const regex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?$/;
+
+    if (!regex.test(value)) return `${ fieldName } no tiene un formato válido`;
 
     const date = new Date(value);
 
-    if (!isNaN(date.getTime())) return null;
+    if (isNaN(date.getTime())) return `${ fieldName } no es una fecha válida`;
 
-    return `${ fieldName } no es una fecha válida`;
+    return null;
 }
 
 export const isLengthInRangeMin = (value, min, fieldName) => {

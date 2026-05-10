@@ -58,7 +58,7 @@ export const validateFields = (validators, formData) => {
     Object.keys(validators).forEach(field => {
         const error = validators[field](formData[field]);
 
-        if (error) errors[field] = error;
+        errors[field] = error;
     });
 
     return errors;

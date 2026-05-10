@@ -1,5 +1,5 @@
 import { successCodeMessages } from "../../messages/codeMessages.js";
-import { clearAuthCookies, setAuthCookies } from "../../utils/cookiesUtils.js";
+import { setAuthCookies } from "../../utils/cookiesUtils.js";
 import { getNewRefreshToken, loginUser } from "../../services/authService.js";
 
 export const login = async (req, res) => {
@@ -11,20 +11,12 @@ export const login = async (req, res) => {
     return res.status(200).json({ code: successCodeMessages.SUCCESS_LOGIN });
 }
 
-export const refreshAuthToken = async (req, res, next) => {
+export const refreshAuthToken = async (req, res) => {
 
-    try {
+    const { refreshToken } = req.cookies;
+    const  tokens = await getNewRefreshToken({ refreshToken });
 
-        const { refreshToken } = req.cookies;
-        const tokens = await getNewRefreshToken({ refreshToken });
+    setAuthCookies(res, tokens.newAccessToken, tokens.newRefreshToken);
 
-        setAuthCookies(res, tokens.newAccessToken, tokens.newRefreshToken);
-
-        return res.sendStatus(200);
-
-    } catch (error) {
-
-        clearAuthCookies(res);
-        return next(error);
-    }
+    return res.sendStatus(200);
 }

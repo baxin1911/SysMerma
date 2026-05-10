@@ -21,6 +21,7 @@ const context = window.meta || {};
 createGoodsIssueDatatable(context);
 
 const normalizeGoodsIssueData = ({ form, formData }) => {
+
     const { mode } = form.dataset;
 
     if (mode === MODE_EDIT_DETAIL) {

@@ -17,35 +17,24 @@ export const toggleErrorMessages = (form, errors) => {
 
         if (!input || !feedback) return;
 
-        if (message) {
+        feedback.classList.toggle('d-none', !message);
+        input.classList.toggle('is-invalid', !!message);
 
-            feedback.textContent = message;
-            input.classList.add('is-invalid');
-
-        } else {
-
-            feedback.textContent = null;
-            input.classList.remove('is-invalid');
-        }
+        if (message) feedback.textContent = message;
+        else feedback.textContent = null;
     });
 }
 
 const setInputSelectError = (form, key, message = null) => {
 
     const feedback = form.querySelector(`[data-error-for='${ key }']`);
-console.log(feedback)
+
     if (!feedback) return;
 
-    if (message) {
+    feedback.classList.toggle('d-none', !!message)
 
-        feedback.textContent = message;
-        feedback.classList.add('d-block');
-
-    } else {
-
-        feedback.textContent = null;
-        feedback.classList.remove('d-block');
-    }
+    if (message) feedback.textContent = message;
+    else feedback.textContent = null;
 }
 
 export const toggleInputSelectErrors = (form, errors) => {
@@ -57,15 +46,8 @@ export const toggleInputSelectErrors = (form, errors) => {
         
         setInputSelectError(form, key, value);
 
-        if ($(input).hasClass('select2-hidden-accessible')) {
-
-            if (value) $(input).next('.select2-container').find('.select2-selection').addClass('is-invalid');
-            else $(input).next('.select2-container').find('.select2-selection').removeClass('is-invalid');
-        } else {
-
-            if (value) input.classList.add('is-invalid');
-            else input.classList.remove('is-invalid');
-        }
+        if ($(input).hasClass('select2-hidden-accessible')) $(input).next('.select2-container').toggleClass('is-invalid', !!value);
+        input.classList.toggle('is-invalid', !!value);
     });
 
     form.querySelectorAll('input[type="checkbox"]').forEach(input => {
@@ -75,8 +57,7 @@ export const toggleInputSelectErrors = (form, errors) => {
 
         setInputSelectError(form, key, value);
 
-        if (value) input.classList.add('is-invalid');
-        else input.classList.remove('is-invalid');
+        input.classList.toggle('is-invalid', !!value);
     });
 }
 
@@ -86,16 +67,10 @@ const setTableError = (form, key, message = null) => {
 
     if (!feedback) return;
 
-    if (message) {
+    feedback.classList.toggle('d-none', !message);
 
-        feedback.textContent = message;
-        feedback.classList.remove('d-none');
-
-    } else {
-
-        feedback.textContent = null;
-        feedback.classList.add('d-none');
-    }
+    if (message) feedback.textContent = message;
+    else feedback.textContent = null;
 }
 
 export const toggleTableErrors = (form, errors) => {
@@ -116,19 +91,11 @@ export const toggleTableErrors = (form, errors) => {
 
                 const message = fields[field];
                 const feedback = form.querySelector(`[data-error-for="${ field }-${ id }"]`);
+                input.classList.toggle('is-invalid', !!message);console.log(message)
+                feedback.classList.toggle('d-none', !message);
 
-                if (message) {
-
-                    input.classList.add('is-invalid');
-                    feedback.textContent = message;
-                    feedback.classList.add('d-block');
-
-                } else {
-
-                    input.classList.remove('is-invalid');
-                    feedback.textContent = null;
-                    feedback.classList.remove('d-block');
-                }
+                if (message) feedback.textContent = message;
+                else feedback.textContent = null;
             });
         });
 
@@ -142,6 +109,7 @@ export const toggleTableErrors = (form, errors) => {
 
 export const normalizeFormErrors = ({ form, errors }) => {
 
+    toggleErrorMessages(form, errors);
     toggleTableErrors(form, errors);
     toggleInputSelectErrors(form, errors);
 
