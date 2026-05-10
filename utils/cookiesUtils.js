@@ -14,7 +14,15 @@ export const setAuthCookies = (res, accessToken, refreshToken) => {
   });
 }
 
-export const clearAuthCookies = (res) => {
+export const clearAccessCookie = (res) => {
   res.clearCookie('accessToken', { sameSite: 'lax', secure: true });
+}
+
+export const clearRefreshCookie = (res) => {
   res.clearCookie('refreshToken', { sameSite: 'lax', secure: true });
+}
+
+export const clearAuthCookies = (res) => {
+  clearAccessCookie(res);
+  clearRefreshCookie(res);
 }

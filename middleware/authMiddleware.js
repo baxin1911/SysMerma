@@ -1,6 +1,6 @@
 import { verifyAccessToken } from "../services/jwtService.js";
 import { errorMap } from "../messages/codeMessages.js";
-import { clearAuthCookies } from "../utils/cookiesUtils.js";
+import { clearAccessCookie } from "../utils/cookiesUtils.js";
 import { getLoggedUser } from "../services/userService.js";
 
 const getAuthTokenInfo = ( req, res) => {
@@ -9,7 +9,7 @@ const getAuthTokenInfo = ( req, res) => {
 
     if (!accessToken) {
         
-        clearAuthCookies(res);
+        clearAccessCookie(res);
         return null;
     }
 
@@ -17,7 +17,7 @@ const getAuthTokenInfo = ( req, res) => {
 
     if (!tokenInfo) {
 
-        clearAuthCookies(res);
+        clearAccessCookie(res);
         return null;
     }
 
