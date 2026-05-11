@@ -1,6 +1,17 @@
 import { isEmptyOrNull } from "./baseValidations.js";
 import { validateName, validatePassword, validateNumber, validateUsername, validateTextOptional, validateMeasure, validateDateOptional, validateGoodsReceiptDetailsArray, validateDate, validateText, validateNumberOptional, validateGoodsIssueDetailsArray } from "./fieldValidations.js";
 
+const validatePositiveNumber = (value, fieldName) => {
+
+    const result = validateNumber(value, fieldName);
+
+    if (result) return result;
+
+    if (parseFloat(value) <= 0) return `${ fieldName } debe ser un número mayor a cero`;
+
+    return null;
+}
+
 export const supplierValidators = {
     legalName: (value) => validateText(value, 200, 'La razón social'),
     tradeName: (value) => validateText(value, 100, 'El nombre comercial'),
@@ -19,6 +30,18 @@ export const productValidators = {
 export const loginValidators = {
     name: validateUsername,
     password: validatePassword,
+}
+
+export const validateAddGoodsReceiptProductValidators = {
+    supplierId: (value) => isEmptyOrNull(value, 'El proveedor'),
+    productId: (value) => isEmptyOrNull(value, 'El producto'),
+    quantity: (value) => validatePositiveNumber(value, 'La cantidad'),
+    costPerUnitType: (value) => validatePositiveNumber(value, 'El costo por presentación'),
+}
+
+export const validateAddProductValidators = {
+    productId: (value) => isEmptyOrNull(value, 'El producto'),
+    quantity: (value) => validatePositiveNumber(value, 'La cantidad'),
 }
 
 export const validateGoodsReceiptValidators = {

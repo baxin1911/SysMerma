@@ -46,7 +46,14 @@ export const toggleInputSelectErrors = (form, errors) => {
         
         setInputSelectError(form, key, value);
 
-        if ($(input).hasClass('select2-hidden-accessible')) $(input).next('.select2-container').toggleClass('is-invalid', !!value);
+        if ($(input).hasClass('select2-hidden-accessible')) {
+            $(input)
+                .next('.select2-container')
+                .toggleClass('is-invalid', !!value)
+                .find('.select2-selection')
+                .toggleClass('is-invalid', !!value);
+        }
+
         input.classList.toggle('is-invalid', !!value);
     });
 
@@ -148,6 +155,7 @@ export const clearFormErrors = (form) => {
 
             $(input)
                 .next('.select2-container')
+                .removeClass('is-invalid')
                 .find('.select2-selection')
                 .removeClass('is-invalid');
         }

@@ -1,13 +1,13 @@
 import { useForm } from "../../application/form.js";
 import { editGoodsIssueDetails, registerGoodsIssue } from "../../application/warehouse/goodsIssues.js";
-import { validateGoodsIssueDetailValidators, validateGoodsIssueValidators } from "../../utils/validations/validators.js";
+import { validateAddProductValidators, validateGoodsIssueDetailValidators, validateGoodsIssueValidators } from "../../utils/validations/validators.js";
 import { refreshProductTable } from "../../plugins/datatable/baseDatatable.js";
 import { createGoodsIssueDatatable, details, initDetailsGoodsIssueTable } from "../../plugins/datatable/goodsIssueDatatable.js";
 import { initGoodsIssueFormSelect2, setGoodsIssueFormSelectOptions } from "../../plugins/select2/modules/goodsIssueSelect.js";
-import { setFormReadOnly, toggleButtons, clearAddedProductInput, clearFormErrors } from "../../ui/formUI.js";
+import { normalizeFormErrors, setFormReadOnly, toggleButtons, clearAddedProductInput, clearFormErrors } from "../../ui/formUI.js";
 import { on } from "../../utils/domUtils.js";
 import { formatDateLongWithTime } from "../../utils/formatters.js";
-import { handleAction, handleSubmit, validateDetailsFields, validateFields } from "../../utils/formUtils.js";
+import { handleAction, handleSubmit, hasValidationErrors, validateDetailsFields, validateFields } from "../../utils/formUtils.js";
 import { openModal } from "../../ui/modalUI.js";
 import { hasPermission } from "../../utils/permissions.js";
 
@@ -134,22 +134,26 @@ export const openGoodsIssueModal = async ({ mode, data = null }) => {
 
 const addProduct = () => {
 
-    const productId = document.querySelector('#productInput').value;
-    const selectedProduct = $('#productInput').select2('data')?.[0];
-    const quantity = Number(document.querySelector('#quantityInput').value);
-    const productBase = selectedProduct?.productBase ? Number(selectedProduct?.productBase) : null;
-    const productHeight = selectedProduct?.productHeight ? Number(selectedProduct?.productHeight) : null;
-    const { presentationName, unitMeasureName, productName, supplierName, supplierId, maxUnitCost } = selectedProduct;
+    const option = document.querySelector('#productInput option:checked');
+    const productId = option?.value || document.querySelector('#productInput').value;
+    const quantityInputValue = document.querySelector('#quantityInput').value;
 
-    if (!productId || !quantity) {
-        alert('Por favor, complete los campos de producto y cantidad.');
-        return;
-    }
+    const errors = validateFields(validateAddProductValidators, {
+        productId,
+        quantity: quantityInputValue
+    });
 
-    if (isNaN(quantity) || parseFloat(quantity) < 1) {
-        alert('La cantidad debe ser un número mayor a cero.');
-        return;
-    }
+    normalizeFormErrors({ form: document.querySelector(formId), errors });
+
+    if (hasValidationErrors(errors)) return;
+
+    if (!option) return null;
+
+    let { productBase, productHeight, presentationName, unitMeasureName, productName, supplierName, supplierId, maxUnitCost } = option.dataset;
+    productHeight = Number(productHeight);
+    productBase = Number(productBase);
+
+    const quantity = Number(quantityInputValue);
 
     let convertedQuantity;
 

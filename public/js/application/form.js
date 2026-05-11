@@ -1,7 +1,7 @@
 import { notifications } from "../plugins/swal/swalComponent.js";
 import { toggleErrorMessages, normalizeFormErrors, clearFormErrors } from "../ui/formUI.js";
 import { on } from "../utils/domUtils.js";
-import { mapServerErrors } from "../utils/formUtils.js";
+import { hasValidationErrors, mapServerErrors } from "../utils/formUtils.js";
 
 export const useForm = async ({ 
     selector,
@@ -25,9 +25,7 @@ export const useForm = async ({
         normalizeErrors({ form, errors });
         toggleErrorMessages(form, errors);
 
-        const hasErrors = Object.values(errors).some(error => error);
-
-        if (hasErrors) return;
+        if (hasValidationErrors(errors)) return;
 
         try {
 
