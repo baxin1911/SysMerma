@@ -185,16 +185,26 @@ const addProduct = () => {
 };
 
 on('click', '#addProductBtn', addProduct);
+const findDetailByElement = (element) => {
+
+    const { detailId } = element.dataset;
+
+    if (detailId) return details.find(detail => detail.id === detailId);
+
+    return details.find(detail => detail.productId === element.dataset.id);
+};
+
 on('change', '.supply-checkbox', (e, checkbox) => {
-    const { id } = checkbox.dataset;
-    const product = details.find(detail => detail.productId === id);
+    const product = findDetailByElement(checkbox);
+
+    if (!product) return;
+
     product.isSupplied = checkbox.checked;
 });
 on('input', '.project-converted-quantity-input', (e, input) => {
 
-    const { id } = input.dataset;
     const value = Number(input.value);
-    const product = details.find(detail => detail.productId === id);
+    const product = findDetailByElement(input);
 
     if (!product) return;
 

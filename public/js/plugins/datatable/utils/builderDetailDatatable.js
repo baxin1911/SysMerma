@@ -77,7 +77,6 @@ export const buildDetailsColumns = ({ type, mode, render, isWarehouse, isCoordin
                             value="${ row.projectConvertedQuantity || '' }"
                             class="form-control project-converted-quantity-input"
                             ${ mode === 'view' ? 'disabled' : '' }
-                            data-id="${ row.productId }"
                             data-detail-id="${ detailId }"
                             min=0
                         >
@@ -101,14 +100,19 @@ export const buildDetailsColumns = ({ type, mode, render, isWarehouse, isCoordin
     if (type === 'issue' && mode !== 'create') {
         columns.push({
             data: null,
-            render: (_, __, row) => `
-                <input type="checkbox" 
-                    class="form-check-input supply-checkbox" 
-                    data-id="${ row.productId }" 
-                    ${ row.isSupplied ? 'checked' : '' }
-                    ${ mode === 'view' ? 'disabled' : '' }
-                >
-            `
+            render: (_, __, row) => {
+                const detailId = row.id || row.productId;
+
+                return `
+                    <input type="checkbox"
+                        name="isSupplied"
+                        class="form-check-input supply-checkbox"
+                        data-detail-id="${ detailId }"
+                        ${ row.isSupplied ? 'checked' : '' }
+                        ${ mode === 'view' ? 'disabled' : '' }
+                    >
+                `;
+            }
         });
     }
 

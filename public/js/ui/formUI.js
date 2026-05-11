@@ -94,7 +94,7 @@ export const toggleTableErrors = (form, errors) => {
 
             Object.keys(fields).forEach(field => {
 
-                const input = form.querySelector(`[data-detail-id="${ id }"][name="${ field }"], [data-id="${ id }"][name="${ field }"]`);
+                const input = form.querySelector(`[data-detail-id="${ id }"][name="${ field }"]`);
                 const feedback = form.querySelector(`[data-error-for="${ field }-${ id }"]`);
 
                 if (!input || !feedback) return;
