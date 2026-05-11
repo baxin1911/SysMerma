@@ -31,7 +31,7 @@ const setInputSelectError = (form, key, message = null) => {
 
     if (!feedback) return;
 
-    feedback.classList.toggle('d-none', !!message)
+    feedback.classList.toggle('d-none', !message)
 
     if (message) feedback.textContent = message;
     else feedback.textContent = null;
@@ -79,19 +79,28 @@ export const toggleTableErrors = (form, errors) => {
 
     if (mode === MODE_EDIT_DETAIL) {
 
+        form.querySelectorAll('#productTable .is-invalid').forEach(input => {
+            input.classList.remove('is-invalid');
+        });
+
+        form.querySelectorAll('#productTable [data-error-for]').forEach(feedback => {
+            feedback.textContent = '';
+            feedback.classList.add('d-none');
+        });
+
         Object.keys(errors).forEach(id => {
 
             const fields = errors[id];
 
             Object.keys(fields).forEach(field => {
 
-                const input = form.querySelector(`[data-id="${ id }"][name="${ field }"]`);
+                const input = form.querySelector(`[data-detail-id="${ id }"][name="${ field }"], [data-id="${ id }"][name="${ field }"]`);
+                const feedback = form.querySelector(`[data-error-for="${ field }-${ id }"]`);
 
-                if (!input) return;
+                if (!input || !feedback) return;
 
                 const message = fields[field];
-                const feedback = form.querySelector(`[data-error-for="${ field }-${ id }"]`);
-                input.classList.toggle('is-invalid', !!message);console.log(message)
+                input.classList.toggle('is-invalid', !!message);
                 feedback.classList.toggle('d-none', !message);
 
                 if (message) feedback.textContent = message;

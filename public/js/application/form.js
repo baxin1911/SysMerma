@@ -1,6 +1,5 @@
-import { getErrorMessage } from "../constants/apiMessages.js";
 import { notifications } from "../plugins/swal/swalComponent.js";
-import { toggleErrorMessages, normalizeFormErrors } from "../ui/formUI.js";
+import { toggleErrorMessages, normalizeFormErrors, clearFormErrors } from "../ui/formUI.js";
 import { on } from "../utils/domUtils.js";
 import { mapServerErrors } from "../utils/formUtils.js";
 
@@ -41,7 +40,8 @@ export const useForm = async ({
             switch (status) {
 
                 case 400:
-                    const serverErrors = mapServerErrors(data);
+                    const serverErrors = mapServerErrors(data?.errors ?? data);
+                    clearFormErrors(form);
                     normalizeServerErrors({ form, errors: serverErrors });
                     toggleErrorMessages(form, serverErrors);
                     return;
