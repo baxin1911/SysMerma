@@ -1,13 +1,13 @@
 import { useForm } from "../../application/form.js";
 import { registerGoodsReceipt } from "../../application/warehouse/goodsReceipts.js";
-import { validateGoodsReceiptValidators } from "../../utils/validations/validators.js";
+import { validateAddGoodsReceiptProductValidators, validateGoodsReceiptValidators } from "../../utils/validations/validators.js";
 import { refreshProductTable } from "../../plugins/datatable/baseDatatable.js";
 import { createGoodsReceiptDatatable, details, initDetailsGoodsReceiptTable } from "../../plugins/datatable/goodsReceiptDatatable.js";
 import { GOODS_RECEIPT_SUPPLIER_CHANGED_EVENT, initGoodsReceiptFormSelect2, setGoodsReceiptFormSelectOptions } from "../../plugins/select2/modules/goodsReceiptSelect.js";
-import { setFormReadOnly, updateTotals, toggleButtons, clearAddedProductInput, toggleInvoiceInput, clearFormErrors } from "../../ui/formUI.js";
+import { normalizeFormErrors, setFormReadOnly, updateTotals, toggleButtons, clearAddedProductInput, toggleInvoiceInput, clearFormErrors } from "../../ui/formUI.js";
 import { on } from "../../utils/domUtils.js";
 import { formatDateLongWithTime } from "../../utils/formatters.js";
-import { handleSubmit, validateFields } from "../../utils/formUtils.js";
+import { handleSubmit, hasValidationErrors, validateFields } from "../../utils/formUtils.js";
 import { openModal } from "../../ui/modalUI.js";
 import { initMdbWrapperInput, updateMdbWrapperInput } from "../../plugins/mdb/baseInstance.js";
 
@@ -147,6 +147,21 @@ export const openGoodsReceiptModal = ({ mode, data = null }) => {
 const addProduct = () => {
 
     const option = document.querySelector('#productInput option:checked');
+    const productId = option?.value || document.querySelector('#productInput').value;
+    const supplierId = document.querySelector('#supplierInput').value;
+    const quantityInputValue = document.querySelector('#quantityInput').value;
+    const costPerUnitTypeInputValue = document.querySelector('#costPerUnitInput').value;
+
+    const errors = validateFields(validateAddGoodsReceiptProductValidators, {
+        supplierId,
+        productId,
+        quantity: quantityInputValue,
+        costPerUnitType: costPerUnitTypeInputValue
+    });
+
+    normalizeFormErrors({ form: document.querySelector(formId), errors });
+
+    if (hasValidationErrors(errors)) return;
 
     if (!option) return null;
 
@@ -154,31 +169,8 @@ const addProduct = () => {
     productHeight = Number(productHeight);
     productBase = Number(productBase);
 
-    const productId = option.value;
-
-    const supplierId = document.querySelector('#supplierInput').value;
-    const quantity = Number(document.querySelector('#quantityInput').value);
-    const costPerUnitType = Number(document.querySelector('#costPerUnitInput').value);
-
-    if (!supplierId) {
-        alert('Selecciona un proveedor antes de agregar productos.');
-        return;
-    }
-
-    if (!productId || !quantity || !costPerUnitType) {
-        alert('Por favor, complete los campos de producto, cantidad e importe.');
-        return;
-    }
-
-    if (isNaN(quantity) || quantity < 1) {
-        alert('La cantidad debe ser un número mayor a cero.');
-        return;
-    }
-
-    if (isNaN(costPerUnitType) || costPerUnitType <= 0) {
-        alert('El costo por RoPresentación debe ser un número positivo.');
-        return;
-    }
+    const quantity = Number(quantityInputValue);
+    const costPerUnitType = Number(costPerUnitTypeInputValue);
 
     const netPurchaseAmount = Number((quantity * costPerUnitType).toFixed(2));
     let convertedQuantity;

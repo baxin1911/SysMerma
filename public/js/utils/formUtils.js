@@ -64,6 +64,8 @@ export const validateFields = (validators, formData) => {
     return errors;
 }
 
+export const hasValidationErrors = (errors) => Object.values(errors).some(error => error);
+
 export const validateDetailsFields = (validators, details) => {
 
     const errors = {};
