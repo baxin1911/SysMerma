@@ -91,7 +91,7 @@ export const errorMessages = {
     MIN_STOCK_INVALID_NUMBER: 'Debe ser un número.',
     MIN_STOCK_GREATER_THAN_MAX: 'El stock mínimo no puede ser mayor al máximo.',
 
-    REQUIRED_QUANTITY: 'La cantidad es requerido.',
+    REQUIRED_QUANTITY: 'La cantidad es requerida.',
     INVALID_FORMAT_QUANTITY: 'La cantidad debe ser un número mayor a cero.',
 
     // RECEPTION DATE
