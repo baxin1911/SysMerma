@@ -5,10 +5,6 @@ const JWT_SECRET_ACCESS = process.env.JWT_SECRET_ACCESS;
 const JWT_SECRET_REFRESH = process.env.JWT_SECRET_REFRESH;
 const JWT_SECRET_ONE_TIME = process.env.JWT_SECRET_ONE_TIME;
 
-export const tokenStore = {
-    hashedRefreshToken: null
-};
-
 export const generateAccessToken = (payload) => {
 
     return jwt.sign(payload, JWT_SECRET_ACCESS, { expiresIn: '1h' });
@@ -24,7 +20,6 @@ export const generateOneTimeToken = (id, purpose) => {
 export const generateRefreshToken = (payload) => {
 
     const token = jwt.sign(payload, JWT_SECRET_REFRESH, { expiresIn: '7d' });
-    tokenStore.hashedRefreshToken = encryptToken(token);
 
     return token;
 }

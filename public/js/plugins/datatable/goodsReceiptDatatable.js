@@ -1,6 +1,6 @@
 import { openGoodsReceiptModal } from "../../pages/warehouse/goodsReceiptsPage.js";
 import { createDataTable, renderActionButtons } from "./baseDatatable.js";
-import { GOODS_RECEIPTS_API_ROUTE } from "../../services/warehouse/goodsReceiptService.js";
+import { getAllGoodsReceiptsRequest } from "../../services/warehouse/goodsReceiptService.js";
 import { initMdbWrapperInput, updateMdbWrapperInput } from "../mdb/baseInstance.js";
 import { buildDetailsColumns, buildDetailsHeader } from "./utils/builderDetailDatatable.js";
 import { handleDelete, renderMaterialName } from "./utils/renderProductDatatable.js";
@@ -36,7 +36,9 @@ export const createGoodsReceiptDatatable = () => {
     
     const table = createDataTable({
         options: {
-            ajax: GOODS_RECEIPTS_API_ROUTE,
+            ajax: {
+                get: getAllGoodsReceiptsRequest
+            },
             columns: [
                 { data: 'referenceNumber', title: 'Folio' },
                 { 

@@ -1,5 +1,5 @@
 import { openSupplierModal } from "../../../modules/suppliers/supplierModal.js";
-import { SUPPLIERS_API_ROUTE } from "../../../services/warehouse/supplierService.js";
+import { getAllSuppliersRequest } from "../../../services/warehouse/supplierService.js";
 import { initbaseSelect2, toggleSelectOption } from "../baseSelect.js";
 
 const initSupplierSelect = ({ 
@@ -11,7 +11,7 @@ const initSupplierSelect = ({
     initbaseSelect2({
         baseSelector,
         modalSelector,
-        url: SUPPLIERS_API_ROUTE,
+        get: getAllSuppliersRequest,
         placeholder: 'Buscar proveedor...',
         processResults: (data) => {
 

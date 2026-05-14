@@ -1,4 +1,4 @@
-import { UNIT_MEASURES_API_ROUTE } from "../../../services/warehouse/unitMeasureService.js";
+import { getAllUnitMeasuresRequest } from "../../../services/warehouse/unitMeasureService.js";
 import { initbaseSelect2, toggleSelectOption } from "../baseSelect.js";
 
 export const initUnitMeasureSelect = ({ 
@@ -10,7 +10,7 @@ export const initUnitMeasureSelect = ({
     initbaseSelect2({
         baseSelector,
         modalSelector,
-        url: UNIT_MEASURES_API_ROUTE,
+        get: getAllUnitMeasuresRequest,
         placeholder: 'Buscar unidad...',
         processResults: (data) => {
 

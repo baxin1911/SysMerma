@@ -105,23 +105,27 @@ const buttons = {
 
                 <%- include('./outlineInputList', { inputs: form.inputs }) %>
 
+                <% if (form.textArea) { %>
+                    <%- include('./textArea', { input: form.textArea }) %>
+                <% } %>
+
                 <% if (form.checkboxes) { %>
                     <%- include('./checkboxList', { inputs: form.checkboxes }) %>
                 <% } %>
 
                 <% if (form.table) { %>
                     <div class="row g-2 mb-3 add-product-container">
-                        <div class="col-3">
+                        <div class="<%= form.table.select.col %>  mb-2">
                             <%- include('./select', { input: form.table.select }) %>
                         </div>
 
                         <%- include('./outlineInputList', { inputs: form.table.inputs }) %>
 
-                        <div class="col-2">
+                        <div class="col-md-2 col-lg-2">
                             <%- include('./outlineInput', { input: inputs.presentationDisplayInput }) %>
                         </div>
 
-                        <div class="col-4">
+                        <div class="col-md-2 col-lg-2">
                             <%- include('./button', { button: buttons.addProductButton }) %>
                         </div>
                     </div>

@@ -1,13 +1,13 @@
 import { useForm } from "../../application/form.js";
 import { editGoodsIssueDetails, registerGoodsIssue } from "../../application/warehouse/goodsIssues.js";
-import { validateGoodsIssueDetailValidators, validateGoodsIssueValidators } from "../../utils/validations/validators.js";
+import { validateAddProductValidators, validateGoodsIssueDetailValidators, validateGoodsIssueValidators } from "../../utils/validations/validators.js";
 import { refreshProductTable } from "../../plugins/datatable/baseDatatable.js";
 import { createGoodsIssueDatatable, details, initDetailsGoodsIssueTable } from "../../plugins/datatable/goodsIssueDatatable.js";
 import { initGoodsIssueFormSelect2, setGoodsIssueFormSelectOptions } from "../../plugins/select2/modules/goodsIssueSelect.js";
-import { setFormReadOnly, toggleButtons, clearAddedProductInput, clearFormErrors } from "../../ui/formUI.js";
+import { setFormReadOnly, toggleButtons, clearAddedProductInput, clearFormErrors, normalizeFormErrors } from "../../ui/formUI.js";
 import { on } from "../../utils/domUtils.js";
 import { formatDateLongWithTime } from "../../utils/formatters.js";
-import { handleAction, handleSubmit, validateDetailsFields, validateFields } from "../../utils/formUtils.js";
+import { handleSubmit, hasValidationErrors, validateDetailsFields, validateFields } from "../../utils/formUtils.js";
 import { openModal } from "../../ui/modalUI.js";
 import { hasPermission } from "../../utils/permissions.js";
 
@@ -134,22 +134,25 @@ export const openGoodsIssueModal = async ({ mode, data = null }) => {
 
 const addProduct = () => {
 
-    const productId = document.querySelector('#productInput').value;
-    const selectedProduct = $('#productInput').select2('data')?.[0];
+    const option = document.querySelector('#productInput option:checked');
+
+    let { productBase, productHeight, presentationName, unitMeasureName, productName, supplierName, supplierId, maxUnitCost } = option?.dataset;
+    productHeight = Number(productHeight);
+    productBase = Number(productBase);
+
+    const productId = option.value;
     const quantity = Number(document.querySelector('#quantityInput').value);
-    const productBase = selectedProduct?.productBase ? Number(selectedProduct?.productBase) : null;
-    const productHeight = selectedProduct?.productHeight ? Number(selectedProduct?.productHeight) : null;
-    const { presentationName, unitMeasureName, productName, supplierName, supplierId, maxUnitCost } = selectedProduct;
 
-    if (!productId || !quantity) {
-        alert('Por favor, complete los campos de producto y cantidad.');
-        return;
-    }
+    const errors = validateFields(validateAddProductValidators, {
+        productId,
+        quantity
+    });
 
-    if (isNaN(quantity) || parseFloat(quantity) < 1) {
-        alert('La cantidad debe ser un número mayor a cero.');
-        return;
-    }
+    normalizeFormErrors({ form: document.querySelector(formId), errors });
+
+    if (hasValidationErrors(errors)) return;
+
+    if (!option) return null;
 
     let convertedQuantity;
 
@@ -184,17 +187,28 @@ const addProduct = () => {
     clearAddedProductInput();
 };
 
+const findDetailByElement = (element) => {
+
+    const { detailId } = element.dataset;
+
+    if (detailId) return details.find(detail => detail.id === detailId);
+
+    return details.find(detail => detail.productId === element.dataset.id);
+};
+
 on('click', '#addProductBtn', addProduct);
 on('change', '.supply-checkbox', (e, checkbox) => {
-    const { id } = checkbox.dataset;
-    const product = details.find(detail => detail.productId === id);
+
+    const product = findDetailByElement(checkbox);
+
+    if (!product) return;
+
     product.isSupplied = checkbox.checked;
 });
 on('input', '.project-converted-quantity-input', (e, input) => {
 
-    const { id } = input.dataset;
     const value = Number(input.value);
-    const product = details.find(detail => detail.productId === id);
+    const product = findDetailByElement(input);
 
     if (!product) return;
 

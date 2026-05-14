@@ -73,4 +73,13 @@
     ]
 } %>
 
-<%- include('../../../shared/modal', { modalId: 'productModal', form }) %>
+<%- include('../../../shared/mainTable', { title: 'Mermas' }) %>
+
+<%- include('../../../shared/modal', { modalId: 'wasteModal', form }) %>
+
+<script type="module" src="/js/pages/warehouse/wastesPage.js"></script>
+
+<%- contentFor('title') %>
+Mermas
+<%- contentFor('layoutType') %>
+site

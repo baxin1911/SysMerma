@@ -1,4 +1,4 @@
-import { CLIENTS_API_ROUTE } from "../../../services/sales/clientService.js";
+import { getAllClientsRequest } from "../../../services/sales/clientService.js";
 import { initbaseSelect2, toggleSelectOption } from "../baseSelect.js";
 
 export const initClientSelect = ({ 
@@ -11,7 +11,7 @@ export const initClientSelect = ({
     initbaseSelect2({
         baseSelector,
         modalSelector,
-        url: CLIENTS_API_ROUTE,
+        get: getAllClientsRequest,
         placeholder: 'Buscar cliente...',
         // data: (params) => {
 

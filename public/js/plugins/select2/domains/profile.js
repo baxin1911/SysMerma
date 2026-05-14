@@ -1,10 +1,11 @@
-import { PROFILES_API_ROUTE } from "../../../services/admin/profileService.js";
+import { getAllProfilesRequest } from "../../../services/admin/profileService.js";
 import { initbaseSelect2, toggleSelectOption } from "../baseSelect.js";
 
 export const initProfileSelect = ({ 
     modalSelector, 
     baseSelector, 
     placeholder, 
+    clearOnOpen = true,
     data, 
     allowCreate = true 
 }) => {
@@ -12,7 +13,8 @@ export const initProfileSelect = ({
     initbaseSelect2({
         baseSelector,
         modalSelector,
-        url: PROFILES_API_ROUTE,
+        get: getAllProfilesRequest,
+        clearOnOpen,
         data,
         placeholder,
         processResults: (data) => {

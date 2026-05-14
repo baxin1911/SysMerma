@@ -3,11 +3,11 @@ import { cancelPurchaseRequisition, confirmPurchaseRequisition, editPurchaseRequ
 import { refreshProductTable } from "../../plugins/datatable/baseDatatable.js";
 import { createPurchaseRequisitionDatatable, details, initDetailsPurchaseRequisitionTable } from "../../plugins/datatable/purchaseRequisitionDatatable.js";
 import { initPurchaseRequisitionFormSelect2 } from "../../plugins/select2/modules/purchaseRequisitionSelect.js";
-import { setFormReadOnly, toggleButtons, clearFormErrors } from "../../ui/formUI.js";
+import { setFormReadOnly, toggleButtons, clearFormErrors, normalizeFormErrors, clearAddedProductInput } from "../../ui/formUI.js";
 import { openModal } from "../../ui/modalUI.js";
 import { on } from "../../utils/domUtils.js";
 import { formatDateLongWithTime } from "../../utils/formatters.js";
-import { handleAction, handleSubmit, validateFields } from "../../utils/formUtils.js";
+import { handleAction, handleSubmit, hasValidationErrors, validateFields } from "../../utils/formUtils.js";
 import { validatePurchaseRequisitionValidators } from "../../utils/validations/validators.js";
 
 const context = window.meta || {};
@@ -104,29 +104,29 @@ export const openPurchaseRequisitionModal = async ({ mode, data = null }) => {
 
 const addProduct = () => {
 
-    const productId = document.querySelector('#productInput').value;
-    const selectedProduct = $('#productInput').select2('data')?.[0];
-    const productName = selectedProduct?.text || '';
+    const option = document.querySelector('#productInput option:checked');
+
+    const { productName, presentation } = option?.dataset;
+    const productId = option.value;
     const quantity = document.querySelector('#quantityInput').value;
 
-    if (!productId || !quantity) {
-        alert('Por favor, complete los campos de producto y cantidad.');
-        return;
-    }
+    const errors = validateFields(validateAddProductValidators, {
+        productId,
+        quantity
+    });
 
-    if (isNaN(quantity) || parseFloat(quantity) < 1) {
-        alert('La cantidad debe ser un número mayor a cero.');
-        return;
-    }
+    normalizeFormErrors({ form: document.querySelector(formId), errors });
 
-    const product = { productId, name: productName, quantity, presentation: selectedProduct?.presentation || 'PIEZA' };
+    if (hasValidationErrors(errors)) return;
+
+    if (!option) return null;
+
+    const product = { productId, name: productName, quantity, presentation };
     details.push(product);
 
     refreshProductTable(details);
 
-    $('#productInput').empty().trigger('change');
-    document.querySelector('#quantityInput').value = '';
-    document.querySelector('#presentationDisplayInput').value = '';
+    clearAddedProductInput();
 };
 
 on('click', '#addProductBtn', addProduct);

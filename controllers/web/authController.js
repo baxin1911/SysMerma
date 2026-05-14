@@ -1,4 +1,3 @@
-import { tokenStore } from '../../services/jwtService.js';
 import { successCodeMessages } from '../../messages/codeMessages.js';
 import { errorMessages, successMessages } from '../../messages/messages.js';
 import { redirectWithFlash } from '../../utils/flashUtils.js';
@@ -34,10 +33,6 @@ export const refreshAuthToken = async (req, res) => {
 export const logout = async (req, res) => {
 
     res.clearCookie('returnTo');
-
-    // Delete refreshToken from DB
-
-    tokenStore.hashedRefreshToken = null;
     clearAuthCookies(res);
 
     return redirectWithFlash(

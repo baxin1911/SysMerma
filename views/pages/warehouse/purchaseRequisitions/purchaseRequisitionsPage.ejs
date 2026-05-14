@@ -10,18 +10,17 @@
     ],
     inputs: [
         {
-            id: 'observationsInput',
-            name: 'observations',
-            type: 'text',
-            label: 'Observaciones',
-        },
-        {
             id: 'requestDateInput',
             name: 'requestDate',
             type: 'datetime-local',
             label: 'Fecha y hora de solicitud:',
         }
     ],
+    textArea: {
+        id: 'observationsInput',
+        name: 'observations',
+        label: 'Observaciones',
+    },
     table: {
         select: {
             id: 'productInput',

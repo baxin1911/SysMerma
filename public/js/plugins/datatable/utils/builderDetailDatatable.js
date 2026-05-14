@@ -67,18 +67,22 @@ export const buildDetailsColumns = ({ type, mode, render, isWarehouse, isCoordin
             { data: 'maxUnitCost' },
             { 
                 data: null,
-                render: (_, __, row) => `
-                    <input
-                        type="number"
-                        name="projectConvertedQuantity"
-                        value="${ row.projectConvertedQuantity || '' }"
-                        class="form-control project-converted-quantity-input"
-                        ${ mode === 'view' ? 'disabled' : '' }
-                        data-id="${ row.productId }"
-                        min=0
-                    >
-                    <div data-error-for="projectConvertedQuantity-${ row.productId }" class="invalid-feedback"></div>
-                `
+                render: (_, __, row) => {
+                    const detailId = row.id || row.productId;
+
+                    return `
+                        <input
+                            type="number"
+                            name="projectConvertedQuantity"
+                            value="${ row.projectConvertedQuantity || '' }"
+                            class="form-control project-converted-quantity-input"
+                            ${ mode === 'view' ? 'disabled' : '' }
+                            data-detail-id="${ detailId }"
+                            min=0
+                        >
+                        <div data-error-for="projectConvertedQuantity-${ detailId }" class="invalid-feedback d-none"></div>
+                    `;
+                }
             },
             { data: 'convertedQuantityDifference' }
         );
@@ -96,14 +100,20 @@ export const buildDetailsColumns = ({ type, mode, render, isWarehouse, isCoordin
     if (type === 'issue' && mode !== 'create') {
         columns.push({
             data: null,
-            render: (_, __, row) => `
-                <input type="checkbox" 
-                    class="form-check-input supply-checkbox" 
-                    data-id="${ row.productId }" 
-                    ${ row.isSupplied ? 'checked' : '' }
-                    ${ mode === 'view' ? 'disabled' : '' }
-                >
-            `
+            render: (_, __, row) => {
+                
+                const detailId = row.id || row.productId;
+
+                return `
+                    <input type="checkbox"
+                        name="isSupplied"
+                        class="form-check-input supply-checkbox"
+                        data-detail-id="${ detailId }"
+                        ${ row.isSupplied ? 'checked' : '' }
+                        ${ mode === 'view' ? 'disabled' : '' }
+                    >
+                `;
+            }
         });
     }
 

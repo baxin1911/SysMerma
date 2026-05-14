@@ -1,4 +1,4 @@
-import { findAllDepartments } from "../../../services/deparmentService.js";
+import { findAllDepartments } from "../../../services/admin/departmentService.js";
 
 export const getAllDepartments = async (req, res) => {
 

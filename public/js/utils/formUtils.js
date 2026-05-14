@@ -12,7 +12,12 @@ export const handleSubmit = async ({ form, formData, create, update }) => {
     if (mode === 'create') response = await create(formData);
     else {
 
-        if (!id) notifications.showError('No hay registro seleccionado.');
+        if (!id) {
+            
+            notifications.showError('No hay registro seleccionado.');
+            return;
+        }
+
         response = await update(formData, id);
     }
 
@@ -30,7 +35,11 @@ export const handleAction = async ({ action, formId }) => {
         const form = document.querySelector(formId);
         const id = form.dataset.id;
 
-        if (!id) notifications.showError('No hay registro seleccionado.');
+        if (!id) {
+            
+            notifications.showError('No hay registro seleccionado.');
+            return;
+        }
 
         const response = await action(id);
 
@@ -44,12 +53,57 @@ export const handleAction = async ({ action, formId }) => {
     }
 }
 
+export const toggleDisabledElement = ({ element, isDisabled }) => {
+
+    if (!element) return;
+
+    element.classList.toggle('disabled', isDisabled);
+
+    if ('disabled' in element) {
+        element.disabled = isDisabled;
+    }
+};
+
+export const toggleContainerElements = ({
+    selector,
+    isDisabled = true
+}) => {
+
+    const container = document.querySelector(selector);
+
+    if (!container) return;
+
+    container
+        .querySelectorAll('input, select, textarea, button')
+        .forEach(element => {
+
+            toggleDisabledElement({
+                element,
+                isDisabled
+            });
+        });
+};
+
 export const cleanForm = (form) => {
 
     form.reset();
     form.dataset.id = '';
     form.dataset.mode = '';
 }
+
+export const hasValidationErrors = (errors) => {
+
+    const check = (value) => {
+
+        if (value == null) return false;
+
+        if (typeof value !== 'object') return true;
+
+        return Object.values(value).some(check);
+    };
+
+    return check(errors);
+};
 
 export const validateFields = (validators, formData) => {
 
@@ -71,29 +125,49 @@ export const validateDetailsFields = (validators, details) => {
     details.forEach(detail => {
 
         const detailErrors = validateFields(validators, detail);
-
-        if (Object.keys(detailErrors).length > 0) errors[detail.id] = detailErrors;
-    })
+        errors[detail.id] = detailErrors;
+    });
 
     return errors;
 }
 
-export const mapServerErrors = (obj) => {
+const hasOwn = (obj, key) => Object.prototype.hasOwnProperty.call(obj, key);
+const isObject = (value) => typeof value === 'object' && value !== null;
+const isErrorCodeObject = (error) => isObject(error) && hasOwn(error, 'code');
+const isPathErrorObject = (error) => isObject(error) && hasOwn(error, 'path') && hasOwn(error, 'msg');
 
-    if (Array.isArray(obj)) {
-        return obj.map(mapErrorsRecursive);
+const mergeServerErrorList = (errors) => errors.reduce((result, error) => {
+
+    if (isPathErrorObject(error)) {
+
+        result[error.path] = mapServerErrors(error.msg);
+
+        return result;
     }
 
-    if (typeof obj === 'object' && obj !== null) {
+    const mappedError = mapServerErrors(error);
+
+    if (isObject(mappedError)) Object.assign(result, mappedError);
+
+    return result;
+}, {});
+
+export const mapServerErrors = (errors) => {
+
+    if (Array.isArray(errors)) return mergeServerErrorsList(errors);
+
+    if (isObject(errors)) {
+
+        if (isErrorCodeObject(errors)) return getErrorMessage(errors) ?? errors;
 
         const result = {};
 
-        for (const key in obj) {
-            result[key] = mapErrorsRecursive(obj[key]);
+        for (const key in errors) {
+            result[key] = mapServerErrors(errors[key]);
         }
 
         return result;
     }
 
-    return getErrorMessage(obj);
+    return null;
 };

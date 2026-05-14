@@ -1,4 +1,6 @@
-import { bindChangeResetSelect } from "../../../utils/domUtils.js";
+import { toggleDisabledElement } from "../../../utils/formUtils.js";
+import { notifications } from "../../swal/swalComponent.js";
+import { bindDependency } from "../baseSelect.js";
 import { initClientSelect, toggleClientOption } from "../domains/client.js";
 import { initDepartmentSelect, toggleDepartmentOption } from "../domains/department.js";
 import { setupProductSelect, toggleProductOption } from "../domains/product.js";
@@ -12,6 +14,7 @@ const advisorSelector = '#advisorInput';
 const productSelector = '#productInput';
 
 export const initGoodsIssueFormSelect2 = () => {
+
     initDepartmentSelect({
         modalSelector,
         baseSelector: `${ modalSelector } ${ departmentSelector }`,
@@ -58,14 +61,29 @@ export const initGoodsIssueFormSelect2 = () => {
         allowCreate: false,
     });
 
-    bindChangeResetSelect({
+    const requesterSelectElement = document.querySelector(`${ modalSelector } ${ requesterSelector }`);
+
+    toggleDisabledElement({ 
+        element: requesterSelectElement, 
+        isDisabled: true 
+    });
+
+    bindDependency({
         sourceSelector: `${ modalSelector } ${ departmentSelector }`,
-        targetSelector: `${ modalSelector } ${ requesterSelector }`,
-        reset: () => {
+        onChange: ({ value }) => {
+            const isDisabled = !value;
+
             toggleProfileOption({
                 selector: `${ modalSelector } ${ requesterSelector }`,
                 id: null,
                 name: null
+            });
+
+            $(`${ modalSelector } ${ requesterSelector }`).val(null).trigger('change');
+
+            toggleDisabledElement({ 
+                element: requesterSelectElement, 
+                isDisabled 
             });
         }
     });

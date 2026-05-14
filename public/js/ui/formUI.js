@@ -31,7 +31,8 @@ const setInputSelectError = (form, key, message = null) => {
 
     if (!feedback) return;
 
-    feedback.classList.toggle('d-none', !!message)
+    feedback.classList.toggle('d-none', !message);
+    feedback.classList.toggle('d-block', !!message);
 
     if (message) feedback.textContent = message;
     else feedback.textContent = null;
@@ -46,8 +47,17 @@ export const toggleInputSelectErrors = (form, errors) => {
         
         setInputSelectError(form, key, value);
 
-        if ($(input).hasClass('select2-hidden-accessible')) $(input).next('.select2-container').toggleClass('is-invalid', !!value);
+        if ($(input).hasClass('select2-hidden-accessible')) {
+
+            $(input)
+                .next('.select2-container')
+                .toggleClass('is-invalid', !!value)
+                .find('.select2-selection')
+                .toggleClass('is-invalid', !!value);
+        }
+
         input.classList.toggle('is-invalid', !!value);
+        input.toggleAttribute('aria-invalid', !!value);
     });
 
     form.querySelectorAll('input[type="checkbox"]').forEach(input => {
@@ -79,19 +89,28 @@ export const toggleTableErrors = (form, errors) => {
 
     if (mode === MODE_EDIT_DETAIL) {
 
+        form.querySelectorAll('#productTable .is-invalid').forEach(input => {
+            input.classList.remove('is-invalid');
+        });
+
+        form.querySelectorAll('#productTable [data-error-for]').forEach(feedback => {
+            feedback.textContent = '';
+            feedback.classList.add('d-none');
+        });
+
         Object.keys(errors).forEach(id => {
 
             const fields = errors[id];
 
             Object.keys(fields).forEach(field => {
 
-                const input = form.querySelector(`[data-id="${ id }"][name="${ field }"]`);
+                const input = form.querySelector(`[data-detail-id="${ id }"][name="${ field }"]`);
+                const feedback = form.querySelector(`[data-error-for="${ field }-${ id }"]`);
 
-                if (!input) return;
+                if (!input || !feedback) return;
 
                 const message = fields[field];
-                const feedback = form.querySelector(`[data-error-for="${ field }-${ id }"]`);
-                input.classList.toggle('is-invalid', !!message);console.log(message)
+                input.classList.toggle('is-invalid', !!message);
                 feedback.classList.toggle('d-none', !message);
 
                 if (message) feedback.textContent = message;
@@ -121,6 +140,7 @@ export const clearFormErrors = (form) => {
     form.querySelectorAll('.is-invalid').forEach(input => {
         input.classList.remove('is-invalid');
         input.removeAttribute('title');
+        input.removeAttribute('aria-invalid');
     });
 
     form.querySelectorAll('.was-validated').forEach(el => {
@@ -139,6 +159,7 @@ export const clearFormErrors = (form) => {
 
             $(input)
                 .next('.select2-container')
+                .removeClass('is-invalid')
                 .find('.select2-selection')
                 .removeClass('is-invalid');
         }
@@ -194,18 +215,37 @@ export const updateTotals = ({
     quantity = 0,
     net = 0,
     gross = 0,
-    operation
-}) => {
+    operation = 'none'
+} = {}) => {
 
     const totalQuantityEl = document.querySelector(TOTAL_FIELDS.quantity);
     const totalNetPurchaseAmountEl = document.querySelector(TOTAL_FIELDS.net);
     const totalGrossPurchaseAmountEl = document.querySelector(TOTAL_FIELDS.gross);
 
+    if (operation === 'none') {
+
+        [
+            TOTAL_FIELDS.quantity,
+            TOTAL_FIELDS.net,
+            TOTAL_FIELDS.gross
+        ].forEach(selector => {
+
+            const instance = initMdbWrapperInput({
+                selector,
+                value: ''
+            });
+
+            updateMdbWrapperInput(instance);
+        });
+
+        return;
+    }
+
     let totalQuantity = Number(totalQuantityEl.value) || 0;
     let totalNetPurchaseAmount = Number(totalNetPurchaseAmountEl.value) || 0;
     let totalGrossPurchaseAmount = Number(totalGrossPurchaseAmountEl.value) || 0;
 
-    const op = operation === 'add' ? 1 : -1;
+    const op = operation === 'add' ? 1 : operation === 'subtract' ? -1 : 0;
 
     totalQuantity += quantity * op;
     totalNetPurchaseAmount += net * op;

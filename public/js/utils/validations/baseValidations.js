@@ -32,6 +32,13 @@ export const isNegative = (value, fieldName) => {
     return null;
 }
 
+export const isPositive = (value, fieldName) => {
+
+    if (value < 1) return `${ fieldName } debe ser un número mayor a cero`;
+
+    return null;
+}
+
 export const isDateTime = (value, fieldName) => {
 
     if (!value) return `${ fieldName } es requerido`;

@@ -1,13 +1,13 @@
 import { useForm } from "../../application/form.js";
 import { registerGoodsReceipt } from "../../application/warehouse/goodsReceipts.js";
-import { validateGoodsReceiptValidators } from "../../utils/validations/validators.js";
+import { validateAddGoodsReceiptProductValidators, validateGoodsReceiptValidators } from "../../utils/validations/validators.js";
 import { refreshProductTable } from "../../plugins/datatable/baseDatatable.js";
 import { createGoodsReceiptDatatable, details, initDetailsGoodsReceiptTable } from "../../plugins/datatable/goodsReceiptDatatable.js";
 import { GOODS_RECEIPT_SUPPLIER_CHANGED_EVENT, initGoodsReceiptFormSelect2, setGoodsReceiptFormSelectOptions } from "../../plugins/select2/modules/goodsReceiptSelect.js";
-import { setFormReadOnly, updateTotals, toggleButtons, clearAddedProductInput, toggleInvoiceInput, clearFormErrors } from "../../ui/formUI.js";
+import { setFormReadOnly, updateTotals, toggleButtons, clearAddedProductInput, toggleInvoiceInput, clearFormErrors, normalizeFormErrors } from "../../ui/formUI.js";
 import { on } from "../../utils/domUtils.js";
 import { formatDateLongWithTime } from "../../utils/formatters.js";
-import { handleSubmit, validateFields } from "../../utils/formUtils.js";
+import { handleSubmit, hasValidationErrors, toggleContainerElements, validateFields } from "../../utils/formUtils.js";
 import { openModal } from "../../ui/modalUI.js";
 import { initMdbWrapperInput, updateMdbWrapperInput } from "../../plugins/mdb/baseInstance.js";
 
@@ -16,7 +16,7 @@ const formId = '#goodsReceiptForm';
 
 createGoodsReceiptDatatable();
 
-document.addEventListener(GOODS_RECEIPT_SUPPLIER_CHANGED_EVENT, () => {
+document.querySelector(modalId).addEventListener(GOODS_RECEIPT_SUPPLIER_CHANGED_EVENT, () => {
     details.length = 0;
     refreshProductTable(details);
     clearAddedProductInput();
@@ -80,6 +80,7 @@ export const openGoodsReceiptModal = ({ mode, data = null }) => {
 
     details.length = 0;
 
+    toggleContainerElements({ selector: '.add-product-container' });
     initGoodsReceiptFormSelect2();
     setGoodsReceiptFormSelectOptions(data);
 
@@ -148,9 +149,7 @@ const addProduct = () => {
 
     const option = document.querySelector('#productInput option:checked');
 
-    if (!option) return null;
-
-    let { productBase, productHeight, presentationName, unitMeasureName, supplierName, productName } = option.dataset;
+    let { productBase, productHeight, presentationName, unitMeasureName, supplierName, productName } = option?.dataset;
     productHeight = Number(productHeight);
     productBase = Number(productBase);
 
@@ -159,21 +158,18 @@ const addProduct = () => {
     const supplierId = document.querySelector('#supplierInput').value;
     const quantity = Number(document.querySelector('#quantityInput').value);
     const costPerUnitType = Number(document.querySelector('#costPerUnitInput').value);
+    const errors = validateFields(validateAddGoodsReceiptProductValidators, {
+        supplierId,
+        productId,
+        quantity,
+        costPerUnitType
+    });
 
-    if (!supplierId) {
-        alert('Selecciona un proveedor antes de agregar productos.');
-        return;
-    }
+    normalizeFormErrors({ form: document.querySelector(formId), errors });
 
-    if (!productId || !quantity || !costPerUnitType) {
-        alert('Por favor, complete los campos de producto, cantidad e importe.');
-        return;
-    }
+    if (hasValidationErrors(errors)) return;
 
-    if (isNaN(quantity) || quantity < 1) {
-        alert('La cantidad debe ser un número mayor a cero.');
-        return;
-    }
+    if (!option) return null;
 
     if (isNaN(costPerUnitType) || costPerUnitType <= 0) {
         alert('El costo por RoPresentación debe ser un número positivo.');

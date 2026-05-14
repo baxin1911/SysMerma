@@ -9,22 +9,3 @@ export const on = (event, selector, handler, options = {}) => {
         handler(e, element);
     }, options);
 }
-
-export const bindChangeResetSelect = ({ sourceSelector, targetSelector, reset }) => {
-    
-    const source = document.querySelector(sourceSelector);
-
-    if (!source) return;
-    if (source.dataset.resetBound === 'true') return;
-    source.dataset.resetBound = 'true';
-
-    source.addEventListener('change', () => {
-        if (typeof reset === 'function') reset();
-        else {
-            const target = document.querySelector(targetSelector);
-            if (!target) return;
-            target.value = '';
-            target.dispatchEvent(new Event('change', { bubbles: true }));
-        }
-    });
-};

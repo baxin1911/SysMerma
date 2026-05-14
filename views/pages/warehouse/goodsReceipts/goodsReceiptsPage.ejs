@@ -49,18 +49,18 @@
             label: 'Fecha y hora de recepción:',
             col: '6'
         },
-        {
-            id: 'observationsInput',
-            name: 'observations',
-            type: 'text',
-            label: 'Observaciones',
-        },
     ],
+    textArea: {
+        id: 'observationsInput',
+        name: 'observations',
+        label: 'Observaciones',
+    },
     table: {
         select: {
             id: 'productInput',
             name: 'productId',
-            class: 'product-select'
+            class: 'product-select',
+            col: 'col-md-4 col-lg-6'
         },
         inputs: [
             {
@@ -71,7 +71,7 @@
                 attrs: {
                     'min': '0'
                 },
-                col: '1'
+                col: 'md-2 col-lg-1'
             },
             {
                 id: 'costPerUnitInput',
@@ -81,7 +81,7 @@
                 attrs: {
                     'min': '0'
                 },
-                col: '2'
+                col: 'md-2 col-lg-1'
             },
         ]
     }

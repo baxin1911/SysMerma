@@ -1,9 +1,9 @@
-import { openProductModal } from "../../modules/products/productModal.js";
 import { createDataTable, renderActionButtons } from "./baseDatatable.js";
 import { notifications } from "../swal/swalComponent.js";
 import { hasPermission } from "../../utils/permissions.js";
-import { getAllProductsRequest } from "../../services/warehouse/productService.js";
 import { renderMaterialName } from "./utils/renderProductDatatable.js";
+import { getAllWastesRequest } from "../../services/warehouse/wasteService.js";
+import { openWasteModal } from "../../pages/warehouse/wastesPage.js";
 
 const selectorTable = '#table';
 let lastLowStockNotification = '';
@@ -31,18 +31,7 @@ table.innerHTML = `
     </thead>
 `;
 
-const configureStockRealtime = (table) => {
-
-    if (stockSocketConfigured) return;
-
-    stockSocketConfigured = true;
-
-    window.addEventListener('stock:updated', () => {
-        table.ajax.reload(null, false);
-    });
-};
-
-export const createProductDatatable = (context) => {
+export const createWasteDatatable = (context) => {
 
     const { isWarehouse, isSystem, isSales } = hasPermission(context);
 
@@ -76,49 +65,22 @@ export const createProductDatatable = (context) => {
     const table = createDataTable({
         options: {
             ajax: {
-                get: getAllProductsRequest
+                get: getAllWastesRequest
             },
             columns,
-            createdRow: (row, data) => {
-
-                if (Number(data.currentStock) < Number(data.minStock)) {
-                    row.classList.add('table-warning');
+            buttons: [
+                {
+                    text: 'Nueva merma',
+                    action: () => openWasteModal({ mode: 'create' })
                 }
-            },
-            drawCallback: function() {
-
-                const currentData = this.api().rows({ page: 'current' }).data().toArray();
-                const lowStockProducts = currentData.filter((product) => Number(product.currentStock) < Number(product.minStock));
-
-                if (!lowStockProducts.length) {
-                    lastLowStockNotification = '';
-                    return;
-                }
-
-                const lowStockSignature = lowStockProducts.map((product) => product.id).join(',');
-
-                if (lastLowStockNotification === lowStockSignature) return;
-
-                lastLowStockNotification = lowStockSignature;
-
-                const productNames = lowStockProducts
-                    .slice(0, 3)
-                    .map((product) => product.name)
-                    .join(', ');
-
-                notifications.showWarning(
-                    `Hay ${lowStockProducts.length} producto(s) por debajo del stock mínimo: ${productNames}${lowStockProducts.length > 3 ? '...' : ''}`
-                );
-            }
+            ]
         }
     });
-
-    configureStockRealtime(table);
 
     $(`${ selectorTable } tbody`).on('click', '.btn-edit', async function() {
 
         const data = table.row($(this).closest('tr')).data();
 
-        await openProductModal({ mode: 'edit', data });
+        await openWasteModal({ mode: 'edit', data });
     });
 }

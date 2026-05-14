@@ -1,15 +1,12 @@
 <div class="form-outline mb-4" data-mdb-input-init>
     <textarea id="<%= input.id %>" name="<%= input.name %>" rows="4" class="form-control" 
-        data-mdb-showcounter="true" maxlength="500"
-        aria-describedby="<%= `${ input.id }Error` %>"
+        maxlength="500" aria-describedby="<%= `${ input.id }Error` %>"
     ></textarea>
 
     <%- include('./labelInput', { 
         id: input.id, 
-        label: input.label 
+        content: input.label 
     }) %>
-
-    <div class="form-helper"></div>
 
     <%- include('./validationMessage', { 
         name: input.name, 

@@ -1,4 +1,4 @@
-import { includeSpace, includeUppercase, isDateTime, isEmptyOrNull, isLengthInRangeMax, isLengthInRangeMin, isNegative, isNumber, isNumberphone, isString } from "./baseValidations.js";
+import { includeSpace, includeUppercase, isDateTime, isEmptyOrNull, isLengthInRangeMax, isLengthInRangeMin, isNegative, isNumber, isNumberphone, isPositive, isString } from "./baseValidations.js";
 
 export const validatePassword = (password) => {
 
@@ -55,6 +55,19 @@ export const validateUsername = (username) => {
     result = isLengthInRangeMax(username, 50, fieldName);
 
     return result;
+}
+
+export const validatePositiveNumber = (number, fieldName) => {
+
+    let result = validateNumber(number, fieldName);
+
+    if (result) return result;
+
+    result = isPositive(number, fieldName);
+
+    if (result) return result;
+
+    return null;
 }
 
 export const validateNumber = (number, fieldName) => {

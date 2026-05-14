@@ -1,9 +1,13 @@
+import { handleApiError, normalizeJqAjaxError } from "../../api/errorHandler.js";
 import { initMdbWrapperInput, updateMdbWrapperInput } from "../mdb/baseInstance.js";
+
+const wrapperSelector = '#presentationDisplayInput';
 
 export const initbaseSelect2 = ({ 
     baseSelector, 
     modalSelector,
-    url, 
+    get, 
+    clearOnOpen = true,
     placeholder,
     processResults,
     data = (params) => {
@@ -23,24 +27,50 @@ export const initbaseSelect2 = ({
 
     if ($(baseSelector).hasClass("select2-hidden-accessible")) $(baseSelector).select2('destroy');
 
+    const select = document.querySelector(baseSelector);
+    const form = select?.closest('form') ?? null;
+
     $(baseSelector).select2({ 
         language: 'es',
         placeholder: placeholder, 
         dropdownParent: $(modalSelector),
         minimumInputLength: 0, 
-        ajax: { 
-            url: url, 
+        ajax: {  
             dataType: 'json', 
             delay: 250, 
             data, 
-            processResults: processResults 
+            processResults,
+            transport: async (params, success, failure) => {
+
+                try {
+
+                    const response = await get(params.data);
+
+                    return success(response.data);
+
+                } catch (err) {
+
+                    handleApiError({
+                        err,
+                        rethrow: false
+                    });
+
+                    failure(err);
+                }
+            }
         },
         tags,
         createTag
     });
 
-    $(baseSelector).on('select2:opening', () => {
-        $(baseSelector).find('option').remove();
+    if (clearOnOpen) $(baseSelector).on('select2:opening', () => {
+
+        $(baseSelector).val(null).trigger('change');
+
+        setMdbWrapperInputValue({
+            selector: wrapperSelector,
+            value: ''
+        });
     });
 }
 
@@ -73,3 +103,27 @@ export const setMdbWrapperInputValue = ({
 
     updateMdbWrapperInput(instance);
 }
+
+export const bindDependency = ({
+    sourceSelector,
+    onChange
+}) => {
+
+    const $source = $(sourceSelector);
+
+    if (!$source.length) return;
+
+    const source = $source[0];
+
+    if (source.dataset.bound === 'true') return;
+
+    source.dataset.bound = 'true';
+
+    $source.on('change', () => {
+
+        onChange?.({
+            value: $source.val(),
+            source: $source
+        });
+    });
+};

@@ -13,7 +13,7 @@ export class GoodsIssueInsufficientStock extends AppError {
             : '';
 
         const supplier = supplierName
-            ? ` y proveedor: ${ supplierName }`
+            ? supplierName
             : '';
 
         super(

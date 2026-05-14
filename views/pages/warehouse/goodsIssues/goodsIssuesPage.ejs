@@ -32,26 +32,28 @@
             id: 'projectNumberInput',
             name: 'projectNumber',
             type: 'text',
-            label: 'Número de proyecto'
-        },
-        {
-            id: 'observationsInput',
-            name: 'observations',
-            type: 'text',
-            label: 'Observaciones',
+            label: 'Número de proyecto',
+            col: '6'
         },
         {
             id: 'requestDateInput',
             name: 'requestDate',
             type: 'datetime-local',
             label: 'Fecha y hora de solicitud:',
-        }
+            col: '6'
+        },
     ],
+    textArea: {
+        id: 'observationsInput',
+        name: 'observations',
+        label: 'Observaciones',
+    },
     table: {
         select: {
             id: 'productInput',
             name: 'productId',
-            class: 'product-select'
+            class: 'product-select',
+            col: 'col-md-6'
         },
         inputs: [
             {
@@ -62,7 +64,7 @@
                 attrs: {
                     'min': '0'
                 },
-                col: '3'
+                col: 'md-2'
             },
         ]
     }

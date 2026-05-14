@@ -2,9 +2,15 @@ import { apiRequest } from "../axiosInstanceApi.js";
 
 export const GOODS_ISSUES_API_ROUTE = '/api/warehouse/goods-issues';
 
+export const getAllGoodsIssuesRequest = (params) => apiRequest({
+    method: 'get',
+    url: GOODS_ISSUES_API_ROUTE,
+    params
+});
+
 export const registerGoodsIssueRequest = (data) => apiRequest({
     method: 'post',
-    url: `${ GOODS_ISSUES_API_ROUTE }`,
+    url: GOODS_ISSUES_API_ROUTE,
     data
 });
 

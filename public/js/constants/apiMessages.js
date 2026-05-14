@@ -157,10 +157,10 @@ export const errorMessages = {
             : '';
 
         const supplier = meta.supplierName
-            ? ` y proveedor: ${ meta.supplierName }`
+            ? meta.supplierName
             : '';
 
-        return `Stock inexistente para realizar la salida con el producto: ${ meta.productName }${ dimensions }${ supplier }.`;
+        return `Stock inexistente para realizar la salida con el producto: ${ meta.productName }${ dimensions } y proveedor: ${ supplier }.`;
     },
     GOODS_ISSUE_INSUFFICIENT_STOCK: (meta) => {
 
@@ -173,12 +173,27 @@ export const errorMessages = {
             : '';
 
         const supplier = meta.supplierName
-            ? ` y proveedor: ${ meta.supplierName }`
+            ? meta.supplierName
             : '';
 
-        return `Stock insuficiente para realizar la salida con el producto: ${ meta.productName }${ dimensions }${ supplier }.`;
+        return `Stock insuficiente para realizar la salida con el producto: ${ meta.productName }${ dimensions } y proveedor: ${ supplier }.`;
     },
-    GOODS_ISSUE_MISSING_MAX_UNIT_COST: (meta) => `No se puede realizar la salida porque el producto: ${ meta.productName } y proveedor: ${ meta.supplierName } no tiene costo unitario máximo configurado.`,
+    GOODS_ISSUE_MISSING_MAX_UNIT_COST: (meta) => {
+
+        const hasDimensions =
+            meta.base != null &&
+            meta.height != null;
+
+        const dimensions = hasDimensions
+            ? ` (${ meta.base } x ${ meta.height })`
+            : '';
+
+        const supplier = meta.supplierName
+            ? meta.supplierName
+            : '';
+        
+        return `No se puede realizar la salida porque el producto: ${ meta.productName } y proveedor: ${ meta.supplierName } no tiene costo unitario máximo configurado.`
+    },
     GOODS_ISSUE_FULFILLMENT_COMPLETE_CONFLICT: 'La salida ya está completamente surtida y no puede modificarse.',
     MOVEMENT_DETAIL_RELATION_CONFLICT: 'El detalle del movimiento no está asociado a un producto o proveedor.',
     PURCHASE_REQUISITION_NOT_FOUND: 'Requisición de compra no encontrada.',
@@ -209,20 +224,20 @@ const successMessages = {
     CANCELED_PURCHASE_REQUISITION: '¡Requisición de compra cancelada exitosamente!'
 };
 
-export const getErrorMessage = (data) => {
+export const getErrorMessage = (data = {}) => {
 
-    const { code, meta } = data;
+    const { code, meta } = data ?? {};
 
     if (meta) {
 
         const fn = errorMessages[code];
 
-        return typeof fn === 'function' ? fn(meta) : null;
+        return typeof fn === 'function' ? fn(meta) : code;
     }
 
-    if (code) return errorMessages[code] ?? null;
+    if (code) return errorMessages[code] ?? code;
     
     return null;
 }
 
-export const getSuccessMessage = (code) => successMessages[code] ?? null;
+export const getSuccessMessage = (code) => successMessages[code] ?? code;

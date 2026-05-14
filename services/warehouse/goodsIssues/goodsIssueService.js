@@ -248,6 +248,7 @@ export const updateGoodsIssueDetails = async ({ id, goodsIssueDto }) => {
                         supplierId: true,
                         quantity: true,
                         suppliedQuantity: true,
+                        convertedQuantity: true,
                         projectConvertedQuantity: true
                     }
                 }
@@ -275,12 +276,14 @@ export const updateGoodsIssueDetails = async ({ id, goodsIssueDto }) => {
                 if (!current) continue;
 
                 const pending = current.quantity - (current.suppliedQuantity ?? 0);
+                const convertedQuantityDifference = current.convertedQuantity - detail.projectConvertedQuantity;
 
                 if (!detail.isSupplied) {
                     updates.push({
                         id: current.id,
                         data: {
-                            projectConvertedQuantity: detail.projectConvertedQuantity
+                            projectConvertedQuantity: detail.projectConvertedQuantity,
+                            convertedQuantityDifference
                         }
                     });
                     continue;
@@ -304,7 +307,8 @@ export const updateGoodsIssueDetails = async ({ id, goodsIssueDto }) => {
                     data: {
                         suppliedQuantity: newSupplied,
                         isSupplied: newSupplied >= current.quantity,
-                        projectConvertedQuantity: detail.projectConvertedQuantity
+                        projectConvertedQuantity: detail.projectConvertedQuantity,
+                        convertedQuantityDifference
                     }
                 });
             }
