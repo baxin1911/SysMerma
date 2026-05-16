@@ -1,4 +1,4 @@
-import { validateDate, validateGoodsIssueDetailsArray, validateGoodsIssueDetailsEdition, validateProjectNumber, validateTextOptional, validateUUID } from "../fields/fieldsValidator.js";
+import { validateDate, validateGoodsIssueDetailIds, validateGoodsIssueDetailSupplierIds, validateGoodsIssueDetailsArray, validateGoodsIssueDetailsEdition, validateProjectNumber, validateTextOptional, validateUUID } from "../fields/fieldsValidator.js";
 
 export const goodsIssueValidation = [
     validateUUID('advisorId'),
@@ -8,9 +8,24 @@ export const goodsIssueValidation = [
     validateProjectNumber('projectNumber'),
     validateDate('requestDate'),
     validateTextOptional('observations'),
-    validateGoodsIssueDetailsArray
+    validateGoodsIssueDetailSupplierIds,
+    validateGoodsIssueDetailsArray()
+];
+
+export const goodsIssueUpdateValidation = [
+    validateUUID('advisorId'),
+    validateUUID('clientId'),
+    validateUUID('departmentId'),
+    validateUUID('requesterId'),
+    validateProjectNumber('projectNumber'),
+    validateDate('requestDate'),
+    validateTextOptional('observations'),
+    validateGoodsIssueDetailIds(),
+    validateGoodsIssueDetailSupplierIds,
+    validateGoodsIssueDetailsArray({ allowDetailId: true })
 ];
 
 export const goodsIssueDetailsValidation = [
+    validateGoodsIssueDetailIds({ required: true }),
     validateGoodsIssueDetailsEdition
 ];

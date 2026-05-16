@@ -59,7 +59,7 @@ export const createPurchaseRequisitionDatatable = (context) => {
         {
             data: 'id',
             title: 'Acciones',
-            render: (data, type, row) => renderActionButtons(row.status?.name)
+            render: (data, type, row) => renderActionButtons({ status: row.status?.name })
         }
     );
 

@@ -4,7 +4,9 @@ import {
     GoodsIssueUpdateDatabaseError,
     GoodsIssueAdvisorProfileNotFound,
     GoodsIssueFulfillmentCompleteConflict,
-    GoodsIssueCreateDatabaseError
+    GoodsIssueCreateDatabaseError,
+    GoodsIssueDetailNotFound,
+    GoodsIssueSuppliedDetailConflict
 } from "../../../errors/warehouse/goodsIssueError.js";
 import { getDb } from "../../../repository/baseRepository.js";
 import { findProfileById } from "../../admin/profileService.js";
@@ -16,6 +18,7 @@ import { applyInventoryMovement } from "../../inventory/movementService.js";
 import { buildStockKey, parseStockKey } from "../../../utils/formattersUtils.js";
 import { findSupplierProduct } from "../products/supplierProductService.js";
 import { AppError } from "../../../errors/AppError.js";
+import validator from "validator";
 
 const ROLE_SYSTEM_ADMIN = 'Administrador del sistema';
 const ROLE_COORDINATOR = 'Coordinador';
@@ -26,6 +29,12 @@ const STATUS_APPROVED = 'Aprobada';
 const REFERENCE_NUMBER_TYPE = 'SAL';
 const MOVEMENT_TYPE_OUT = 'OUT';
 const FLOAT_EPSILON = 0.000001;
+const { isUUID } = validator;
+
+const assertGoodsIssueId = (id) => {
+
+    if (!isUUID(id ?? '', 4)) throw new GoodsIssueNotFound();
+};
 
 export const findAllGoodsIssues = async ({
     skip = 0,
@@ -139,7 +148,7 @@ export const createGoodsIssue = async ({
         const requester = await findProfileById({ id: requesterId });
 
         if (!requester) throw new GoodsIssueRequesterProfileNotFound();
-        
+
         const advisor = await findProfileById({ id: advisorId });
 
         if (!advisor) throw new GoodsIssueAdvisorProfileNotFound();
@@ -230,11 +239,186 @@ export const createGoodsIssue = async ({
     }
 };
 
+
+export const updateGoodsIssue = async ({ id, goodsIssueDto }) => {
+
+    try {
+
+        assertGoodsIssueId(id);
+
+        const { requesterId, advisorId, departmentId, clientId, details, ...goodsIssueData } = goodsIssueDto;
+
+        const goodsIssue = await getDb().goodsIssue.findUnique({
+            where: { id },
+            select: {
+                id: true,
+                fulfillmentStatus: true,
+                details: {
+                    select: {
+                        id: true,
+                        productId: true,
+                        supplierId: true,
+                        quantity: true,
+                        suppliedQuantity: true,
+                        isSupplied: true
+                    }
+                }
+            }
+        });
+
+        if (!goodsIssue) throw new GoodsIssueNotFound();
+
+        if (goodsIssue.fulfillmentStatus?.name === FULFILLMENT_COMPLETE) {
+            throw new GoodsIssueFulfillmentCompleteConflict();
+        }
+
+        const requester = await findProfileById({ id: requesterId });
+
+        if (!requester) throw new GoodsIssueRequesterProfileNotFound();
+
+        const advisor = await findProfileById({ id: advisorId });
+
+        if (!advisor) throw new GoodsIssueAdvisorProfileNotFound();
+
+        const client = await findClientById({ id: clientId });
+        const department = await findDepartmentById({ id: departmentId });
+        const currentById = new Map(goodsIssue.details.map(detail => [detail.id, detail]));
+        const incomingDetailIds = new Set(details.map(detail => detail.id).filter(Boolean));
+        const hasSuppliedQuantity = (detail) => Number(detail.suppliedQuantity ?? 0) > FLOAT_EPSILON || detail.isSupplied;
+        const hasSameSuppliedDetailValues = (current, detail) => (
+            current.productId === detail.productId &&
+            current.supplierId === detail.supplierId &&
+            Number(current.quantity) === Number(detail.quantity)
+        );
+
+        for (const detail of details) {
+
+            if (!detail.id) continue;
+
+            const current = currentById.get(detail.id);
+
+            if (!current) throw new GoodsIssueDetailNotFound();
+
+            if (hasSuppliedQuantity(current) && !hasSameSuppliedDetailValues(current, detail)) {
+                throw new GoodsIssueSuppliedDetailConflict();
+            }
+        }
+
+        const removedSuppliedDetail = goodsIssue.details.some(
+            detail => hasSuppliedQuantity(detail) && !incomingDetailIds.has(detail.id)
+        );
+
+        if (removedSuppliedDetail) throw new GoodsIssueSuppliedDetailConflict();
+
+        const editableDetails = details.filter(detail => {
+            const current = detail.id ? currentById.get(detail.id) : null;
+            return !current || !hasSuppliedQuantity(current);
+        });
+        const processedDetails = editableDetails.length
+            ? await buildGoodsIssueDetails({ details: editableDetails })
+            : [];
+
+        return await getDb().$transaction(async (tx) => {
+
+            for (let index = 0; index < editableDetails.length; index += 1) {
+
+                const detail = editableDetails[index];
+                const processedDetail = processedDetails[index];
+                const current = detail.id ? currentById.get(detail.id) : null;
+
+                if (current) {
+                    await tx.goodsIssueDetail.update({
+                        where: { id: current.id },
+                        data: processedDetail
+                    });
+                    continue;
+                }
+
+                await tx.goodsIssueDetail.create({
+                    data: {
+                        ...processedDetail,
+                        goodsIssue: {
+                            connect: { id }
+                        }
+                    }
+                });
+            }
+
+            const removableDetailIds = goodsIssue.details
+                .filter(detail => !incomingDetailIds.has(detail.id) && !hasSuppliedQuantity(detail))
+                .map(detail => detail.id);
+
+            if (removableDetailIds.length) {
+                await tx.goodsIssueDetail.deleteMany({
+                    where: {
+                        id: {
+                            in: removableDetailIds
+                        }
+                    }
+                });
+            }
+
+            const refreshed = await tx.goodsIssueDetail.findMany({
+                where: { goodsIssueId: id },
+                select: {
+                    isSupplied: true,
+                    quantity: true,
+                    suppliedQuantity: true
+                }
+            });
+
+            const fulfillmentName = resolveFulfillmentStatus(refreshed);
+
+            return await tx.goodsIssue.update({
+                where: { id },
+                data: {
+                    ...goodsIssueData,
+                    departmentName: department.name,
+                    requesterName: requester.fullName,
+                    advisorName: advisor.fullName,
+                    clientName: client.name,
+                    department: {
+                        connect: { id: departmentId }
+                    },
+                    requester: {
+                        connect: { id: requesterId }
+                    },
+                    advisor: {
+                        connect: { id: advisorId }
+                    },
+                    client: {
+                        connect: { id: clientId }
+                    },
+                    status: {
+                        connect: { name: STATUS_APPROVED }
+                    },
+                    fulfillmentStatus: {
+                        connect: { name: fulfillmentName }
+                    }
+                },
+                include: {
+                    details: true,
+                    fulfillmentStatus: true,
+                    status: true
+                }
+            });
+        });
+
+    } catch (err) {
+
+        if (err instanceof AppError) throw err;
+
+        throw new GoodsIssueUpdateDatabaseError();
+    }
+};
+
 export const updateGoodsIssueDetails = async ({ id, goodsIssueDto }) => {
 
     const { details = [] } = goodsIssueDto;
 
     try {
+
+        assertGoodsIssueId(id);
 
         const goodsIssue = await getDb().goodsIssue.findUnique({
             where: { id },

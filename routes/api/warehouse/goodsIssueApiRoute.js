@@ -2,11 +2,12 @@ import express from 'express';
 import { authorizeUserApi, verifyApiTokenRequired } from '../../../middleware/authMiddleware.js';
 import { validate } from '../../../middleware/validatorMiddleware.js';
 import {
+    editGoodsIssue,
     editGoodsIssueDetails,
     getAllGoodsIssues,
     registerGoodsIssue,
 } from '../../../controllers/api/warehouse/goodsIssueController.js';
-import { goodsIssueDetailsValidation, goodsIssueValidation } from '../../../validators/forms/goodsIssueValidations.js';
+import { goodsIssueDetailsValidation, goodsIssueUpdateValidation, goodsIssueValidation } from '../../../validators/forms/goodsIssueValidations.js';
 
 const router = express.Router();
 
@@ -47,6 +48,15 @@ router.post(
     validate,
     authorizeUserApi(goodsIssuePermissions),
     registerGoodsIssue
+);
+
+router.patch(
+    '/:id',
+    verifyApiTokenRequired,
+    goodsIssueUpdateValidation,
+    validate,
+    authorizeUserApi(goodsIssuePermissions),
+    editGoodsIssue
 );
 
 router.patch(

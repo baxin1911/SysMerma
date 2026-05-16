@@ -126,6 +126,7 @@ export const errorMessages = {
     DETAILS_INVALID_FORMAT_QUANTITY: 'La cantidad de cada detalle debe ser un número mayor a cero.',
     DETAILS_INVALID_FORMAT_SUPPLIER: 'El proveedor de cada detalle es requerido.',
     DETAILS_INVALID_FORMAT_COST_PER_UNIT_TYPE: 'El costo por presentación de cada detalle debe ser un número mayor a cero.',
+    DETAILS_INVALID_FORMAT_ID: 'El identificador de cada detalle debe ser un UUID válido.',
 
     // Códigos de errores de dominio (/errors)
     // Admin / catálogos
@@ -144,6 +145,7 @@ export const errorMessages = {
     SUPPLIER_PRODUCT_CREATE_DB_ERROR: 'Error de base de datos al relacionar el producto a un proveedor.',
     SUPPLIER_PRODUCT_DELETE_DB_ERROR: 'Error de base de datos al eliminar la relación entre producto y proveedor.',
     GOODS_ISSUE_NOT_FOUND: 'Salida de almacén no encontrada.',
+    GOODS_ISSUE_DETAIL_NOT_FOUND: 'Detalle de salida de almacén no encontrado.',
     GOODS_ISSUE_CREATE_DB_ERROR: 'Error de base de datos al crear la salida de almacén.',
     GOODS_ISSUE_UPDATE_DB_ERROR: 'Error de base de datos al editar la salida de almacén.',
     GOODS_ISSUE_INEXISTENT_STOCK: (meta) => {
@@ -180,6 +182,7 @@ export const errorMessages = {
     },
     GOODS_ISSUE_MISSING_MAX_UNIT_COST: (meta) => `No se puede realizar la salida porque el producto: ${ meta.productName } y proveedor: ${ meta.supplierName } no tiene costo unitario máximo configurado.`,
     GOODS_ISSUE_FULFILLMENT_COMPLETE_CONFLICT: 'La salida ya está completamente surtida y no puede modificarse.',
+    GOODS_ISSUE_SUPPLIED_DETAIL_CONFLICT: 'No se pueden editar o eliminar detalles que ya fueron surtidos.',
     MOVEMENT_DETAIL_RELATION_CONFLICT: 'El detalle del movimiento no está asociado a un producto o proveedor.',
     PURCHASE_REQUISITION_NOT_FOUND: 'Requisición de compra no encontrada.',
     PROJECT_NOT_FOUND: 'Proyecto no encontrado.',

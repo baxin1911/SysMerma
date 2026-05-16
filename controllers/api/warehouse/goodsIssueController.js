@@ -1,8 +1,9 @@
-import { createGoodsIssueDetailsDtoForEdit, createGoodsIssueDtoForRegister } from "../../../dtos/goodsIssueDTO.js";
+import { createGoodsIssueDetailsDtoForEdit, createGoodsIssueDtoForEdit, createGoodsIssueDtoForRegister } from "../../../dtos/goodsIssueDTO.js";
 import { successCodeMessages } from "../../../messages/codeMessages.js";
 import {
     createGoodsIssue,
     findAllGoodsIssues,
+    updateGoodsIssue,
     updateGoodsIssueDetails
 } from "../../../services/warehouse/goodsIssues/goodsIssueService.js";
 import { createStockNotification, notifyProductStockStatusChanges } from "../../../services/warehouse/notificationService.js";
@@ -43,6 +44,22 @@ export const registerGoodsIssue = async (req, res) => {
     return res.status(200).json({
         goodsIssue,
         code: successCodeMessages.CREATED_GOODS_ISSUE
+    });
+};
+
+export const editGoodsIssue = async (req, res) => {
+
+    const goodsIssueDto = createGoodsIssueDtoForEdit(req.body);
+    const sanitizedGoodsIssueDto = sanitizeEmptyStrings(goodsIssueDto);
+
+    const goodsIssue = await updateGoodsIssue({
+        goodsIssueDto: sanitizedGoodsIssueDto,
+        id: req.params.id
+    });
+
+    return res.status(200).json({
+        goodsIssue,
+        code: successCodeMessages.UPDATED_GOODS_ISSUE
     });
 };
 

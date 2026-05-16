@@ -167,19 +167,46 @@ export const validateDetailsArray =
         })
 ;
 
-export const validateGoodsIssueDetailsArray = 
+export const validateGoodsIssueDetailIds = ({ required = false } = {}) => {
+
+    const validator = body('details.*.id');
+
+    if (required) {
+        return validator
+            .notEmpty().withMessage(errorMap['details'].INVALID_FORMAT_ID)
+            .isUUID('4').withMessage(errorMap['details'].INVALID_FORMAT_ID);
+    }
+
+    return validator
+        .optional({ values: 'falsy' })
+        .isUUID('4').withMessage(errorMap['details'].INVALID_FORMAT_ID);
+};
+
+export const validateGoodsIssueDetailSupplierIds =
+    body('details.*.supplierId')
+        .notEmpty().withMessage(errorMap['details'].INVALID_FORMAT_SUPPLIER)
+        .isUUID('4').withMessage(errorMap['supplierId'].INVALID_UUID)
+;
+
+export const validateGoodsIssueDetailsArray = ({ allowDetailId = false } = {}) =>
     body('details')
         .isArray({ min: 1 }).withMessage(errorMap['details'].REQUIRED)
         .custom(details => {
 
+            const ids = new Set();
+
             details.forEach(detail => {
+
+                if (detail.id) {
+                    if (!allowDetailId || ids.has(detail.id)) {
+                        throw new Error(errorMap['details'].INVALID_FORMAT_ID);
+                    }
+
+                    ids.add(detail.id);
+                }
 
                 if (!detail.productId || !detail.quantity) {
                     throw new Error(errorMap['details'].INVALID_FORMAT_REQUIRED);
-                }
-
-                if (!detail.supplierId) {
-                    throw new Error(errorMap['details'].INVALID_FORMAT_SUPPLIER);
                 }
 
                 const qty = Number(detail.quantity);
@@ -201,10 +228,11 @@ export const validateGoodsIssueDetailsEdition =
             details.forEach((detail) => {
 
                 const detailId = detail?.id;
+
                 if (!detailId) return;
 
                 const quantity = Number(detail?.projectConvertedQuantity);
-                const isSupplied = Boolean(detail?.isSupplied);
+                const isSupplied = detail?.isSupplied;
 
                 if (!quantity) {
 
