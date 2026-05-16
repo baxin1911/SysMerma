@@ -1,8 +1,11 @@
 export const buildDetailsHeader = ({ type, mode, isWarehouse, isCoordinator, isSystem }) => {
 
     let extraHeaders = '';
+    const isIssue = type === 'issue';
+    const canManageIssueDetails = (isWarehouse && isCoordinator) || isSystem;
+    const shouldShowIssueDetailEdition = isIssue && (mode === 'edit-detail' || mode === 'view');
 
-    if (type === 'issue' && ((isWarehouse && isCoordinator) || isSystem) && mode !== 'create') {
+    if (shouldShowIssueDetailEdition && canManageIssueDetails) {
         extraHeaders += `
             <th rowspan="2">Costo unitario de Conversión</th>
             <th rowspan="2">Cantidad de proyecto</th>
@@ -19,7 +22,7 @@ export const buildDetailsHeader = ({ type, mode, isWarehouse, isCoordinator, isS
         `;
     }
 
-    if (type === 'issue' && mode !== 'create') {
+    if (shouldShowIssueDetailEdition) {
         extraHeaders += `<th rowspan="2">Surtir</th>`;
     }
 
@@ -49,6 +52,10 @@ export const buildDetailsHeader = ({ type, mode, isWarehouse, isCoordinator, isS
 
 export const buildDetailsColumns = ({ type, mode, render, isWarehouse, isCoordinator, isSystem }) => {
 
+    const isIssue = type === 'issue';
+    const canManageIssueDetails = (isWarehouse && isCoordinator) || isSystem;
+    const shouldShowIssueDetailEdition = isIssue && (mode === 'edit-detail' || mode === 'view');
+
     const columns = [
         {
             data: null,
@@ -62,7 +69,7 @@ export const buildDetailsColumns = ({ type, mode, render, isWarehouse, isCoordin
         { data: 'unitMeasureName' },
     ];
 
-    if (type === 'issue' && ((isWarehouse && isCoordinator) || isSystem) && mode !== 'create') {
+    if (shouldShowIssueDetailEdition && canManageIssueDetails) {
         columns.push(
             { data: 'maxUnitCost' },
             { 
@@ -97,7 +104,7 @@ export const buildDetailsColumns = ({ type, mode, render, isWarehouse, isCoordin
         );
     }
 
-    if (type === 'issue' && mode !== 'create') {
+    if (shouldShowIssueDetailEdition) {
         columns.push({
             data: null,
             render: (_, __, row) => {
@@ -119,11 +126,20 @@ export const buildDetailsColumns = ({ type, mode, render, isWarehouse, isCoordin
     if (mode !== 'view' && mode !== 'edit-detail') {
         columns.push({
             data: null,
-            render: (_, __, row) => `
-                <button type="button" class="btn btn-danger btn-sm delete-btn" data-id="${ row.productId }">
-                    <i class="fas fa-trash-alt"></i>
-                </button>
-            `
+            render: (_, __, row) => {
+                const isSuppliedDetail = type === 'issue' && row.isSupplied;
+
+                return `
+                    <button
+                        type="button"
+                        class="btn btn-danger btn-sm delete-btn"
+                        data-id="${ row.productId }"
+                        ${ isSuppliedDetail ? 'disabled title="El detalle ya fue surtido"' : '' }
+                    >
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                `;
+            }
         });
     }
 

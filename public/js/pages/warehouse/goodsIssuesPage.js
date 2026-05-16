@@ -1,5 +1,5 @@
 import { useForm } from "../../application/form.js";
-import { editGoodsIssueDetails, registerGoodsIssue } from "../../application/warehouse/goodsIssues.js";
+import { editGoodsIssue, editGoodsIssueDetails, registerGoodsIssue } from "../../application/warehouse/goodsIssues.js";
 import { validateAddProductValidators, validateGoodsIssueDetailValidators, validateGoodsIssueValidators } from "../../utils/validations/validators.js";
 import { refreshProductTable } from "../../plugins/datatable/baseDatatable.js";
 import { createGoodsIssueDatatable, details, initDetailsGoodsIssueTable } from "../../plugins/datatable/goodsIssueDatatable.js";
@@ -11,6 +11,7 @@ import { handleAction, handleSubmit, hasValidationErrors, validateDetailsFields,
 import { openModal } from "../../ui/modalUI.js";
 import { hasPermission } from "../../utils/permissions.js";
 
+const MODE_EDIT = 'edit';
 const MODE_EDIT_DETAIL = 'edit-detail';
 const MODE_VIEW = 'view';
 const modalId = '#goodsIssueModal';
@@ -50,11 +51,15 @@ useForm({
     },
     sendRequest: async ({ formData, form }) => {
 
+        const update = form.dataset.mode === MODE_EDIT_DETAIL
+            ? editGoodsIssueDetails
+            : editGoodsIssue;
+
         await handleSubmit({
             form,
             formData,
             create: registerGoodsIssue,
-            update: editGoodsIssueDetails
+            update
         });
     },
 });
@@ -88,7 +93,7 @@ export const openGoodsIssueModal = async ({ mode, data = null }) => {
         form.querySelector('#presentationDisplayInput').value = '';
     }
 
-    if (mode === MODE_EDIT_DETAIL || mode === MODE_VIEW) {
+    if (mode === MODE_EDIT || mode === MODE_EDIT_DETAIL || mode === MODE_VIEW) {
 
         form.querySelector('#observationsInput').value = data.observations || '';
         form.querySelector('#requestDateInput').value = formatDateLongWithTime(data.requestDate);
@@ -115,7 +120,12 @@ export const openGoodsIssueModal = async ({ mode, data = null }) => {
             isSupplied: detail.isSupplied,
         })));
 
-        setFormReadOnly({ form, isReadOnly: true });
+        setFormReadOnly({ form, isReadOnly: mode !== MODE_EDIT });
+
+        if (mode === MODE_EDIT) {
+            modalElement.querySelector('#modalTitle').textContent = 'Editar salida';
+            form.querySelector('#submitBtn').textContent = 'Actualizar';
+        }
 
         if (mode === MODE_EDIT_DETAIL) {
             modalElement.querySelector('#modalTitle').textContent = 'Editar detalles de la salida';
