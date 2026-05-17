@@ -1,20 +1,9 @@
 import { isEmptyOrNull } from "./baseValidations.js";
 import { validateName, validatePassword, validateNumber, validateUsername, validateTextOptional, validateMeasure, validateDateOptional, validateGoodsReceiptDetailsArray, validateDate, validateText, validateNumberOptional, validateGoodsIssueDetailsArray, validatePositiveNumber } from "./fieldValidations.js";
 
-const validatePositiveNumber = (value, fieldName) => {
-
-    const result = validateNumber(value, fieldName);
-
-    if (result) return result;
-
-    if (parseFloat(value) <= 0) return `${ fieldName } debe ser un número mayor a cero`;
-
-    return null;
-}
-
 export const supplierValidators = {
-    legalName: (value) => validateText(value, 200, 'La razón social'),
-    tradeName: (value) => validateText(value, 100, 'El nombre comercial'),
+    legalName: (value) => validateText({ name: value, length: 200, fieldName: 'La razón social' }),
+    tradeName: (value) => validateText({ name: value, length: 100, fieldName: 'El nombre comercial' }),
 }
 
 export const productValidators = {
@@ -53,7 +42,7 @@ export const validateGoodsReceiptValidators = {
 }
 
 export const validateGoodsIssueValidators = {
-    projectNumber: (value) => validateText(value, 50, 'El número de proyecto'),
+    projectNumber: (value) => validateText({ name: value, maxLength: 50, fieldName: 'El número de proyecto' }),
     advisorId: (value) => isEmptyOrNull(value, 'El asesor'),
     clientId: (value) => isEmptyOrNull(value, 'El cliente'),
     departmentId: (value) => isEmptyOrNull(value, 'El cliente'),
@@ -73,3 +62,7 @@ export const validatePurchaseRequisitionValidators = {
     requestDate: (value) => validateDate(value, 'La fecha de solicitud'),
     details: validateGoodsReceiptDetailsArray
 };
+
+export const validateClientValidators = {
+    name: (value) => validateText({ name: value, length: 100, fieldName: 'El nombre' }),
+}

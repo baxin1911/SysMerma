@@ -8,7 +8,18 @@ export const goodsIssueValidation = [
     validateProjectNumber('projectNumber'),
     validateDate('requestDate'),
     validateTextOptional('observations'),
-    validateGoodsIssueDetailsArray
+    validateGoodsIssueDetailsArray()
+];
+
+export const goodsIssueUpdateValidation = [
+    validateUUID('advisorId'),
+    validateUUID('clientId'),
+    validateUUID('departmentId'),
+    validateUUID('requesterId'),
+    validateProjectNumber('projectNumber'),
+    validateDate('requestDate'),
+    validateTextOptional('observations'),
+    validateGoodsIssueDetailsArray({ allowDetailId: true })
 ];
 
 export const goodsIssueDetailsValidation = [

@@ -9,10 +9,8 @@ export const prepareProductData = async ({ tx, productDto, productId = null }) =
 
     const { presentationId, unitMeasureId, supplierId, ...rest } = productDto;
 
-    await Promise.all([
-        findUniqueUnitMeasure({ tx, id: unitMeasureId }),
-        findUniquePresentation({ tx, id: presentationId })
-    ]);
+    await findUniqueUnitMeasure({ tx, id: unitMeasureId });
+    await findUniquePresentation({ tx, id: presentationId });
 
     return {
         rest,

@@ -1,4 +1,4 @@
-import { handleDataTableError, normalizeJqAjaxError } from "../../api/errorHandler.js";
+import { handleDataTableError } from "../../api/errorHandler.js";
 
 export const createDataTable = ({ selector = '#table', options = {} }) => {
 
@@ -50,13 +50,14 @@ export const refreshProductTable = (details) => {
     table.draw();
 }
 
-export const renderActionButtons = ({ status, context }) => {
+export const renderActionButtons = ({ status, fulfillmentStatus, context }) => {
 
     const actions = [];
+    const canEditGoodsIssue = context === 'goodsIssue' && fulfillmentStatus === 'Pendiente';
 
-    if (status === 'Abierta') actions.push('<button class="btn-edit"><i class="fa-solid fa-pencil"></i></button>');
+    if (status === 'Abierta' || canEditGoodsIssue) actions.push('<button class="btn-edit"><i class="fa-solid fa-pencil"></i></button>');
 
-    if (status === 'Aprobada' && context === 'goodsIssue') actions.push('<button class="btn-edit-detail"><i class="fa fa-edit"></i></button>');
+    if (status === 'Aprobada' && context === 'goodsIssue' && canEditGoodsIssue) actions.push('<button class="btn-edit-detail"><i class="fa fa-edit"></i></button>');
 
     if (context !== 'product') actions.push('<button class="btn-view"><i class="fa fa-eye"></i></button>');
 

@@ -8,6 +8,7 @@ const usernameRegex = /^[a-zA-Z0-9_]+$/;
 const invoiceRegex = /^[a-zA-Z0-9\-]+$/;
 const passwordRegex = /^[A-Za-z0-9!@#\$%\^&\*]+$/;
 const nameRegex = /^[\p{L}0-9]+(?:[ '\-.,:;()¿?¡!][\p{L}0-9]+)*[.,:;()¿?¡!]*$/u;
+const uuidV4Regex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export const validateUsername = 
     body('name')
@@ -51,13 +52,13 @@ export const validateInvoice = (maxLength = 50) =>
         .matches(invoiceRegex).withMessage(errorMap['invoice'].INVALID_FORMAT)
 ;
 
-export const validateText = (fieldName, maxLength) =>
+export const validateText = ({ fieldName, maxLength, regex = nameRegex }) =>
     body(fieldName)
         .trim()
         .notEmpty().withMessage(errorMap['name'].REQUIRED)
         .isString().withMessage(errorMap['name'].INVALID_TYPE)
         .isLength({ max: maxLength }).withMessage(errorMap['name'].TOO_LONG(maxLength))
-        .matches(nameRegex).withMessage(errorMap['name'].INVALID_FORMAT)
+        .matches(regex).withMessage(errorMap['name'].INVALID_FORMAT)
 ;
 
 export const validateBoolean = (fieldName) =>
@@ -167,12 +168,26 @@ export const validateDetailsArray =
         })
 ;
 
-export const validateGoodsIssueDetailsArray = 
+export const validateGoodsIssueDetailsArray = ({ allowDetailId = false } = {}) =>
     body('details')
         .isArray({ min: 1 }).withMessage(errorMap['details'].REQUIRED)
         .custom(details => {
 
+            const ids = new Set();
+
             details.forEach(detail => {
+
+                if (detail.id) {
+                    if (!allowDetailId || !uuidV4Regex.test(detail.id)) {
+                        throw new Error(errorMap['details'].INVALID_FORMAT_ID);
+                    }
+
+                    if (ids.has(detail.id)) {
+                        throw new Error(errorMap['details'].INVALID_FORMAT_ID);
+                    }
+
+                    ids.add(detail.id);
+                }
 
                 if (!detail.productId || !detail.quantity) {
                     throw new Error(errorMap['details'].INVALID_FORMAT_REQUIRED);
@@ -201,10 +216,20 @@ export const validateGoodsIssueDetailsEdition =
             details.forEach((detail) => {
 
                 const detailId = detail?.id;
-                if (!detailId) return;
+                
+                if (!detailId || !uuidV4Regex.test(detailId)) {
+
+                    if (!errors[detailId || 'details']) errors[detailId || 'details'] = {};
+
+                    errors[detailId || 'details'].id = errorMap['details'].INVALID_FORMAT_ID;
+                    return;
+                }
 
                 const quantity = Number(detail?.projectConvertedQuantity);
-                const isSupplied = Boolean(detail?.isSupplied);
+                const isSuppliedRaw = detail?.isSupplied;
+                const isSupplied = typeof isSuppliedRaw === 'string'
+                    ? isSuppliedRaw.toLowerCase() === 'true'
+                    : isSuppliedRaw;
 
                 if (!quantity) {
 
@@ -220,7 +245,7 @@ export const validateGoodsIssueDetailsEdition =
                     errors[detailId].projectConvertedQuantity = errorMap['details'].INVALID_FORMAT_QUANTITY;
                 }
 
-                if (isSupplied === null || isSupplied === undefined) {
+                if (isSuppliedRaw === null || isSuppliedRaw === undefined) {
 
                     if (!errors[detailId]) errors[detailId] = {};
 

@@ -3,7 +3,8 @@ import {
     GoodsIssueRequesterProfileNotFound,
     GoodsIssueUpdateDatabaseError,
     GoodsIssueAdvisorProfileNotFound,
-    GoodsIssueFulfillmentCompleteConflict,
+    GoodsIssueNotPendingConflict,
+    GoodsIssueSuppliedConflict,
     GoodsIssueCreateDatabaseError
 } from "../../../errors/warehouse/goodsIssueError.js";
 import { getDb } from "../../../repository/baseRepository.js";
@@ -47,10 +48,32 @@ export const findAllGoodsIssues = async ({
 
     const where = {
         ...(search && {
-            referenceNumber: {
-                contains: search,
-                mode: 'insensitive'
-            }
+            OR: [
+                {
+                    referenceNumber: {
+                        contains: search,
+                        mode: 'insensitive'
+                    }
+                },
+                {
+                    projectNumber: {
+                        contains: search,
+                        mode: 'insensitive'
+                    }
+                },
+                {
+                    clientName: {
+                        contains: search,
+                        mode: 'insensitive'
+                    }
+                },
+                {
+                    departmentName: {
+                        contains: search,
+                        mode: 'insensitive'
+                    }
+                }
+            ]
         }),
         ...(onlyPending && {
             fulfillmentStatus: {
@@ -230,6 +253,121 @@ export const createGoodsIssue = async ({
     }
 };
 
+export const updateGoodsIssue = async ({ id, goodsIssueDto }) => {
+
+    try {
+
+        const { requesterId, advisorId, departmentId, clientId, details, ...goodsIssueData } = goodsIssueDto;
+
+        const goodsIssue = await getDb().goodsIssue.findUnique({
+            where: { id },
+            select: {
+                id: true,
+                status: true,
+                fulfillmentStatus: true,
+                details: {
+                    select: {
+                        id: true,
+                        productId: true,
+                        supplierId: true,
+                        quantity: true,
+                        presentationId: true,
+                        suppliedQuantity: true,
+                        isSupplied: true
+                    }
+                }
+            }
+        });
+
+        if (!goodsIssue) throw new GoodsIssueNotFound();
+
+        if (goodsIssue.fulfillmentStatus?.name !== FULFILLMENT_PENDING) throw new GoodsIssueNotPendingConflict();
+
+        const hasSuppliedInAnyDetail = goodsIssue.details.some(
+            detail => Number(detail.suppliedQuantity ?? 0) > FLOAT_EPSILON || detail.isSupplied
+        );
+
+        if (hasSuppliedInAnyDetail) throw new GoodsIssueSuppliedConflict();
+
+        const requester = await findProfileById({ id: requesterId });
+
+        if (!requester) throw new GoodsIssueRequesterProfileNotFound();
+
+        const advisor = await findProfileById({ id: advisorId });
+
+        if (!advisor) throw new GoodsIssueAdvisorProfileNotFound();
+
+        const client = await findClientById({ id: clientId });
+        const department = await findDepartmentById({ id: departmentId });
+
+        const processedDetails = await buildGoodsIssueDetails({ details });
+
+        return await getDb().$transaction(async (tx) => {
+
+            await tx.goodsIssueDetail.deleteMany({
+                where: { goodsIssueId: id }
+            });
+
+            await tx.goodsIssueDetail.createMany({
+                data: processedDetails.map(d => ({
+                    ...d,
+                    goodsIssueId: id
+                }))
+            });
+
+            return await tx.goodsIssue.update({
+                where: { id },
+                data: {
+                    ...goodsIssueData,
+                    departmentName: department.name,
+                    requesterName: requester.fullName,
+                    advisorName: advisor.fullName,
+                    clientName: client.name,
+
+                    department: {
+                        connect: { id: departmentId }
+                    },
+
+                    requester: {
+                        connect: { id: requesterId }
+                    },
+
+                    advisor: {
+                        connect: { id: advisorId }
+                    },
+
+                    client: {
+                        connect: { id: clientId }
+                    },
+
+                    status: {
+                        connect: {
+                            name: STATUS_APPROVED
+                        }
+                    },
+
+                    fulfillmentStatus: {
+                        connect: {
+                            name: FULFILLMENT_PENDING
+                        }
+                    }
+                },
+                include: {
+                    details: true,
+                    status: true,
+                    fulfillmentStatus: true
+                }
+            });
+        });
+
+    } catch (err) {
+console.log(err)
+        if (err instanceof AppError) throw err;
+
+        throw new GoodsIssueUpdateDatabaseError();
+    }
+};
+
 export const updateGoodsIssueDetails = async ({ id, goodsIssueDto }) => {
 
     const { details = [] } = goodsIssueDto;
@@ -240,6 +378,7 @@ export const updateGoodsIssueDetails = async ({ id, goodsIssueDto }) => {
             where: { id },
             select: {
                 id: true,
+                status: true,
                 fulfillmentStatus: true,
                 details: {
                     select: {
@@ -257,10 +396,9 @@ export const updateGoodsIssueDetails = async ({ id, goodsIssueDto }) => {
 
         if (!goodsIssue) throw new GoodsIssueNotFound();
 
-        if (goodsIssue.fulfillmentStatus?.name === FULFILLMENT_COMPLETE) {
-            throw new GoodsIssueFulfillmentCompleteConflict();
+        if (goodsIssue.fulfillmentStatus?.name !== FULFILLMENT_PENDING) {
+            throw new GoodsIssueNotPendingConflict();
         }
-
         const detailIds = details.map(d => d.id).filter(Boolean);
         const currentDetails = goodsIssue.details.filter(d => detailIds.includes(d.id));
         const currentById = new Map(currentDetails.map(d => [d.id, d]));
@@ -391,8 +529,8 @@ export const updateGoodsIssueDetails = async ({ id, goodsIssueDto }) => {
                 },
                 select: {
                     id: true,
+                    status: true,
                     fulfillmentStatus: true,
-                    status: true
                 }
             });
 

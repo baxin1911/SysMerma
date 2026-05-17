@@ -104,7 +104,7 @@ export const validateNumberOptional = (number, fieldName) => {
 
 export const validateDate = (date, fieldName) => {
 
-    let result = isEmptyOrNull(Date, fieldName);
+    let result = isEmptyOrNull(date, fieldName);
 
     if (result) return result;
 
@@ -137,9 +137,13 @@ export const validateMeasure = (measure, fieldName) => {
     return result;
 }
 
-export const validateText = (name, length, fieldName) => {
+export const validateText = ({ 
+    name, 
+    length, 
+    fieldName,
+    regex = /^[\p{L}0-9]+(?:[ '\-.,:;()¿?¡!][\p{L}0-9]+)*[.,:;()¿?¡!]*$/u
+}) => {
 
-    const allowedName = /^[\p{L}0-9]+(?:[ '\-.,:;()¿?¡!][\p{L}0-9]+)*[.,:;()¿?¡!]*$/u;
     let result = isEmptyOrNull(name, fieldName);
 
     if (result) return result;
@@ -148,7 +152,7 @@ export const validateText = (name, length, fieldName) => {
 
     if (result) return result;
 
-    if (!allowedName.test(name)) return `${ fieldName } debe tener solo letras, números, signos de puntuación o espacios.`;
+    if (!regex.test(name)) return `${ fieldName } debe tener solo letras, números, signos de puntuación o espacios.`;
 
     result = isLengthInRangeMax(name, length, fieldName);
 
@@ -159,12 +163,17 @@ export const validateTextOptional = (name, length, fieldName) => {
 
     if (!name) return null;
 
-    const result = validateText(name, length, fieldName);
+    const result = validateText({ name, length, fieldName });
 
     return result;
 }
 
-export const validateName = (name, length = 50) => validateText(name, length, 'El nombre');
+export const validateName = (name, length = 50) => validateText({ 
+    name, 
+    length, 
+    fieldName: 'El nombre',
+    regex: /^[^<>\\{}[\]]+$/u
+});
 
 export const validateGoodsReceiptDetailsArray = (details) => {
 
@@ -198,8 +207,8 @@ export const validateGoodsIssueDetailsArray = (details) => {
 
     for (const detail of details) {
 
-        if (!detail.productId || !detail.quantity) {
-            return 'Cada detalle debe contener producto y cantidad.';
+        if (!detail.productId || !detail.supplierId || !detail.quantity) {
+            return 'Cada detalle debe contener producto, proveedor y cantidad.';
         }
 
         if (isNaN(detail.quantity) || parseFloat(detail.quantity) < 1) {

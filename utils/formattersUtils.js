@@ -36,3 +36,5 @@ export const parseStockKey = (key) => {
     const [productId, supplierId] = key.split(':');
     return { productId, supplierId };
 };
+
+export const toNumber = value => value == null || value === '' ? null : Number(value);

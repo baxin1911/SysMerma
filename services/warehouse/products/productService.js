@@ -1,6 +1,6 @@
 import { ProductSnapshotFindDatabaseError, ProductCreateDatabaseError, ProductNotFound, ProductUpdateDatabaseError } from "../../../errors/warehouse/productError.js";
 import { getDb } from "../../../repository/baseRepository.js";
-import { findAllSupplierProducts, findSupplierProductByIds } from "./supplierProductService.js";
+import { findAllSupplierProducts, findCurrentSupplierProductByProductId, findSupplierProductByIds } from "./supplierProductService.js";
 import { prepareProductData, withRetry } from "./productHelpers.js";
 import { syncSupplierProduct } from "./productRelations.js";
 import { AppError } from "../../../errors/AppError.js";
@@ -94,7 +94,7 @@ export const findProductsSnapshot = async ({
 
 export const createProduct = async (productDto) => {
 
-    return withRetry(async () => {
+    try {
 
         return getDb().$transaction((tx) =>
             createProductInTransaction({
@@ -103,17 +103,17 @@ export const createProduct = async (productDto) => {
             })
         );
 
-    }).catch(() => {
+    } catch (err) {
 
         if (err instanceof AppError) throw err;
         
         throw new ProductCreateDatabaseError();
-    });
+    };
 };
 
 export const updateProduct = async (productDto, id) => {
 
-    return withRetry(async () => {
+    try {
 
         return await getDb().$transaction(async (tx) => {
 
@@ -124,6 +124,11 @@ export const updateProduct = async (productDto, id) => {
 
             if (!productExists) throw new ProductNotFound();
 
+            const currentSupplierProduct = await findCurrentSupplierProductByProductId({
+                tx,
+                productId: id
+            });
+
             const {
                 rest,
                 relations
@@ -133,13 +138,11 @@ export const updateProduct = async (productDto, id) => {
                 productId: id
             });
 
+
             const updatedProduct = await tx.product.update({
                 where: { id },
                 data: {
                     ...rest,
-                    supplier: {
-                        connect: { id: relations.supplierId }
-                    },
                     presentation: {
                         connect: { id: relations.presentationId }
                     },
@@ -152,6 +155,8 @@ export const updateProduct = async (productDto, id) => {
             await syncSupplierProduct({
                 tx,
                 supplierId: relations.supplierId,
+                previousSupplierId: currentSupplierProduct?.supplierId,
+                previousMaxUnitCost: currentSupplierProduct?.maxUnitCost,
                 productId: id,
                 isUpdate: true
             });
@@ -165,7 +170,7 @@ export const updateProduct = async (productDto, id) => {
             return fullProduct;
         });
 
-    }).catch((err) => {
+    } catch (err) {
 
         if (err.code === PRISMA_RECORD_NOT_FOUND) {
             throw new ProductNotFound();
@@ -174,5 +179,5 @@ export const updateProduct = async (productDto, id) => {
         if (err instanceof AppError) throw err;
 
         throw new ProductUpdateDatabaseError();
-    });
+    };
 };

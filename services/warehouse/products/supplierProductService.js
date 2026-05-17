@@ -19,6 +19,20 @@ export const findSupplierProduct = async ({
     });
 };
 
+export const findCurrentSupplierProductByProductId = async ({
+    tx,
+    productId
+}) => {
+
+    const db = getDb(tx);
+
+    return db.supplierProduct.findFirst({
+        where: { productId },
+        select: { supplierId: true, maxUnitCost: true }
+    });
+};
+
+
 const mapSupplierProduct = (sp) => {
 
     const { product, supplier, maxUnitCost, currentStock, convertedQuantity } = sp;
@@ -200,7 +214,8 @@ export const countTotalSupplierProducts = async ({
 export const createSupplierProduct = async ({
     tx,
     supplierId,
-    productId
+    productId,
+    maxUnitCost = null
 }) => {
 
     const db = getDb(tx);
@@ -208,11 +223,34 @@ export const createSupplierProduct = async ({
     return db.supplierProduct.create({
         data: {
             supplierId,
-            productId
+            productId,
+            maxUnitCost
         }
     });
 }
 
+
+export const resolveMaxUnitCostForSync = async ({
+    tx,
+    supplierId,
+    productId,
+    fallbackMaxUnitCost
+}) => {
+
+    const db = getDb(tx);
+
+    const exactSupplierProduct = await db.supplierProduct.findUnique({
+        where: {
+            supplierId_productId: {
+                supplierId,
+                productId
+            }
+        },
+        select: { maxUnitCost: true }
+    });
+
+    return exactSupplierProduct?.maxUnitCost ?? fallbackMaxUnitCost;
+};
 export const updateProductUnitCostIfHigher = async ({
     supplierId,
     details

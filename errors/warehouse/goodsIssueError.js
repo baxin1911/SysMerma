@@ -14,6 +14,21 @@ export class GoodsIssueFulfillmentCompleteConflict extends AppError {
     }
 }
 
+
+export class GoodsIssueNotPendingConflict extends AppError {
+
+    constructor () {
+        super('La salida solo puede editarse cuando está pendiente', 'GOODS_ISSUE_NOT_PENDING_CONFLICT', 409);
+    }
+}
+
+export class GoodsIssueSuppliedConflict extends AppError {
+
+    constructor () {
+        super('La salida ya tiene productos surtidos y no puede editarse en general', 'GOODS_ISSUE_SUPPLIED_CONFLICT', 409);
+    }
+}
+
 export class GoodsIssueRequesterProfileNotFound extends AppError {
 
     constructor () {
@@ -25,6 +40,20 @@ export class GoodsIssueAdvisorProfileNotFound extends AppError {
 
     constructor () {
         super('Perfil de asesor no encontrado', 'ADVISOR_PROFILE_NOT_FOUND', 404);
+    }
+}
+
+export class GoodsIssueDetailNotFound extends AppError {
+
+    constructor () {
+        super('Detalle de salida de almacén no encontrado', 'GOODS_ISSUE_DETAIL_NOT_FOUND', 404);
+    }
+}
+
+export class GoodsIssueSuppliedDetailConflict extends AppError {
+
+    constructor () {
+        super('No se pueden editar o eliminar detalles que ya fueron surtidos', 'GOODS_ISSUE_SUPPLIED_DETAIL_CONFLICT', 409);
     }
 }
 

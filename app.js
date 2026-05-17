@@ -8,6 +8,7 @@ import goodsReceiptApiRoutes from './routes/api/warehouse/goodsReceiptApiRoute.j
 import purchaseRequisitionApiRoutes from './routes/api/warehouse/purchaseRequisitionApiRoute.js';
 import goodsIssueApiRoutes from './routes/api/warehouse/goodsIssueApiRoute.js';
 import notificationApiRoutes from './routes/api/warehouse/notificationApiRoute.js';
+import reportApiRoutes from './routes/api/warehouse/reportApiRoute.js';
 import unitMeasuresApiRoutes from './routes/api/warehouse/unitMeasureApiRoute.js';
 import presentationApiRoutes from './routes/api/warehouse/presentationApiRoute.js';
 import departmentApiRoutes from './routes/api/admin/departmentApiRoute.js';
@@ -96,6 +97,7 @@ app.use(apiRoute + warehouse + '/goods-receipts', goodsReceiptApiRoutes);
 // app.use(apiRoute + warehouse + '/purchase-requisitions', purchaseRequisitionApiRoutes);
 app.use(apiRoute + warehouse + '/goods-issues', goodsIssueApiRoutes);
 app.use(apiRoute + warehouse + '/notifications', notificationApiRoutes);
+app.use(apiRoute + warehouse + '/reports', reportApiRoutes);
 app.use(apiRoute + warehouse + '/unit-measures', unitMeasuresApiRoutes);
 app.use(apiRoute + warehouse + '/presentations', presentationApiRoutes);
 app.use(apiRoute + admin + '/departments', departmentApiRoutes);

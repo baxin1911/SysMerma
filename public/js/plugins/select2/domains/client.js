@@ -1,9 +1,10 @@
+import { openClientModal } from "../../../modules/clients/clientModal.js";
 import { getAllClientsRequest } from "../../../services/sales/clientService.js";
 import { initbaseSelect2, toggleSelectOption } from "../baseSelect.js";
 
 export const initClientSelect = ({ 
     modalSelector, 
-    advisorSelector,
+    advisorSelector = null,
     baseSelector, 
     allowCreate = true
 }) => {
@@ -54,6 +55,37 @@ export const initClientSelect = ({
     });
 };
 
+const attachClientHandler = ({ 
+    modalSelector, 
+    advisorSelector = null,
+    baseSelector, 
+}) => {
+
+    $(baseSelector).off('select2:select').on('select2:select', (e) => {
+
+        const data = e.params.data;
+
+        if (data.newTag) {
+
+            const name = data.id.replace('new:', '');
+            
+            openClientModal({
+                data: { name },
+                onSave: (createdClient) => {
+
+                    toggleClientOption({
+                        selector: baseSelector,
+                        id: createdClient.id,
+                        text: createdClient.name
+                    });
+                }
+            });
+
+            return;
+        }
+    });
+};
+
 export const toggleClientOption = ({ 
     selector, 
     id = null, 
@@ -65,3 +97,21 @@ export const toggleClientOption = ({
         text: name
     }
 });
+
+export const setupClientSelect = ({ 
+    modalSelector, 
+    clientSelector,
+    allowCreate = true,
+}) => {
+
+    initClientSelect({
+        modalSelector,
+        baseSelector: `${ modalSelector } ${ clientSelector }`,
+        allowCreate
+    });
+
+    attachClientHandler({
+        modalSelector,
+        baseSelector: `${ modalSelector } ${ clientSelector }`,
+    });
+};

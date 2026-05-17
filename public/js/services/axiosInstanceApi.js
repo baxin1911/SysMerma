@@ -58,4 +58,4 @@ api.interceptors.response.use(
     }
 );
 
-export const apiRequest = async ({ method, url, params, data }) => await api({ method, url, params, data });
+export const apiRequest = async ({ method, url, params, data, responseType }) => await api({ method, url, params, data, responseType });

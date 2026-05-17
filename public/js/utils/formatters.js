@@ -26,3 +26,12 @@ export const formatDateLongWithTime = (dateTime) => {
 
     return formatted;
 }
+
+export const formatInventoryFileName = (filename) => {
+
+    const now = new Date();
+    const month = String(now.getUTCMonth() + 1).padStart(2, '0');
+    const year = now.getUTCFullYear();
+
+    return `${ filename }_${ month }_${ year }`;
+}

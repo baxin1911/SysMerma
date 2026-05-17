@@ -43,7 +43,11 @@ export const createGoodsIssueDatatable = (context) => {
         {
             data: 'id',
             title: 'Acciones',
-            render: (data, type, row) => renderActionButtons({ status: row.status?.name, context: 'goodsIssue' })
+            render: (data, type, row) => renderActionButtons({ 
+                status: row.status?.name, 
+                fulfillmentStatus: row.fulfillmentStatus?.name,
+                context: 'goodsIssue' 
+            })
         }
     );
 
@@ -61,6 +65,13 @@ export const createGoodsIssueDatatable = (context) => {
             ]
         }
     });
+
+    $(`${ selectorTable } tbody`).on('click', '.btn-edit', function () {
+
+        const data = table.row($(this).closest('tr')).data();
+
+        openGoodsIssueModal({ mode: 'edit', data });
+    })
 
     $(`${ selectorTable } tbody`).on('click', '.btn-edit-detail', function() {
 

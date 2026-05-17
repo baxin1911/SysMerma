@@ -1,4 +1,4 @@
-import { ClientFindDatabaseError, ClientNotFound } from "../../errors/sales/clientError.js";
+import { ClientCreateDatabaseError, ClientFindDatabaseError, ClientNotFound } from "../../errors/sales/clientError.js";
 import { getDb } from "../../repository/baseRepository.js";
 
 export const findAllClients = async ({
@@ -63,3 +63,22 @@ export const findClientById = async ({ tx, id }) => {
 
     return client || null;
 }
+
+export const createClient = async (clientDto) => {
+
+    try {
+
+        const createdClient = await getDb().client.create({
+            data: {
+                name: clientDto.name,
+                advisorId: clientDto.advisorId
+            }
+        });
+
+        return createdClient;
+
+    } catch (err) {
+        
+        throw new ClientCreateDatabaseError();
+    }
+};

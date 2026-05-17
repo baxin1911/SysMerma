@@ -4,6 +4,9 @@ import { notifications } from "../swal/swalComponent.js";
 import { hasPermission } from "../../utils/permissions.js";
 import { getAllProductsRequest } from "../../services/warehouse/productService.js";
 import { renderMaterialName } from "./utils/renderProductDatatable.js";
+import { buildExcelButton } from "../../ui/excelUI.js";
+import { exportWarehouseReport } from "../../application/warehouse/report.js";
+import { formatInventoryFileName as formatFileName } from "../../utils/formatters.js";
 
 const selectorTable = '#table';
 let lastLowStockNotification = '';
@@ -109,7 +112,13 @@ export const createProductDatatable = (context) => {
                 notifications.showWarning(
                     `Hay ${lowStockProducts.length} producto(s) por debajo del stock mínimo: ${productNames}${lowStockProducts.length > 3 ? '...' : ''}`
                 );
-            }
+            },
+            buttons: [
+                buildExcelButton({
+                    filename: formatFileName('reporte_inventario_productos'),
+                    request: exportWarehouseReport
+                })
+            ]
         }
     });
 

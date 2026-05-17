@@ -1,7 +1,7 @@
-import { validateBoolean, validateName, validateNumberOptional, validateUUID } from "../fields/fieldsValidator.js";
+import { validateBoolean, validateNumberOptional, validateText, validateUUID } from "../fields/fieldsValidator.js";
 
 export const productValidation = [
-    validateName(200),
+    validateText({ fieldName: 'name', maxLength: 200, regex: /^[^<>\\{}[\]]+$/u }),
     validateUUID('supplierId'),
     validateUUID('presentationId'),
     validateUUID('unitMeasureId'),

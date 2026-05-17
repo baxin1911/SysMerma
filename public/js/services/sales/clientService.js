@@ -7,3 +7,9 @@ export const getAllClientsRequest = (params) => apiRequest({
     url: `${ CLIENTS_API_ROUTE }`,
     params
 });
+
+export const createClientRequest = (data) => apiRequest({
+    method: 'post',
+    url: `${ CLIENTS_API_ROUTE }`,
+    data
+});

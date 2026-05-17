@@ -33,12 +33,14 @@ export const buildGoodsIssueDetails = async ({
         ])
     );
 
-    return details.map(({ productId, quantity, supplierId }) => {
+    return details.map(({ productId, quantity, supplierId, presentationId }) => {
 
         const key = buildStockKey(productId, supplierId);
         const sp = spMap.get(key);
 
         if (!sp) throw new ProductNotFound();
+
+        if (presentationId && sp.presentation?.id !== presentationId) throw new ProductNotFound();
 
         const { name, base, height, presentation, unitMeasure, maxUnitCost } = sp;
         const hasDimensions = base !== null && height !== null && base > 0 && height > 0;

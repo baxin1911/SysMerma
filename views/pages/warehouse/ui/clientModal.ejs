@@ -1,0 +1,15 @@
+<% const form = {
+    id: 'clientForm',
+    canApprove: false,
+    inputs: [
+        {
+            id: 'nameInput',
+            type: 'text',
+            name: 'name',
+            label: 'Nombre',
+            col: '12'
+        }
+    ]
+} %>
+
+<%- include('../../../shared/modal', { modalId: 'clientModal', form }) %>

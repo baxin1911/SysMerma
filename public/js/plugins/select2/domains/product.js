@@ -74,11 +74,11 @@ const initProductSelect = ({
 
 const attachProductHandler = ({ 
     modalSelector,
-    productSelector, 
+    baseSelector, 
     supplierSelector
 }) => {
 
-    $(productSelector).off('select2:select').on('select2:select', (e) => {
+    $(baseSelector).off('select2:select').on('select2:select', (e) => {
 
         const { data } = e.params;
 
@@ -87,12 +87,6 @@ const attachProductHandler = ({
             const name = data.id.replace('new:', '');
             const id = $(`${ modalSelector } ${ supplierSelector }`).val();
             const tradeName = $(`${ modalSelector } ${ supplierSelector } option:selected`).text();
-
-            if (!id) {
-                $(productSelector).val(null).trigger('change');
-                alert('Selecciona primero un proveedor para crear productos.');
-                return;
-            }
 
             openProductModal({
                 data: {
@@ -110,7 +104,7 @@ const attachProductHandler = ({
                     else text = `${ createdProduct.name } (${ createdProduct.base } x ${ createdProduct.height }) || ${ createdProduct.supplier.tradeName }`;
 
                     toggleProductOption({
-                        selector: productSelector,
+                        selector: baseSelector,
                         data: {
                             id: createdProduct.id,
                             text,
@@ -174,7 +168,7 @@ export const setupProductSelect = ({
 
     attachProductHandler({
         modalSelector,
-        productSelector: `${ modalSelector } ${ productSelector }`,
+        baseSelector: `${ modalSelector } ${ productSelector }`,
         supplierSelector
     });
 };

@@ -1,7 +1,7 @@
 import { toggleDisabledElement } from "../../../utils/formUtils.js";
 import { notifications } from "../../swal/swalComponent.js";
 import { bindDependency } from "../baseSelect.js";
-import { initClientSelect, toggleClientOption } from "../domains/client.js";
+import { initClientSelect, setupClientSelect, toggleClientOption } from "../domains/client.js";
 import { initDepartmentSelect, toggleDepartmentOption } from "../domains/department.js";
 import { setupProductSelect, toggleProductOption } from "../domains/product.js";
 import { initProfileSelect, toggleProfileOption } from "../domains/profile.js";
@@ -21,11 +21,9 @@ export const initGoodsIssueFormSelect2 = () => {
         allowCreate: false
     });
 
-    initClientSelect({
+    setupClientSelect({
         modalSelector,
-        advisorSelector,
-        baseSelector: `${ modalSelector } ${ clientSelector }`,
-        allowCreate: false
+        clientSelector,
     });
 
     initProfileSelect({

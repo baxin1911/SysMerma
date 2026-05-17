@@ -1,4 +1,7 @@
-import { findAllClients } from "../../../services/sales/clientService.js";
+import { createClientDtoForRegister } from "../../../dtos/clientDTO.js";
+import { successCodeMessages } from "../../../messages/codeMessages.js";
+import { createClient, findAllClients } from "../../../services/sales/clientService.js";
+import { sanitizeEmptyStrings } from "../../../utils/formattersUtils.js";
 
 export const getAllClients = async (req, res) => {
 
@@ -22,3 +25,16 @@ export const getAllClients = async (req, res) => {
 
     res.status(200).json(result);
 };
+
+export const registerClient = async (req, res) => {
+
+    const clientDto = createClientDtoForRegister(req.body);
+    const sanitizedClientDto = sanitizeEmptyStrings(clientDto);
+
+    const client = await createClient(sanitizedClientDto);
+
+    res.status(200).json({
+        client,
+        code: successCodeMessages.CREATED_CLIENT
+    });
+}

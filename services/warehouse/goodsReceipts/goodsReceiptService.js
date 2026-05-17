@@ -26,14 +26,24 @@ export const findAllGoodsReceipts = async ({
     orderDir = 'asc'
 }) => {
 
-    const where = search
-        ? {
-            referenceNumber: {
-                contains: search,
-                mode: 'insensitive'
-            }
-        }
-        : {};
+    const where = {
+        ...(search && {
+            OR: [
+                {
+                    referenceNumber: {
+                        contains: search,
+                        mode: 'insensitive'
+                    }
+                },
+                {
+                    supplierName: {
+                        contains: search,
+                        mode: 'insensitive'
+                    }
+                }
+            ]
+        })
+    };
 
     const goodsReceipts = await getDb().goodsReceipt.findMany({
         skip,
