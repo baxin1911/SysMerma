@@ -181,8 +181,25 @@ export const errorMessages = {
 
         return `Stock insuficiente para realizar la salida con el producto: ${ meta.productName }${ dimensions } y proveedor: ${ supplier }.`;
     },
-    GOODS_ISSUE_MISSING_MAX_UNIT_COST: (meta) => `No se puede realizar la salida porque el producto: ${ meta.productName } y proveedor: ${ meta.supplierName } no tiene costo unitario máximo configurado.`,
-    GOODS_ISSUE_FULFILLMENT_COMPLETE_CONFLICT: 'La salida ya está completamente surtida y no puede modificarse.',
+    GOODS_ISSUE_MISSING_MAX_UNIT_COST: (meta) => {
+
+        const hasDimensions =
+            meta.base != null &&
+            meta.height != null;
+
+        const dimensions = hasDimensions
+            ? ` (${ meta.base } x ${ meta.height })`
+            : '';
+
+        const supplier = meta.supplierName
+            ? meta.supplierName
+            : '';
+        
+        return `No se puede realizar la salida porque el producto: ${ meta.productName } y proveedor: ${ meta.supplierName } no tiene costo unitario máximo configurado.`
+    },
+    GOODS_ISSUE_NOT_PENDING_CONFLICT: 'La salida solo puede editarse cuando está pendiente.',
+    GOODS_ISSUE_SUPPLIED_CONFLICT: 'La salida ya tiene productos surtidos y no puede editarse en general.',
+    GOODS_ISSUE_SUPPLIED_DETAIL_CONFLICT: 'No se pueden editar o eliminar detalles que ya fueron surtidos.',
     MOVEMENT_DETAIL_RELATION_CONFLICT: 'El detalle del movimiento no está asociado a un producto o proveedor.',
     PURCHASE_REQUISITION_NOT_FOUND: 'Requisición de compra no encontrada.',
     PROJECT_NOT_FOUND: 'Proyecto no encontrado.',
