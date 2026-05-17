@@ -150,8 +150,8 @@ const addProduct = () => {
     const option = document.querySelector('#productInput option:checked');
 
     let { productBase, productHeight, presentationName, unitMeasureName, supplierName, productName } = option?.dataset;
-    productHeight = Number(productHeight);
-    productBase = Number(productBase);
+    productHeight = isNaN(Number(productHeight)) ? null : Number(productHeight);
+    productBase = isNaN(Number(productBase)) ? null : Number(productBase);
 
     const productId = option.value;
 
@@ -170,11 +170,6 @@ const addProduct = () => {
     if (hasValidationErrors(errors)) return;
 
     if (!option) return null;
-
-    if (isNaN(costPerUnitType) || costPerUnitType <= 0) {
-        alert('El costo por RoPresentación debe ser un número positivo.');
-        return;
-    }
 
     const netPurchaseAmount = Number((quantity * costPerUnitType).toFixed(2));
     let convertedQuantity;

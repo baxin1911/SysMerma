@@ -52,11 +52,17 @@ export const initPurchaseRequisitionFormSelect2 = async (data = null) => {
 
             const list = data.data || data;
             return {
-                results: list.map(product => ({
-                    id: product.id,
-                    text: product.name,
-                    uom: product.presentation || 'PIEZA'
-                }))
+                results: list.map(product => {
+
+                    const presentation = product.presentation?.name || product.presentation || 'PIEZA';
+
+                    return {
+                        id: product.id,
+                        text: product.name,
+                        productName: product.name,
+                        presentation
+                    };
+                })
             };
         }
     });
@@ -64,7 +70,15 @@ export const initPurchaseRequisitionFormSelect2 = async (data = null) => {
     $(productSelector).on('select2:select', (e) => {
     
         const selectedProduct = e.params.data;
-        const value = `PIEZA(${selectedProduct?.presentation || 'PIEZA'})`;
+        const option = document.querySelector('#productInput option:checked');
+
+        if (!option) return;
+
+        Object.entries(selectedProduct).forEach(([key, value]) => {
+            option.dataset[key] = value;
+        });
+
+        const value = `PIEZA(${ selectedProduct?.presentation || 'PIEZA' })`;
 
         const instance = initMdbWrapperInput({ selector: '#presentationDisplayInput', value });
         updateMdbWrapperInput(instance);

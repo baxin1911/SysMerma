@@ -1,6 +1,17 @@
 import { isEmptyOrNull } from "./baseValidations.js";
 import { validateName, validatePassword, validateNumber, validateUsername, validateTextOptional, validateMeasure, validateDateOptional, validateGoodsReceiptDetailsArray, validateDate, validateText, validateNumberOptional, validateGoodsIssueDetailsArray, validatePositiveNumber } from "./fieldValidations.js";
 
+const validatePositiveNumber = (value, fieldName) => {
+
+    const result = validateNumber(value, fieldName);
+
+    if (result) return result;
+
+    if (parseFloat(value) <= 0) return `${ fieldName } debe ser un número mayor a cero`;
+
+    return null;
+}
+
 export const supplierValidators = {
     legalName: (value) => validateText(value, 200, 'La razón social'),
     tradeName: (value) => validateText(value, 100, 'El nombre comercial'),

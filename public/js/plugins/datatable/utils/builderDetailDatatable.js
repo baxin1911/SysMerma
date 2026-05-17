@@ -2,7 +2,7 @@ export const buildDetailsHeader = ({ type, mode, isWarehouse, isCoordinator, isS
 
     let extraHeaders = '';
 
-    if (type === 'issue' && ((isWarehouse && isCoordinator) || isSystem) && mode !== 'create') {
+    if (type === 'issue' && ((isWarehouse && isCoordinator) || isSystem) && mode === 'edit-detail') {
         extraHeaders += `
             <th rowspan="2">Costo unitario de Conversión</th>
             <th rowspan="2">Cantidad de proyecto</th>
@@ -19,7 +19,7 @@ export const buildDetailsHeader = ({ type, mode, isWarehouse, isCoordinator, isS
         `;
     }
 
-    if (type === 'issue' && mode !== 'create') {
+    if (type === 'issue' && mode === 'edit-detail') {
         extraHeaders += `<th rowspan="2">Surtir</th>`;
     }
 
@@ -62,13 +62,14 @@ export const buildDetailsColumns = ({ type, mode, render, isWarehouse, isCoordin
         { data: 'unitMeasureName' },
     ];
 
-    if (type === 'issue' && ((isWarehouse && isCoordinator) || isSystem) && mode !== 'create') {
+    if (type === 'issue' && ((isWarehouse && isCoordinator) || isSystem) && mode === 'edit-detail') {
         columns.push(
             { data: 'maxUnitCost' },
             { 
                 data: null,
                 render: (_, __, row) => {
                     const detailId = row.id || row.productId;
+                    const isEditableDetail = mode === 'edit-detail' && !row.isSupplied;
 
                     return `
                         <input
@@ -76,7 +77,7 @@ export const buildDetailsColumns = ({ type, mode, render, isWarehouse, isCoordin
                             name="projectConvertedQuantity"
                             value="${ row.projectConvertedQuantity || '' }"
                             class="form-control project-converted-quantity-input"
-                            ${ mode === 'view' ? 'disabled' : '' }
+                            ${ isEditableDetail ? '' : 'disabled' }
                             data-detail-id="${ detailId }"
                             min=0
                         >
@@ -97,12 +98,13 @@ export const buildDetailsColumns = ({ type, mode, render, isWarehouse, isCoordin
         );
     }
 
-    if (type === 'issue' && mode !== 'create') {
+    if (type === 'issue' && mode === 'edit-detail') {
         columns.push({
             data: null,
             render: (_, __, row) => {
                 
                 const detailId = row.id || row.productId;
+                const isEditableDetail = mode === 'edit-detail' && !row.isSupplied;
 
                 return `
                     <input type="checkbox"
@@ -110,7 +112,7 @@ export const buildDetailsColumns = ({ type, mode, render, isWarehouse, isCoordin
                         class="form-check-input supply-checkbox"
                         data-detail-id="${ detailId }"
                         ${ row.isSupplied ? 'checked' : '' }
-                        ${ mode === 'view' ? 'disabled' : '' }
+                        ${ isEditableDetail ? '' : 'disabled' }
                     >
                 `;
             }
@@ -120,11 +122,20 @@ export const buildDetailsColumns = ({ type, mode, render, isWarehouse, isCoordin
     if (mode !== 'view' && mode !== 'edit-detail') {
         columns.push({
             data: null,
-            render: (_, __, row) => `
-                <button type="button" class="btn btn-danger btn-sm delete-btn" data-id="${ row.productId }">
-                    <i class="fas fa-trash-alt"></i>
-                </button>
-            `
+            render: (_, __, row) => {
+                const isSuppliedDetail = type === 'issue' && row.isSupplied;
+
+                return `
+                    <button
+                        type="button"
+                        class="btn btn-danger btn-sm delete-btn"
+                        data-id="${ row.productId }"
+                        ${ isSuppliedDetail ? 'disabled title="El detalle ya fue surtido"' : '' }
+                    >
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                `;
+            }
         });
     }
 
