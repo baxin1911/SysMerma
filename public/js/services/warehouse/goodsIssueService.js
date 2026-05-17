@@ -20,6 +20,12 @@ export const editGoodsIssueRequest = (data, id) => apiRequest({
     data
 });
 
+export const editGoodsIssueRequest = (data, id) => apiRequest({
+    method: 'patch',
+    url: `${ GOODS_ISSUES_API_ROUTE }/${ id }`,
+    data
+});
+
 export const editGoodsIssueDetailsRequest = (data, id) => apiRequest({
     method: 'patch',
     url: `${ GOODS_ISSUES_API_ROUTE }/${ id }/details`,

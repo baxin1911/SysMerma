@@ -175,6 +175,8 @@ export const validateGoodsIssueDetailsArray = ({ allowDetailId = false } = {}) =
 
             const ids = new Set();
 
+            const ids = new Set();
+
             details.forEach(detail => {
 
                 if (detail.id) {
@@ -191,10 +193,6 @@ export const validateGoodsIssueDetailsArray = ({ allowDetailId = false } = {}) =
 
                 if (!detail.productId || !detail.quantity) {
                     throw new Error(errorMap['details'].INVALID_FORMAT_REQUIRED);
-                }
-
-                if (!detail.supplierId) {
-                    throw new Error(errorMap['details'].INVALID_FORMAT_SUPPLIER);
                 }
 
                 const qty = Number(detail.quantity);

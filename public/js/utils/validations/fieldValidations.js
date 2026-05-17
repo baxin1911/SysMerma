@@ -211,6 +211,10 @@ export const validateGoodsIssueDetailsArray = (details) => {
             return 'Cada detalle debe contener producto, proveedor y cantidad.';
         }
 
+        if (!detail.supplierId) {
+            return 'El proveedor de cada detalle es requerido.';
+        }
+
         if (isNaN(detail.quantity) || parseFloat(detail.quantity) < 1) {
             return 'La cantidad de cada detalle debe ser un número mayor a cero.';
         }

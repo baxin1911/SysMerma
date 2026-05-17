@@ -17,6 +17,7 @@ import { applyInventoryMovement } from "../../inventory/movementService.js";
 import { buildStockKey, parseStockKey } from "../../../utils/formattersUtils.js";
 import { findSupplierProduct } from "../products/supplierProductService.js";
 import { AppError } from "../../../errors/AppError.js";
+import validator from "validator";
 
 const ROLE_SYSTEM_ADMIN = 'Administrador del sistema';
 const ROLE_COORDINATOR = 'Coordinador';
@@ -27,6 +28,12 @@ const STATUS_APPROVED = 'Aprobada';
 const REFERENCE_NUMBER_TYPE = 'SAL';
 const MOVEMENT_TYPE_OUT = 'OUT';
 const FLOAT_EPSILON = 0.000001;
+const { isUUID } = validator;
+
+const assertGoodsIssueId = (id) => {
+
+    if (!isUUID(id ?? '', 4)) throw new GoodsIssueNotFound();
+};
 
 export const findAllGoodsIssues = async ({
     skip = 0,
@@ -162,7 +169,7 @@ export const createGoodsIssue = async ({
         const requester = await findProfileById({ id: requesterId });
 
         if (!requester) throw new GoodsIssueRequesterProfileNotFound();
-        
+
         const advisor = await findProfileById({ id: advisorId });
 
         if (!advisor) throw new GoodsIssueAdvisorProfileNotFound();
@@ -373,6 +380,8 @@ export const updateGoodsIssueDetails = async ({ id, goodsIssueDto }) => {
     const { details = [] } = goodsIssueDto;
 
     try {
+
+        assertGoodsIssueId(id);
 
         const goodsIssue = await getDb().goodsIssue.findUnique({
             where: { id },
