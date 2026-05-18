@@ -1,7 +1,8 @@
+import { getSelectedOptionText } from "../../../utils/domUtils.js";
+import { resolveAdvisorDepartmentByClientName, isInternalClientName, salesDepartmentName } from "../../../application/warehouse/goodsIssueRules.js";
 import { toggleDisabledElement } from "../../../utils/formUtils.js";
-import { notifications } from "../../swal/swalComponent.js";
 import { bindDependency } from "../baseSelect.js";
-import { initClientSelect, setupClientSelect, toggleClientOption } from "../domains/client.js";
+import { setupClientSelect, toggleClientOption } from "../domains/client.js";
 import { initDepartmentSelect, toggleDepartmentOption } from "../domains/department.js";
 import { setupProductSelect, toggleProductOption } from "../domains/product.js";
 import { initProfileSelect, toggleProfileOption } from "../domains/profile.js";
@@ -12,12 +13,21 @@ const clientSelector = '#clientInput';
 const departmentSelector = '#departmentInput';
 const advisorSelector = '#advisorInput';
 const productSelector = '#productInput';
+const requesterScopedSelector = `${ modalSelector } ${ requesterSelector }`;
+const clientScopedSelector = `${ modalSelector } ${ clientSelector }`;
+const departmentScopedSelector = `${ modalSelector } ${ departmentSelector }`;
+const advisorScopedSelector = `${ modalSelector } ${ advisorSelector }`;
+const productScopedSelector = `${ modalSelector } ${ productSelector }`;
 
 export const initGoodsIssueFormSelect2 = () => {
 
+    const modal = document.querySelector(modalSelector);
+    const requesterSelectElement = modal?.querySelector(requesterSelector);
+    const getModalSelectedOptionText = (selector) => getSelectedOptionText(selector, modal);
+
     initDepartmentSelect({
         modalSelector,
-        baseSelector: `${ modalSelector } ${ departmentSelector }`,
+        baseSelector: departmentScopedSelector,
         allowCreate: false
     });
 
@@ -27,14 +37,17 @@ export const initGoodsIssueFormSelect2 = () => {
     });
 
     initProfileSelect({
-        modalSelector, 
-        baseSelector: `${ modalSelector } ${ advisorSelector }`,
+        modalSelector,
+        baseSelector: advisorScopedSelector,
         placeholder: 'Buscar asesor...',
         data: (params) => {
 
             return {
                 search: params.term,
-                department: 'VENTAS Y PROYECTOS ESPECIALES',
+                department: resolveAdvisorDepartmentByClientName({
+                    clientName: getModalSelectedOptionText(clientSelector),
+                    fallbackDepartment: salesDepartmentName
+                }),
                 strictDepartmentFilter: true
             };
         },
@@ -42,13 +55,12 @@ export const initGoodsIssueFormSelect2 = () => {
     });
 
     initProfileSelect({
-        modalSelector, 
-        baseSelector: `${ modalSelector } ${ requesterSelector }`,
+        modalSelector,
+        baseSelector: requesterScopedSelector,
         placeholder: 'Buscar solicitante...',
         data: (params) => {
 
-            const select = document.querySelector(`${modalSelector} ${departmentSelector}`);
-            const department = select?.selectedOptions[0]?.text.trim();
+            const department = getModalSelectedOptionText(departmentSelector);
 
             return {
                 search: params.term,
@@ -59,30 +71,43 @@ export const initGoodsIssueFormSelect2 = () => {
         allowCreate: false,
     });
 
-    const requesterSelectElement = document.querySelector(`${ modalSelector } ${ requesterSelector }`);
-
-    toggleDisabledElement({ 
-        element: requesterSelectElement, 
-        isDisabled: true 
+    toggleDisabledElement({
+        element: requesterSelectElement,
+        isDisabled: true
     });
 
     bindDependency({
-        sourceSelector: `${ modalSelector } ${ departmentSelector }`,
+        sourceSelector: departmentScopedSelector,
         onChange: ({ value }) => {
             const isDisabled = !value;
 
             toggleProfileOption({
-                selector: `${ modalSelector } ${ requesterSelector }`,
+                selector: requesterScopedSelector,
                 id: null,
                 name: null
             });
 
-            $(`${ modalSelector } ${ requesterSelector }`).val(null).trigger('change');
+            $(requesterScopedSelector).val(null).trigger('change');
 
-            toggleDisabledElement({ 
-                element: requesterSelectElement, 
-                isDisabled 
+            toggleDisabledElement({
+                element: requesterSelectElement,
+                isDisabled
             });
+        }
+    });
+
+    bindDependency({
+        sourceSelector: clientScopedSelector,
+        onChange: () => {
+            if (!isInternalClientName(getModalSelectedOptionText(clientSelector))) return;
+
+            toggleProfileOption({
+                selector: advisorScopedSelector,
+                id: null,
+                name: null
+            });
+
+            $(advisorScopedSelector).val(null).trigger('change');
         }
     });
 
@@ -91,7 +116,7 @@ export const initGoodsIssueFormSelect2 = () => {
     //     targetSelector: `${ modalSelector } ${ clientSelector }`,
     //     reset: () => {
     //         toggleClientOption({
-    //             selector: `${ modalSelector } ${ clientSelector }`,
+    //             selector: clientScopedSelector,
     //             id: null,
     //             name: null
     //         });
@@ -108,31 +133,31 @@ export const initGoodsIssueFormSelect2 = () => {
 export const setGoodsIssueFormSelectOptions = (data = null) => {
 
     toggleDepartmentOption({
-        selector: `${ modalSelector } ${ departmentSelector }`,
+        selector: departmentScopedSelector,
         id: data?.departmentId,
         name: data?.departmentName
     });
 
     toggleClientOption({
-        selector: `${ modalSelector } ${ clientSelector }`,
+        selector: clientScopedSelector,
         id: data?.clientId,
         name: data?.clientName
     });
 
     toggleProfileOption({
-        selector: `${ modalSelector } ${ advisorSelector }`,
+        selector: advisorScopedSelector,
         id: data?.advisorId,
         name: data?.advisorName
     });
 
     toggleProfileOption({
-        selector: `${ modalSelector } ${ requesterSelector }`,
+        selector: requesterScopedSelector,
         id: data?.requesterId,
         name: data?.requesterName
     });
 
     toggleProductOption({
-        selector: `${ modalSelector } ${ productSelector }`,
+        selector: productScopedSelector,
         data: {
             id: null,
             text: null,

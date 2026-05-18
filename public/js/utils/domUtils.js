@@ -9,3 +9,10 @@ export const on = (event, selector, handler, options = {}) => {
         handler(e, element);
     }, options);
 }
+
+export const getSelectedOptionText = (selector, root = document) => {
+
+    const select = root?.querySelector(selector);
+
+    return select?.selectedOptions[0]?.text?.trim() || '';
+};

@@ -27,8 +27,6 @@ export const initbaseSelect2 = ({
 
     if ($(baseSelector).hasClass("select2-hidden-accessible")) $(baseSelector).select2('destroy');
 
-    const select = document.querySelector(baseSelector);
-    const form = select?.closest('form') ?? null;
 
     $(baseSelector).select2({ 
         language: 'es',
@@ -68,7 +66,7 @@ export const initbaseSelect2 = ({
         $(baseSelector).val(null).trigger('change');
 
         setMdbWrapperInputValue({
-            selector: wrapperSelector,
+            selector: `${ modalSelector } ${ wrapperSelector }`,
             value: ''
         });
     });

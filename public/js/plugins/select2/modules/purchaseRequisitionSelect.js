@@ -2,15 +2,18 @@ import { initMdbWrapperInput, updateMdbWrapperInput } from "../../mdb/baseInstan
 import { initbaseSelect2 } from "../baseSelect.js";
 
 const modalSelector = '#goodsIssueModal';
+const projectSelector = '#projectInput';
+const requesterSelector = '#requesterInput';
+const productSelector = '#productInput';
+const projectScopedSelector = `${ modalSelector } ${ projectSelector }`;
+const requesterScopedSelector = `${ modalSelector } ${ requesterSelector }`;
+const productScopedSelector = `${ modalSelector } ${ productSelector }`;
+const presentationDisplayScopedSelector = `${ modalSelector } #presentationDisplayInput`;
 
 export const initPurchaseRequisitionFormSelect2 = async (data = null) => {
 
-    const projectSelector = '#projectInput';
-    const requesterSelector = '#requesterInput';
-    const productSelector = '#productInput';
-
     initbaseSelect2({
-        baseSelector: projectSelector,
+        baseSelector: projectScopedSelector,
         modalSelector,
         url: '/api/admin/projects/',
         placeholder: 'Buscar proyecto...',
@@ -27,7 +30,7 @@ export const initPurchaseRequisitionFormSelect2 = async (data = null) => {
     });
 
     initbaseSelect2({
-        baseSelector: requesterSelector,
+        baseSelector: requesterScopedSelector,
         modalSelector,
         url: '/api/admin/profiles/',
         placeholder: 'Buscar solicitante...',
@@ -44,7 +47,7 @@ export const initPurchaseRequisitionFormSelect2 = async (data = null) => {
     });
 
     initbaseSelect2({
-        baseSelector: productSelector,
+        baseSelector: productScopedSelector,
         modalSelector,
         url: '/api/warehouse/products/',
         placeholder: 'Buscar producto...',
@@ -61,12 +64,12 @@ export const initPurchaseRequisitionFormSelect2 = async (data = null) => {
         }
     });
 
-    $(productSelector).on('select2:select', (e) => {
+    $(productScopedSelector).on('select2:select', (e) => {
     
         const selectedProduct = e.params.data;
         const value = `PIEZA(${selectedProduct?.presentation || 'PIEZA'})`;
 
-        const instance = initMdbWrapperInput({ selector: '#presentationDisplayInput', value });
+        const instance = initMdbWrapperInput({ selector: presentationDisplayScopedSelector, value });
         updateMdbWrapperInput(instance);
     });
 
@@ -78,7 +81,7 @@ export const initPurchaseRequisitionFormSelect2 = async (data = null) => {
             true,
             true
         );
-        $(projectSelector).append(projectOption).trigger('change');
+        $(projectScopedSelector).append(projectOption).trigger('change');
 
         const requesterOption = new Option(
             `${ data.requester.name } ${ data.requester.lastName }`,
@@ -86,11 +89,11 @@ export const initPurchaseRequisitionFormSelect2 = async (data = null) => {
             true,
             true
         );
-        $(requesterSelector).append(requesterOption).trigger('change');
+        $(requesterScopedSelector).append(requesterOption).trigger('change');
 
     } else {
 
-        $(projectSelector).empty().trigger('change');
-        $(requesterSelector).empty().trigger('change');
+        $(projectScopedSelector).empty().trigger('change');
+        $(requesterScopedSelector).empty().trigger('change');
     }
 };

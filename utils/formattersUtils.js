@@ -38,3 +38,5 @@ export const parseStockKey = (key) => {
 };
 
 export const toNumber = value => value == null || value === '' ? null : Number(value);
+
+export const normalizeText = (value = '') => value.trim().toUpperCase();

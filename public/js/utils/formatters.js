@@ -35,3 +35,5 @@ export const formatInventoryFileName = (filename) => {
 
     return `${ filename }_${ month }_${ year }`;
 }
+
+export const normalizeText = (value = '') => value.trim().toUpperCase();

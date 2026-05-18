@@ -119,7 +119,7 @@ const attachProductHandler = ({
                     });
                     
                     setMdbWrapperInputValue({
-                        selector: wrapperSelector,
+                        selector: `${ modalSelector } ${ wrapperSelector }`,
                         value: createdProduct.presentation.name
                     });
                 }
@@ -128,7 +128,7 @@ const attachProductHandler = ({
             return;
         }
 
-        const option = document.querySelector('#productInput option:checked');
+        const option = e.target.querySelector('option:checked');
 
         if (!option) return;
 
@@ -138,7 +138,7 @@ const attachProductHandler = ({
 
         const value = data.presentationName || '';
         setMdbWrapperInputValue({
-            selector: wrapperSelector,
+            selector: `${ modalSelector } ${ wrapperSelector }`,
             value
         });
     });

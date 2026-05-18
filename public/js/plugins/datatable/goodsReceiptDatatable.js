@@ -95,8 +95,9 @@ export const initDetailsGoodsReceiptTable = (mode) => {
         mode,
         render: (_, __, row) => {
 
-            const select = document.querySelector('.supplier-select');
-            const supplier = select.options[select.selectedIndex].text;
+            const modal = document.querySelector('#goodsReceiptModal');
+            const select = modal?.querySelector('.supplier-select');
+            const supplier = select?.options[select.selectedIndex]?.text || '';
             
             return renderMaterialName(row, supplier);
         }

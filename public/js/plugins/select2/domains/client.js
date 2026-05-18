@@ -14,18 +14,6 @@ export const initClientSelect = ({
         modalSelector,
         get: getAllClientsRequest,
         placeholder: 'Buscar cliente...',
-        // data: (params) => {
-
-        //     let advisorId;
-
-        //     if (advisorSelector) advisorId = document.querySelector(`${ modalSelector } ${ advisorSelector }`).value;
-        //     else advisorId = '';
-
-        //     return {
-        //         search: params.term,
-        //         advisorId
-        //     }
-        // },
         processResults: (data) => {
 
             const list = data.data || data;

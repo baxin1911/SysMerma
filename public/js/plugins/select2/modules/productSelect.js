@@ -7,6 +7,9 @@ const modalSelector = '#productModal';
 const supplierSelector = '.supplier-select';
 const unitMeasureSelector = '#unitMeasureInput';
 const presentationSelector = '#presentationInput';
+const supplierScopedSelector = `${ modalSelector } ${ supplierSelector }`;
+const unitMeasureScopedSelector = `${ modalSelector } ${ unitMeasureSelector }`;
+const presentationScopedSelector = `${ modalSelector } ${ presentationSelector }`;
 
 export const initProductFormSelect2 = () => {
 
@@ -17,13 +20,13 @@ export const initProductFormSelect2 = () => {
 
     initUnitMeasureSelect({
         modalSelector,
-        baseSelector: unitMeasureSelector,
+        baseSelector: unitMeasureScopedSelector,
         allowCreate: false
     });
 
     initPresentationSelect({
         modalSelector,
-        baseSelector: presentationSelector,
+        baseSelector: presentationScopedSelector,
         allowCreate: false
     });
 };
@@ -31,19 +34,19 @@ export const initProductFormSelect2 = () => {
 export const setProductFormSelectOptions = (data = null) => {
 
     toggleSupplierOption({
-        selector: `${ modalSelector } ${ supplierSelector }`,
+        selector: supplierScopedSelector,
         id: data?.supplier?.id,
         name: `${ data?.supplier?.tradeName }`
     });
 
     toggleUnitMeasureOption({
-        selector: `${ modalSelector } ${ unitMeasureSelector }`,
+        selector: unitMeasureScopedSelector,
         id: data?.unitMeasure?.id,
         name: `${ data?.unitMeasure?.symbol } - ${ data?.unitMeasure?.name }`
     });
 
     togglePresentationOption({
-        selector: `${ modalSelector } ${ presentationSelector }`,
+        selector: presentationScopedSelector,
         id: data?.presentation?.id,
         name: data?.presentation?.name
     });
