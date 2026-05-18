@@ -5,14 +5,15 @@ import {
     GoodsIssueAdvisorProfileNotFound,
     GoodsIssueNotPendingConflict,
     GoodsIssueSuppliedConflict,
-    GoodsIssueCreateDatabaseError
+    GoodsIssueCreateDatabaseError,
+    GoodsIssueInternalClientAdvisorDepartmentConflict
 } from "../../../errors/warehouse/goodsIssueError.js";
 import { getDb } from "../../../repository/baseRepository.js";
 import { findProfileById } from "../../admin/profileService.js";
 import { findDepartmentById } from "../../admin/departmentService.js";
 import { generateReferenceNumber } from "../../document/referenceNumberService.js";
 import { findClientById } from "../../sales/clientService.js";
-import { buildGoodsIssueDetails, resolveFulfillmentStatus } from "./goodsIssueHelpers.js";
+import { buildGoodsIssueDetails, isValidInternalClientAdvisor, resolveFulfillmentStatus } from "./goodsIssueHelpers.js";
 import { applyInventoryMovement } from "../../inventory/movementService.js";
 import { buildStockKey, parseStockKey } from "../../../utils/formattersUtils.js";
 import { findSupplierProduct } from "../products/supplierProductService.js";
@@ -170,6 +171,10 @@ export const createGoodsIssue = async ({
         const client = await findClientById({ id: clientId });
         const department = await findDepartmentById({ id: departmentId });
 
+        if (!isValidInternalClientAdvisor({ client, advisor })) {
+            throw new GoodsIssueInternalClientAdvisorDepartmentConflict();
+        }
+
         const processedDetails = await buildGoodsIssueDetails({ details });
 
         const result = await getDb().$transaction(async (tx) => {
@@ -299,6 +304,10 @@ export const updateGoodsIssue = async ({ id, goodsIssueDto }) => {
 
         const client = await findClientById({ id: clientId });
         const department = await findDepartmentById({ id: departmentId });
+
+        if (!isValidInternalClientAdvisor({ client, advisor })) {
+            throw new GoodsIssueInternalClientAdvisorDepartmentConflict();
+        }
 
         const processedDetails = await buildGoodsIssueDetails({ details });
 

@@ -14,19 +14,28 @@ const modalSelector = '#goodsReceiptModal';
 const productSelector = '#productInput';
 const supplierSelector = '.supplier-select';
 const receivedBySelector = '#receivedByInput';
+const supplierScopedSelector = `${ modalSelector } ${ supplierSelector }`;
+const productScopedSelector = `${ modalSelector } ${ productSelector }`;
+const receivedByScopedSelector = `${ modalSelector } ${ receivedBySelector }`;
+const presentationDisplayScopedSelector = `${ modalSelector } #presentationDisplayInput`;
 const supplierChangedEventName = 'goods-receipt:supplier-changed';
 
-export const initGoodsReceiptFormSelect2 = () => {  
-    
+export const initGoodsReceiptFormSelect2 = () => {
+
+    const modal = document.querySelector(modalSelector);
+    const supplierInput = modal?.querySelector(supplierSelector);
+    const productInput = modal?.querySelector(productSelector);
+
     bindDependency({
-        sourceSelector: `${ modalSelector } ${ supplierSelector }`,
+        sourceSelector: supplierScopedSelector,
         onChange: ({ value }) => {
 
             const isDisabled = !value;
 
             toggleContainerElements({
                 selector: '.add-product-container',
-                isDisabled
+                isDisabled,
+                root: modal
             });
 
             details.length = 0;
@@ -44,7 +53,7 @@ export const initGoodsReceiptFormSelect2 = () => {
 
     initProfileSelect({
         modalSelector, 
-        baseSelector: `${ modalSelector } ${ receivedBySelector }`,
+        baseSelector: receivedByScopedSelector,
         placeholder: 'Buscar persona que recibe...',
         data: (params) => {
             
@@ -63,9 +72,6 @@ export const initGoodsReceiptFormSelect2 = () => {
         productSelector,
     });
 
-    const supplierInput = document.querySelector(`${ modalSelector } ${ supplierSelector }`);
-    const productInput = document.querySelector(`${ modalSelector } ${ productSelector }`);
-
     if (supplierInput) {
 
         if (supplierInput.dataset.productFilterBound === 'true') return;
@@ -82,15 +88,13 @@ export const initGoodsReceiptFormSelect2 = () => {
             });
 
             const instance = initMdbWrapperInput({
-                selector: '#presentationDisplayInput',
+                selector: presentationDisplayScopedSelector,
                 value: ''
             });
 
             updateMdbWrapperInput(instance);
 
-            const modal = document.querySelector(modalSelector);
-
-            modal.dispatchEvent(new Event(supplierChangedEventName));
+            modal?.dispatchEvent(new Event(supplierChangedEventName));
         });
     }
 }
@@ -100,19 +104,19 @@ export const GOODS_RECEIPT_SUPPLIER_CHANGED_EVENT = supplierChangedEventName;
 export const setGoodsReceiptFormSelectOptions = (data = null) => {
 
     toggleSupplierOption({
-        selector: `${ modalSelector } ${ supplierSelector }`,
+        selector: supplierScopedSelector,
         id: data?.supplierId,
         name: `${ data?.supplierName }`
     });
 
     toggleProfileOption({
-        selector: `${ modalSelector } ${ receivedBySelector }`,
+        selector: receivedByScopedSelector,
         id: data?.receivedById,
         name: data?.receivedByName,
     });
 
     toggleProductOption({
-        selector: `${ modalSelector } ${ productSelector }`,
+        selector: productScopedSelector,
         data: {
             id: null,
             text: null,

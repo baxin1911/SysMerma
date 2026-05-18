@@ -66,10 +66,11 @@ export const toggleDisabledElement = ({ element, isDisabled }) => {
 
 export const toggleContainerElements = ({
     selector,
-    isDisabled = true
+    isDisabled = true,
+    root = document
 }) => {
 
-    const container = document.querySelector(selector);
+    const container = root?.querySelector(selector);
 
     if (!container) return;
 

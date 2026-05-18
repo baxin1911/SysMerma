@@ -1,12 +1,29 @@
 import { ProductNotFound } from "../../../errors/warehouse/productError.js";
 import { GoodsIssueMissingMaxUnitCost } from "../../../errors/inventory/stockError.js";
-import { buildStockKey, roundTo } from "../../../utils/formattersUtils.js";
+import { buildStockKey, normalizeText, roundTo } from "../../../utils/formattersUtils.js";
+import { profileBelongsToDepartment } from "../../admin/profileService.js";
 import { findSupplierProductsSnapshot } from "../products/supplierProductService.js";
 
 const FLOAT_EPSILON = 0.000001;
 const FULFILLMENT_PENDING = 'Pendiente';
 const FULFILLMENT_PARTIAL = 'Surtido parcial';
 const FULFILLMENT_COMPLETE = 'Surtido';
+const DEPARTMENT_WAREHOUSE = 'ALMACÉN Y PROVEDURÍA';
+const INTERNAL_CLIENT_NAME = 'GPG INTERNO';
+
+export const isInternalClient = (client) => (
+    normalizeText(client?.name || '') === normalizeText(INTERNAL_CLIENT_NAME)
+);
+
+export const isValidInternalClientAdvisor = ({ client, advisor }) => {
+
+    if (!isInternalClient(client)) return true;
+
+    return profileBelongsToDepartment({
+        profile: advisor,
+        departmentName: DEPARTMENT_WAREHOUSE
+    });
+};
 
 export const buildGoodsIssueDetails = async ({
     details

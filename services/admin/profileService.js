@@ -1,5 +1,6 @@
 import { ProfileFindDatabaseError } from "../../errors/admin/profileError.js";
 import { getDb } from "../../repository/baseRepository.js";
+import { normalizeText } from "../../utils/formattersUtils.js";
 
 export const findAllProfiles = async ({
     departments = [],
@@ -65,6 +66,15 @@ export const findProfileById = async ({ tx, id }) => {
             select: {
                 id: true,
                 fullName: true,
+                departments: {
+                    select: {
+                        department: {
+                            select: {
+                                name: true
+                            }
+                        }
+                    }
+                }
             }
         });
 
@@ -75,6 +85,12 @@ export const findProfileById = async ({ tx, id }) => {
 
     return profile || null;
 };
+
+export const profileBelongsToDepartment = ({ profile, departmentName }) => (
+    profile?.departments?.some(({ department }) => (
+        normalizeText(department?.name || '') === normalizeText(departmentName)
+    ))
+);
 
 export const findProfileByUserId = async ({ tx, userId }) => {
 
