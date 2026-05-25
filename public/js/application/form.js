@@ -27,6 +27,15 @@ export const useForm = async ({
 
         if (hasValidationErrors(errors)) return;
 
+        if (form.dataset.submitting === 'true') return false;
+
+        const submitButton = form.querySelector('button[type="submit"]');
+
+        if (submitButton) {
+
+            submitButton.disabled = true;
+        }
+
         try {
 
             await sendRequest({ formData, form });

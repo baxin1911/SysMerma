@@ -1,5 +1,3 @@
-import { cleanForm } from "../../utils/formUtils.js";
-
 export const initMdbModal = (el) => mdb.Modal.getOrCreateInstance(el);
 
 export const showModal = (instance) => {
@@ -9,13 +7,7 @@ export const showModal = (instance) => {
     instance.show();
 }
 
-export const hideModal = ({ el, instance, form }) => {
-
-    el.addEventListener('hidden.mdb.modal', () => {
-        cleanForm(form);
-    });
-    instance.hide();
-}
+export const hideModal = ({ el, instance, form }) => instance.hide();
 
 export const initMdbWrapperInput = ({ selector, value }) => {
 

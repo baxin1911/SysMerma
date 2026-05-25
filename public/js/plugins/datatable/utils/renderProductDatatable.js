@@ -60,7 +60,7 @@ export const handleDelete = ({ id, details, context }) => {
             quantity: product.quantity,
             net: product.netPurchaseAmount,
             gross: product.grossPurchaseAmount,
-            operation: 'substract'
+            operation: 'subtract'
         });
     }
 

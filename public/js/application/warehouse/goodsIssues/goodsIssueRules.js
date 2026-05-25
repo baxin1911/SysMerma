@@ -1,4 +1,4 @@
-import { normalizeText } from "../../utils/formatters.js";
+import { normalizeText } from "../../../utils/formatters.js";
 
 export const internalClientName = 'GPG INTERNO';
 export const warehouseDepartmentName = 'ALMACÉN Y PROVEDURÍA';

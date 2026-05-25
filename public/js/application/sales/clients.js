@@ -1,5 +1,5 @@
 import { getSuccessMessage } from "../../constants/apiMessages.js";
-import { createClientRequest } from "../../services/sales/clientService.js";
+import { createClientRequest, getAllClientsRequest } from "../../services/sales/clientService.js";
 
 export const registerClient = async (formData) => {
 
@@ -14,3 +14,10 @@ export const registerClient = async (formData) => {
         data: client 
     };
 }
+
+export const getAllClients = async (params = {}) => {
+
+    const response = await getAllClientsRequest(params);
+
+    return response.data;
+};

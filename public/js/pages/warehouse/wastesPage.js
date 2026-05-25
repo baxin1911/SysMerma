@@ -1,4 +1,7 @@
 import { createWasteDatatable } from "../../plugins/datatable/wasteDatatable.js";
+import { initProductFormSelect2, setProductFormSelectOptions } from "../../plugins/select2/modules/productSelect.js";
+import { clearFormErrors, initForm } from "../../ui/formUI.js";
+import { openModal } from "../../ui/modalUI.js";
 
 const context = window.meta || {};
 
@@ -16,9 +19,7 @@ export const openWasteModal = ({
     const form = document.querySelector(formId);
     const modalElement = document.querySelector(wasteModalId);
 
-    form.dataset.mode = mode;
-    form.dataset.id = data?.id || '';
-
+    initForm(form, data?.id || '');
     clearFormErrors(form);
     initProductFormSelect2();
 

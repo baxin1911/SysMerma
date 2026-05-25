@@ -3,7 +3,7 @@ import { cancelPurchaseRequisition, confirmPurchaseRequisition, editPurchaseRequ
 import { refreshProductTable } from "../../plugins/datatable/baseDatatable.js";
 import { createPurchaseRequisitionDatatable, details, initDetailsPurchaseRequisitionTable } from "../../plugins/datatable/purchaseRequisitionDatatable.js";
 import { initPurchaseRequisitionFormSelect2 } from "../../plugins/select2/modules/purchaseRequisitionSelect.js";
-import { setFormReadOnly, toggleButtons, clearFormErrors, normalizeFormErrors, clearAddedProductInput } from "../../ui/formUI.js";
+import { setFormReadOnly, toggleButtons, clearFormErrors, normalizeFormErrors, clearAddedProductInput, initForm } from "../../ui/formUI.js";
 import { openModal } from "../../ui/modalUI.js";
 import { on } from "../../utils/domUtils.js";
 import { formatDateLongWithTime } from "../../utils/formatters.js";
@@ -49,9 +49,7 @@ export const openPurchaseRequisitionModal = async ({ mode, data = null }) => {
     const form = document.querySelector(formId);
     const modalElement = document.querySelector(modalId);
 
-    form.dataset.mode = mode;
-    form.dataset.id = data?.id || '';
-
+    initForm(form, data?.id || '');
     clearFormErrors(form);
     toggleButtons({ mode, status: data?.status?.name });
     setFormReadOnly({ form, isReadOnly: false });

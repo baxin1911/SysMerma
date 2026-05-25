@@ -99,6 +99,12 @@ const buttons = {
                     </div>
                 <% } %>
 
+                <% if (form.stockAdjustment) { %>
+                    <%- include('./selectList', { inputs: form.stockAdjustment.selects }) %>
+
+                    <%- include('./outlineInputList', { inputs: form.stockAdjustment.inputs }) %>
+                <% } %>
+
                 <% if (form.selects) { %>
                     <%- include('./selectList', { inputs: form.selects }) %>
                 <% } %>

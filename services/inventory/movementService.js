@@ -1,4 +1,5 @@
 import { MovementDetailRelationConflict } from "../../errors/inventory/movementError.js";
+import { InventoryMovementType } from "../../generated/prisma/enums.ts";
 import { getDb } from "../../repository/baseRepository.js";
 import { buildStockKey } from "../../utils/formattersUtils.js";
 import { updateSupplierProductStock } from "../warehouse/products/supplierProductService.js";
@@ -58,3 +59,57 @@ export const applyInventoryMovement = async ({
 
     return movement;
 };
+
+export const createStockAdjustmentMovement = async ({
+    tx,
+    adjustment,
+    productId,
+    supplierId,
+    reasonId,
+    previousStock,
+    previousConvertedQuantity,
+    newStock,
+    newConvertedQuantity,
+    difference,
+    convertedDifference
+}) => {
+
+    const db = getDb(tx);
+
+    return await db.inventoryMovement.create({
+        data: {
+            type: InventoryMovementType.ADJUSTMENT,
+            stockAdjustment: {
+                connect: {
+                    id: adjustment.id
+                }
+            },
+
+            details: {
+                create: {
+                    quantity: difference,
+                    newStock,
+                    newConvertedQuantity,
+                    convertedQuantity: convertedDifference,
+                    previousStock,
+                    previousConvertedQuantity,
+                    product: {
+                        connect: {
+                            id: productId
+                        }
+                    },
+                    supplier: {
+                        connect: {
+                            id: supplierId
+                        }
+                    },
+                    stockAdjustmentDetail: {
+                        connect: {
+                            id: adjustment.details[0].id
+                        }
+                    }
+                }
+            }
+        }
+    });
+}

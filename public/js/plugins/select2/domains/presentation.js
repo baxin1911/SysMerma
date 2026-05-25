@@ -1,4 +1,4 @@
-import { getAllPresentationsRequest } from "../../../services/warehouse/presentationService.js";
+import { getAllPresentations } from "../../../application/warehouse/presentations.js";
 import { initbaseSelect2, toggleSelectOption } from "../baseSelect.js";
 
 export const initPresentationSelect = ({ 
@@ -10,7 +10,7 @@ export const initPresentationSelect = ({
     initbaseSelect2({
         baseSelector,
         modalSelector,
-        get: getAllPresentationsRequest,
+        get: getAllPresentations,
         placeholder: 'Buscar presentación...',
         processResults: (data) => {
 

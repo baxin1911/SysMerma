@@ -163,7 +163,12 @@ export const validateTextOptional = (name, length, fieldName) => {
 
     if (!name) return null;
 
-    const result = validateText({ name, length, fieldName });
+    const result = validateText({ 
+        name, 
+        length, 
+        fieldName,
+        regex: /^[^<>\\{}[\]]+$/u
+    });
 
     return result;
 }

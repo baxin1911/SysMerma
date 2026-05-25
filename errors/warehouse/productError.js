@@ -50,6 +50,13 @@ export class ProductUpdateDatabaseError extends AppError {
     }
 }
 
+export class ProductStockAdjustmentDatabaseError extends AppError {
+
+    constructor () {
+        super('Error de base de datos al editar el ajuste de stock del product', 'PRODUCT_STOCK_ADJUSTMENT_DB_ERROR', 500);
+    }
+}
+
 export class ProductUnitCostUpdateDatabaseError extends AppError {
 
     constructor () {

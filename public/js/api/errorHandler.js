@@ -38,6 +38,8 @@ export const handleApiError = ({
                 return;
             }
 
+            form.dataset.submitting = 'false';
+            form.querySelector('button[type="submit"]').disabled = false;
             notifications.showError(message || 'Errores de validación.');
             return;
         }
@@ -49,6 +51,8 @@ export const handleApiError = ({
 
         case 404:
         case 409:
+            form.dataset.submitting = 'false';
+            form.querySelector('button[type="submit"]').disabled = false;
             notifications.showError(getFallbackMessage(err));
             return;
 

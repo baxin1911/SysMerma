@@ -1,10 +1,10 @@
 import { useForm } from "../../application/form.js";
-import { editGoodsIssue, editGoodsIssueDetails, registerGoodsIssue } from "../../application/warehouse/goodsIssues.js";
+import { editGoodsIssue, editGoodsIssueDetails, registerGoodsIssue } from "../../application/warehouse/goodsIssues/goodsIssues.js";
 import { validateAddProductValidators, validateGoodsIssueDetailValidators, validateGoodsIssueValidators } from "../../utils/validations/validators.js";
 import { refreshProductTable } from "../../plugins/datatable/baseDatatable.js";
 import { createGoodsIssueDatatable, details, initDetailsGoodsIssueTable } from "../../plugins/datatable/goodsIssueDatatable.js";
 import { initGoodsIssueFormSelect2, setGoodsIssueFormSelectOptions } from "../../plugins/select2/modules/goodsIssueSelect.js";
-import { setFormReadOnly, toggleButtons, clearAddedProductInput, clearFormErrors, normalizeFormErrors } from "../../ui/formUI.js";
+import { setFormReadOnly, toggleButtons, clearAddedProductInput, clearFormErrors, normalizeFormErrors, initForm } from "../../ui/formUI.js";
 import { on } from "../../utils/domUtils.js";
 import { formatDateLongWithTime } from "../../utils/formatters.js";
 import { handleSubmit, hasValidationErrors, validateDetailsFields, validateFields } from "../../utils/formUtils.js";
@@ -62,14 +62,12 @@ useForm({
     },
 });
 
-export const openGoodsIssueModal = async ({ mode, data = null }) => {
+export const openGoodsIssueModal = ({ mode, data = null }) => {
 
     const form = document.querySelector(formId);
     const modalElement = document.querySelector(modalId);
 
-    form.dataset.mode = mode;
-    form.dataset.id = data?.id || '';
-
+    initForm({ form, mode, id: data?.id || '' });
     clearFormErrors(form);
     toggleButtons({
         mode,

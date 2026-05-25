@@ -23,7 +23,6 @@ const ROLE_SYSTEM_ADMIN = 'Administrador del sistema';
 const ROLE_COORDINATOR = 'Coordinador';
 const DEPARTMENT_WAREHOUSE = 'ALMACÉN Y PROVEDURÍA';
 const FULFILLMENT_PENDING = 'Pendiente';
-const FULFILLMENT_COMPLETE = 'Surtido';
 const STATUS_APPROVED = 'Aprobada';
 const REFERENCE_NUMBER_TYPE = 'SAL';
 const MOVEMENT_TYPE_OUT = 'OUT';
@@ -33,11 +32,13 @@ export const findAllGoodsIssues = async ({
     skip = 0,
     take = 10,
     search = '',
+    fulfillmentStatusId = '',
     orderBy = 'referenceNumber',
     orderDir = 'asc',
-    onlyPending = true,
     accesses = []
 }) => {
+
+    const db = getDb();
 
     const isAdmin = accesses.some(access => access.role === ROLE_SYSTEM_ADMIN);
     const isWarehouseCoordinator = accesses.some(access => 
@@ -76,12 +77,8 @@ export const findAllGoodsIssues = async ({
                 }
             ]
         }),
-        ...(onlyPending && {
-            fulfillmentStatus: {
-                name: {
-                    not: FULFILLMENT_COMPLETE
-                }
-            }
+        ...(fulfillmentStatusId && {
+            fulfillmentStatusId
         }),
         ...(!canViewAll && {
             department: {
@@ -92,7 +89,7 @@ export const findAllGoodsIssues = async ({
         })
     };
 
-    const goodsIssues = await getDb().goodsIssue.findMany({
+    const goodsIssues = await db.goodsIssue.findMany({
         skip,
         take,
         where,
@@ -142,7 +139,7 @@ export const findAllGoodsIssues = async ({
         }
     });
 
-    const total = await getDb().goodsIssue.count({ where });
+    const total = await db.goodsIssue.count({ where });
     const filtered = total;
 
     return {
@@ -251,7 +248,7 @@ export const createGoodsIssue = async ({
         return result.goodsIssue;
 
     } catch (err) {
-
+console.log(err);
         if (err instanceof AppError) throw err;
 
         throw new GoodsIssueCreateDatabaseError();
@@ -370,7 +367,7 @@ export const updateGoodsIssue = async ({ id, goodsIssueDto }) => {
         });
 
     } catch (err) {
-console.log(err)
+
         if (err instanceof AppError) throw err;
 
         throw new GoodsIssueUpdateDatabaseError();

@@ -2,6 +2,6 @@ import { validateDate, validateDetailsArray, validateTextOptional, validateUUID 
 
 export const purchaseRequisitionValidation = [
     validateDate('requestDate'),
-    validateTextOptional('observations'),
+    validateTextOptional({ fieldName: 'observations', maxLength: 500, regex: /^[^<>\\{}[\]]+$/u }),
     validateDetailsArray
 ];

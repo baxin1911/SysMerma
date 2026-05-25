@@ -15,6 +15,7 @@ export const getAllGoodsIssues = async (req, res) => {
     const start = parseInt(req.query.start) || 0;
     const length = parseInt(req.query.length) || 10;
     const search = req.query['search[value]'] || '';
+    const fulfillmentStatusId = req.query.fulfillmentStatusId || '';
 
     const columns = ['referenceNumber'];
     const orderColumnIndex = req.query.order?.[0]?.column || 0;
@@ -24,6 +25,7 @@ export const getAllGoodsIssues = async (req, res) => {
         skip: start,
         take: length,
         search,
+        fulfillmentStatusId,
         orderBy: columns[orderColumnIndex],
         orderDir,
         accesses: req.user?.accesses

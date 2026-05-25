@@ -1,9 +1,10 @@
-import { ProductSnapshotFindDatabaseError, ProductCreateDatabaseError, ProductNotFound, ProductUpdateDatabaseError } from "../../../errors/warehouse/productError.js";
+import { ProductSnapshotFindDatabaseError, ProductCreateDatabaseError, ProductNotFound, ProductUpdateDatabaseError, ProductStockAdjustmentDatabaseError } from "../../../errors/warehouse/productError.js";
 import { getDb } from "../../../repository/baseRepository.js";
 import { findAllSupplierProducts, findCurrentSupplierProductByProductId, findSupplierProductByIds } from "./supplierProductService.js";
 import { prepareProductData, withRetry } from "./productHelpers.js";
 import { syncSupplierProduct } from "./productRelations.js";
 import { AppError } from "../../../errors/AppError.js";
+import { createStockAdjustment } from "../adjustmentService.js";
 
 const REFERENCE_MOVEMENT_IN = 'IN';
 const PRISMA_RECORD_NOT_FOUND = 'P2025';
@@ -92,6 +93,23 @@ export const findProductsSnapshot = async ({
     return products;
 }
 
+export const existsProduct = async ({
+    tx,
+    id
+}) => {
+
+    const db = getDb(tx);
+
+    const productExists = await db.product.findUnique({
+        where: { id },
+        select: { id: true }
+    });
+
+    if (!productExists) throw new ProductNotFound();
+
+    return productExists;
+}
+
 export const createProduct = async (productDto) => {
 
     try {
@@ -117,12 +135,7 @@ export const updateProduct = async (productDto, id) => {
 
         return await getDb().$transaction(async (tx) => {
 
-            const productExists = await tx.product.findUnique({
-                where: { id },
-                select: { id: true }
-            });
-
-            if (!productExists) throw new ProductNotFound();
+            await existsProduct({ tx, id });
 
             const currentSupplierProduct = await findCurrentSupplierProductByProductId({
                 tx,
@@ -180,4 +193,33 @@ export const updateProduct = async (productDto, id) => {
 
         throw new ProductUpdateDatabaseError();
     };
+};
+
+export const updateProductStock = async ({ 
+    productDto, 
+    userId,
+    id 
+}) => {
+
+    try {
+
+        return await createStockAdjustment({
+            productId: id,
+            supplierId: productDto.supplierId,
+            reasonId: productDto.reasonId,
+            observations: productDto.observations,
+            newStock: productDto.newStock,
+            userId
+        });
+
+    } catch (err) {
+
+        if (err.code === PRISMA_RECORD_NOT_FOUND) {
+            throw new ProductNotFound();
+        }
+
+        if (err instanceof AppError) throw err;
+
+        throw new ProductStockAdjustmentDatabaseError();
+    }
 };

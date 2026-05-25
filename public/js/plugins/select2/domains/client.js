@@ -1,5 +1,5 @@
 import { openClientModal } from "../../../modules/clients/clientModal.js";
-import { getAllClientsRequest } from "../../../services/sales/clientService.js";
+import { getAllClients } from "../../../application/sales/clients.js";
 import { initbaseSelect2, toggleSelectOption } from "../baseSelect.js";
 
 export const initClientSelect = ({ 
@@ -12,7 +12,7 @@ export const initClientSelect = ({
     initbaseSelect2({
         baseSelector,
         modalSelector,
-        get: getAllClientsRequest,
+        get: getAllClients,
         placeholder: 'Buscar cliente...',
         processResults: (data) => {
 

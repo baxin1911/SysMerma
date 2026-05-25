@@ -1,4 +1,4 @@
-import { clearFormErrors } from "../../ui/formUI.js";
+import { clearFormErrors, initForm } from "../../ui/formUI.js";
 import { openModal } from "../../ui/modalUI.js";
 
 const modalId = '#supplierModal';
@@ -13,12 +13,13 @@ export const openSupplierModal = ({
     const form = document.querySelector(formId);
     const modalElement = document.querySelector(modalId);
 
-    form.dataset.mode = mode;
-    form.dataset.id = data?.id || '';
-
+    initForm(form, data?.id || '');
     clearFormErrors(form);
+
     form.reset();
+
     if (form.elements.isActive) form.elements.isActive.checked = true;
+    
     form.elements.tradeName.value = data?.tradeName || '';
     modalElement.querySelector('#modalTitle').textContent = 'Registrar proveedor';
     form.querySelector('#submitBtn').textContent = 'Guardar';

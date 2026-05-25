@@ -1,5 +1,5 @@
 import { openProductModal } from "../../../modules/products/productModal.js";
-import { getAllProductsRequest } from "../../../services/warehouse/productService.js";
+import { getAllProducts } from "../../../application/warehouse/products.js";
 import { initbaseSelect2, setMdbWrapperInputValue, toggleSelectOption } from "../baseSelect.js";
 
 const wrapperSelector = '#presentationDisplayInput';
@@ -14,7 +14,7 @@ const initProductSelect = ({
     initbaseSelect2({
         baseSelector,
         modalSelector,
-        get: getAllProductsRequest,
+        get: getAllProducts,
         placeholder: 'Buscar producto...',
         data: (params) => {
 

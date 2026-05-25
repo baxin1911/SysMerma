@@ -1,4 +1,4 @@
-import { clearFormErrors } from "../../ui/formUI.js";
+import { clearFormErrors, initForm } from "../../ui/formUI.js";
 import { openModal } from "../../ui/modalUI.js";
 
 const clientModalId = '#clientModal';
@@ -13,9 +13,7 @@ export const openClientModal = ({
     const form = document.querySelector(formId);
     const modalElement = document.querySelector(clientModalId);
 
-    form.dataset.mode = mode;
-    form.dataset.id = data?.id || '';
-
+    initForm(form, data?.id);
     clearFormErrors(form);
 
     if (mode === 'create') {

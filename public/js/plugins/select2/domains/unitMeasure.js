@@ -1,4 +1,4 @@
-import { getAllUnitMeasuresRequest } from "../../../services/warehouse/unitMeasureService.js";
+import { getAllUnitMeasures } from "../../../application/warehouse/unitMeasures.js";
 import { initbaseSelect2, toggleSelectOption } from "../baseSelect.js";
 
 export const initUnitMeasureSelect = ({ 
@@ -10,7 +10,7 @@ export const initUnitMeasureSelect = ({
     initbaseSelect2({
         baseSelector,
         modalSelector,
-        get: getAllUnitMeasuresRequest,
+        get: getAllUnitMeasures,
         placeholder: 'Buscar unidad...',
         processResults: (data) => {
 

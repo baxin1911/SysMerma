@@ -1,4 +1,4 @@
-import { getAllProfilesRequest } from "../../../services/admin/profileService.js";
+import { getAllProfiles } from "../../../application/admin/profiles.js";
 import { initbaseSelect2, toggleSelectOption } from "../baseSelect.js";
 
 export const initProfileSelect = ({ 
@@ -13,7 +13,7 @@ export const initProfileSelect = ({
     initbaseSelect2({
         baseSelector,
         modalSelector,
-        get: getAllProfilesRequest,
+        get: getAllProfiles,
         clearOnOpen,
         data,
         placeholder,

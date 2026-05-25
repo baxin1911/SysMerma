@@ -1,16 +1,20 @@
 import { openGoodsIssueModal } from "../../pages/warehouse/goodsIssuesPage.js";
-import { getAllGoodsIssuesRequest } from "../../services/warehouse/goodsIssueService.js";
+import { getAllGoodsIssues } from "../../application/warehouse/goodsIssues/goodsIssues.js";
 import { hasPermission } from "../../utils/permissions.js";
 import { createDataTable, refreshProductTable, renderActionButtons } from "./baseDatatable.js";
 import { buildDetailsColumns, buildDetailsHeader } from "./utils/builderDetailDatatable.js";
 import { handleDelete, renderMaterialName } from "./utils/renderProductDatatable.js";
+import { getResponsiveRowData } from "./utils/responsive.js";
+import { setupTableSelectFilter } from "./utils/tableFilter.js";
 
 export let details = [];
 const selectorProductTable = '#productTable';
-const selectorTable = '#table';
+const tableSelector = '#table';
+let getFulfillmentStatusFilterValue = () => undefined;
+
 let productTable;
 
-export const createGoodsIssueDatatable = (context) => {
+export const createGoodsIssueDatatable = async (context) => {
 
     const { isWarehouse, isSystem } = hasPermission(context);
 
@@ -51,10 +55,17 @@ export const createGoodsIssueDatatable = (context) => {
         }
     );
 
+    const filterConfig = await setupTableSelectFilter();
+
+    getFulfillmentStatusFilterValue = filterConfig?.getValue || (() => undefined);
+
     const table = createDataTable({
         options: {
             ajax: {
-                get: getAllGoodsIssuesRequest
+                get: (params) => getAllGoodsIssues({
+                    ...params,
+                    fulfillmentStatusId: getFulfillmentStatusFilterValue() || ''
+                })
             },
             columns,
             buttons: [
@@ -66,23 +77,27 @@ export const createGoodsIssueDatatable = (context) => {
         }
     });
 
-    $(`${ selectorTable } tbody`).on('click', '.btn-edit', function () {
+    setupTableSelectFilter({
+        table
+    });
 
-        const data = table.row($(this).closest('tr')).data();
+    $(`${ tableSelector } tbody`).on('click', '.btn-edit', function () {
+
+        const data = getResponsiveRowData(table, this);
 
         openGoodsIssueModal({ mode: 'edit', data });
     })
 
-    $(`${ selectorTable } tbody`).on('click', '.btn-edit-detail', function() {
+    $(`${ tableSelector } tbody`).on('click', '.btn-edit-detail', function() {
 
-        const data = table.row($(this).closest('tr')).data();
+        const data = getResponsiveRowData(table, this);
 
         openGoodsIssueModal({ mode: 'edit-detail', data });
     });
 
-    $(`${ selectorTable } tbody`).on('click', '.btn-view', function() {
+    $(`${ tableSelector } tbody`).on('click', '.btn-view', function() {
 
-        const data = table.row($(this).closest('tr')).data();
+        const data = getResponsiveRowData(table, this);
 
         openGoodsIssueModal({ mode: 'view', data });
     });

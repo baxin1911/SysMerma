@@ -1,4 +1,4 @@
-import { getAllDepartmentsRequest } from "../../../services/admin/departmentService.js";
+import { getAllDepartments } from "../../../application/admin/departments.js";
 import { initbaseSelect2, toggleSelectOption } from "../baseSelect.js";
 
 export const initDepartmentSelect = ({ 
@@ -10,7 +10,7 @@ export const initDepartmentSelect = ({
     initbaseSelect2({
         baseSelector,
         modalSelector,
-        get: getAllDepartmentsRequest,
+        get: getAllDepartments,
         placeholder: 'Buscar área...',
         processResults: (data) => {
 

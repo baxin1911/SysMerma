@@ -2,6 +2,7 @@ import { openPurchaseRequisitionModal } from "../../pages/warehouse/purchaseRequ
 import { createDataTable, refreshProductTable, renderActionButtons } from "./baseDatatable.js";
 import { PURCHASE_REQUISITIONS_API_ROUTE } from "../../services/warehouse/purchaseRequisitionService.js";
 import { hasPermission } from "../../utils/permissions.js";
+import { getResponsiveRowData } from "./utils/responsive.js";
 
 export let details = [];
 const selectorProductTable = '#productTable';
@@ -85,14 +86,14 @@ export const createPurchaseRequisitionDatatable = (context) => {
 
     $(`${ selectorTable } tbody`).on('click', '.btn-edit', async function() {
 
-        const data = table.row($(this).closest('tr')).data();
+        const data = getResponsiveRowData(table, this);
 
         await openPurchaseRequisitionModal({ mode: 'edit', data });
     });
 
     $(`${ selectorTable } tbody`).on('click', '.btn-view', function() {
 
-        const data = table.row($(this).closest('tr')).data();
+        const data = getResponsiveRowData(table, this);
 
         openPurchaseRequisitionModal({ mode: 'view', data });
     });

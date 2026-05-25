@@ -16,6 +16,12 @@ export const productValidators = {
     height: (value) => validateNumberOptional(value, 'La altura'),
 }
 
+export const productStockValidators = {
+    newStock: (value) => validateNumber(value, 'El nuevo stock'),
+    reasonId: (value) => isEmptyOrNull(value, 'La razón de ajuste'),
+    observations: (value) => validateTextOptional(value, 500, 'Las observaciones'),
+}
+
 export const loginValidators = {
     name: validateUsername,
     password: validatePassword,
@@ -36,7 +42,7 @@ export const validateAddProductValidators = {
 export const validateGoodsReceiptValidators = {
     receivedById: (value) => isEmptyOrNull(value, 'El recibidor'),
     supplierId: (value) => isEmptyOrNull(value, 'El proveedor'),
-    observations: (value) => validateTextOptional(value, 'Las observaciones'),
+    observations: (value) => validateTextOptional(value, 500, 'Las observaciones'),
     receptionDate: (value) => validateDate(value, 'La fecha de recepción'),
     details: validateGoodsReceiptDetailsArray
 }
@@ -47,7 +53,7 @@ export const validateGoodsIssueValidators = {
     clientId: (value) => isEmptyOrNull(value, 'El cliente'),
     departmentId: (value) => isEmptyOrNull(value, 'El cliente'),
     requesterId: (value) => isEmptyOrNull(value, 'El solicitante'),
-    observations: (value) => validateTextOptional(value, 'Las observaciones'),
+    observations: (value) => validateTextOptional(value, 500, 'Las observaciones'),
     requestDate: (value) => validateDate(value, 'La fecha de solicitud'),
     details: validateGoodsIssueDetailsArray
 }
@@ -58,7 +64,7 @@ export const validateGoodsIssueDetailValidators = {
 
 export const validatePurchaseRequisitionValidators = {
     projectId: (value) => isEmptyOrNull(value, 'El proyecto'),
-    observations: (value) => validateTextOptional(value, 'Las observaciones'),
+    observations: (value) => validateTextOptional(value, 500, 'Las observaciones'),
     requestDate: (value) => validateDate(value, 'La fecha de solicitud'),
     details: validateGoodsReceiptDetailsArray
 };

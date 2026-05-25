@@ -19,6 +19,7 @@ export const exportWarehouseReportExcel = async (req, res) => {
 
     const data = [
         [
+            'Proveedor',
             'Material',
             'Base',
             'Altura',
@@ -31,6 +32,7 @@ export const exportWarehouseReportExcel = async (req, res) => {
         ],
 
         ...rows.map(row => [
+            row.supplier,
             row.name,
             row.base,
             row.height,

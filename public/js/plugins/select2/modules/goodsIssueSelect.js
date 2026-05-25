@@ -1,5 +1,5 @@
 import { getSelectedOptionText } from "../../../utils/domUtils.js";
-import { resolveAdvisorDepartmentByClientName, isInternalClientName, salesDepartmentName } from "../../../application/warehouse/goodsIssueRules.js";
+import { resolveAdvisorDepartmentByClientName, isInternalClientName, salesDepartmentName } from "../../../application/warehouse/goodsIssues/goodsIssueRules.js";
 import { toggleDisabledElement } from "../../../utils/formUtils.js";
 import { bindDependency } from "../baseSelect.js";
 import { setupClientSelect, toggleClientOption } from "../domains/client.js";

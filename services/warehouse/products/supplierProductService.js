@@ -1,7 +1,8 @@
 import { GoodsIssueInexistentStock, GoodsIssueInsufficientStock } from "../../../errors/inventory/stockError.js";
-import { ProductSnapshotFindDatabaseError, SupplierProductCreateDatabaseError, SupplierProductDeleteDatabaseError } from "../../../errors/warehouse/productError.js";
+import { ProductNotFound, ProductSnapshotFindDatabaseError, SupplierProductCreateDatabaseError, SupplierProductDeleteDatabaseError } from "../../../errors/warehouse/productError.js";
 import { getDb } from "../../../repository/baseRepository.js";
 import { buildStockKey, parseStockKey } from "../../../utils/formattersUtils.js";
+import { createStockAdjustment } from "../adjustmentService.js";
 
 const MOVEMENT_TYPE_IN = 'IN';
 
@@ -26,12 +27,13 @@ export const findCurrentSupplierProductByProductId = async ({
 
     const db = getDb(tx);
 
-    return db.supplierProduct.findFirst({
+    const currentSupplierProduct = await db.supplierProduct.findFirst({
         where: { productId },
         select: { supplierId: true, maxUnitCost: true }
     });
-};
 
+    return currentSupplierProduct;
+};
 
 const mapSupplierProduct = (sp) => {
 
@@ -169,6 +171,8 @@ export const findSupplierProductByIds = async ({
             }
         }
     });
+
+    if (!supplierProduct) return ProductNotFound();
 
     return mapSupplierProduct(supplierProduct);
 };
@@ -359,6 +363,27 @@ export const updateSupplierProductStock = async ({
         }
     }
 }
+
+export const adjustSupplierProductStock = async ({
+    tx,
+    productId,
+    supplierId,
+    newStock,
+    newConvertedQuantity
+}) => {
+    
+    const db = getDb(tx);
+
+    return await db.supplierProduct.update({
+        where: {
+            supplierId_productId: { productId, supplierId }
+        },
+        data: {
+            currentStock: newStock,
+            convertedQuantity: newConvertedQuantity
+        }
+    });
+};
 
 export const deleteSupplierProduct = async ({
     tx,

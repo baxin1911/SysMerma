@@ -85,13 +85,6 @@ export const toggleContainerElements = ({
         });
 };
 
-export const cleanForm = (form) => {
-
-    form.reset();
-    form.dataset.id = '';
-    form.dataset.mode = '';
-}
-
 export const hasValidationErrors = (errors) => {
 
     const check = (value) => {

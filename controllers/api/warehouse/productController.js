@@ -1,6 +1,6 @@
-import { createProductDtoForRegister } from "../../../dtos/productDTO.js";
+import { createProductDtoForRegister, createProductDtoForStockUpdate } from "../../../dtos/productDTO.js";
 import { successCodeMessages } from "../../../messages/codeMessages.js";
-import { findAllProducts, createProduct, updateProduct } from "../../../services/warehouse/products/productService.js";
+import { findAllProducts, createProduct, updateProduct, updateProductStock } from "../../../services/warehouse/products/productService.js";
 import { sanitizeEmptyStrings } from "../../../utils/formattersUtils.js";
 
 export const getAllProducts = async (req, res) => {
@@ -45,6 +45,23 @@ export const editProduct = async (req, res) => {
     const sanitizedProductDto = sanitizeEmptyStrings(productDto);
 
     const product = await updateProduct(sanitizedProductDto, req.params.id);
+
+    return res.status(200).json({
+        product,
+        code: successCodeMessages.UPDATED_PRODUCT
+    });
+}
+
+export const editProductStock = async (req, res) => {
+
+    const productDto = createProductDtoForStockUpdate(req.body);
+    const sanitizedProductDto = sanitizeEmptyStrings(productDto);
+
+    const product = await updateProductStock({
+        productDto: sanitizedProductDto,
+        userId: req.user.id,
+        id: req.params.id
+    });
 
     return res.status(200).json({
         product,

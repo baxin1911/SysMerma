@@ -4,7 +4,7 @@ import { validateAddGoodsReceiptProductValidators, validateGoodsReceiptValidator
 import { refreshProductTable } from "../../plugins/datatable/baseDatatable.js";
 import { createGoodsReceiptDatatable, details, initDetailsGoodsReceiptTable } from "../../plugins/datatable/goodsReceiptDatatable.js";
 import { GOODS_RECEIPT_SUPPLIER_CHANGED_EVENT, initGoodsReceiptFormSelect2, setGoodsReceiptFormSelectOptions } from "../../plugins/select2/modules/goodsReceiptSelect.js";
-import { setFormReadOnly, updateTotals, toggleButtons, clearAddedProductInput, toggleInvoiceInput, clearFormErrors, normalizeFormErrors } from "../../ui/formUI.js";
+import { setFormReadOnly, updateTotals, toggleButtons, clearAddedProductInput, toggleInvoiceInput, clearFormErrors, normalizeFormErrors, initForm } from "../../ui/formUI.js";
 import { on } from "../../utils/domUtils.js";
 import { formatDateLongWithTime } from "../../utils/formatters.js";
 import { handleSubmit, hasValidationErrors, toggleContainerElements, validateFields } from "../../utils/formUtils.js";
@@ -72,9 +72,7 @@ export const openGoodsReceiptModal = ({ mode, data = null }) => {
     const modalElement = document.querySelector(modalId);
     let value;
 
-    form.dataset.mode = mode;
-    form.dataset.id = data?.id || '';
-
+    initForm({ form, mode, id: data?.id || '' });
     clearFormErrors(form);
     setFormReadOnly({ form, isReadOnly: false });
 

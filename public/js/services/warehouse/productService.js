@@ -15,7 +15,13 @@ export const registerProductRequest = (data) => apiRequest({
 });
 
 export const editProductRequest = (data, id) => apiRequest({
-    method: 'put',
+    method: 'patch',
     url: `${ PRODUCTS_API_ROUTE }/${ id }`,
+    data
+});
+
+export const editProductStockRequest = (data, id) => apiRequest({
+    method: 'patch',
+    url: `${ PRODUCTS_API_ROUTE }/${ id }/stock`,
     data
 });

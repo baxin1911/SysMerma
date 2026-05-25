@@ -2,8 +2,9 @@ import { createDataTable, renderActionButtons } from "./baseDatatable.js";
 import { notifications } from "../swal/swalComponent.js";
 import { hasPermission } from "../../utils/permissions.js";
 import { renderMaterialName } from "./utils/renderProductDatatable.js";
-import { getAllWastesRequest } from "../../services/warehouse/wasteService.js";
+import { getAllWastes } from "../../application/warehouse/wastes.js";
 import { openWasteModal } from "../../pages/warehouse/wastesPage.js";
+import { getResponsiveRowData } from "./utils/responsive.js";
 
 const selectorTable = '#table';
 let lastLowStockNotification = '';
@@ -65,7 +66,7 @@ export const createWasteDatatable = (context) => {
     const table = createDataTable({
         options: {
             ajax: {
-                get: getAllWastesRequest
+                get: getAllWastes
             },
             columns,
             buttons: [
@@ -79,7 +80,7 @@ export const createWasteDatatable = (context) => {
 
     $(`${ selectorTable } tbody`).on('click', '.btn-edit', async function() {
 
-        const data = table.row($(this).closest('tr')).data();
+        const data = getResponsiveRowData(table, this);
 
         await openWasteModal({ mode: 'edit', data });
     });

@@ -60,6 +60,9 @@ export const errorMessages = {
     REQUEST_DATE_REQUIRED: 'La fecha de solicitud es requerida.',
     REQUEST_DATE_INVALID_FORMAT: 'La fecha de solicitud no es válida.',
 
+    REASON_ID_REQUIRED: 'La razón es requerida.',
+    REASON_ID_INVALID_UUID: 'La razón no es válida.',
+
     // 👤 USERNAME
     USERNAME_REQUIRED: 'El nombre de usuario es requerido.',
     USERNAME_INVALID_TYPE: 'El nombre de usuario debe ser texto.',
@@ -92,6 +95,10 @@ export const errorMessages = {
     MIN_STOCK_INVALID_NUMBER: 'Debe ser un número.',
     MIN_STOCK_GREATER_THAN_MAX: 'El stock mínimo no puede ser mayor al máximo.',
 
+    // 📈 NEW STOCK
+    NEW_STOCK_REQUIRED: 'El stock nuevo es requerido.',
+    NEW_STOCK_INVALID_NUMBER: 'El stock nuevo debe ser un número.',
+
     REQUIRED_QUANTITY: 'La cantidad es requerido.',
     INVALID_FORMAT_QUANTITY: 'La cantidad debe ser un número mayor a cero.',
 
@@ -109,7 +116,7 @@ export const errorMessages = {
 
     // OBSERVATIONS
     OBSERVATIONS_INVALID_TYPE: 'Las observaciones deben ser texto.',
-    OBSERVATIONS_TOO_LONG: 'Las observaciones no deben exceder más de 50 caracteres.',
+    OBSERVATIONS_TOO_LONG: (meta) => `Las observaciones no deben exceder más de ${meta.value} caracteres.`,
 
     INVOICED_REQUIRED: 'El tipo de factura debe ser seleccionado.',
     INVOICED_INVALID_BOOLEAN: 'El estado de la factura debe ser verdadero o falso.',
@@ -142,6 +149,7 @@ export const errorMessages = {
     PRODUCT_CREATE_DB_ERROR: 'Error de base de datos al crear el producto.',
     PRODUCT_UPDATE_DB_ERROR: 'Error de base de datos al editar el producto.',
     PRODUCT_SNAPSHOT_FIND_DB_ERROR: 'Error de base de datos al buscar los datos históricos del producto.',
+    PRODUCT_STOCK_UPDATE_DB_ERROR: 'Error de base de datos al editar el stock del producto.',
     PRODUCT_UNIT_COST_UPDATE_DB_ERROR: 'Error de base de datos al editar el costo unitario del producto.',
     SUPPLIER_PRODUCT_CREATE_DB_ERROR: 'Error de base de datos al relacionar el producto a un proveedor.',
     SUPPLIER_PRODUCT_DELETE_DB_ERROR: 'Error de base de datos al eliminar la relación entre producto y proveedor.',

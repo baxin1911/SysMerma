@@ -1,5 +1,12 @@
-import { getErrorMessage, getSuccessMessage } from "../../constants/apiMessages.js";
-import { editGoodsIssueDetailsRequest, editGoodsIssueRequest, registerGoodsIssueRequest } from "../../services/warehouse/goodsIssueService.js";
+import { getErrorMessage, getSuccessMessage } from "../../../constants/apiMessages.js";
+import { editGoodsIssueDetailsRequest, editGoodsIssueRequest, getAllGoodsIssuesRequest, registerGoodsIssueRequest } from "../../../services/warehouse/goodsIssueService.js";
+
+export const getAllGoodsIssues = async (params = {}) => {
+
+    const response = await getAllGoodsIssuesRequest(params);
+
+    return response;
+};
 
 export const registerGoodsIssue = async (formData) => {
 

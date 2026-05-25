@@ -1,7 +1,7 @@
 import express from 'express';
 import { authorizeUserApi, verifyApiTokenRequired } from '../../../middleware/authMiddleware.js';
-import { editProduct, getAllProducts, registerProduct } from '../../../controllers/api/warehouse/productController.js';
-import { productValidation } from '../../../validators/forms/productValidations.js';
+import { editProduct, editProductStock, getAllProducts, registerProduct } from '../../../controllers/api/warehouse/productController.js';
+import { productStockValidation, productValidation } from '../../../validators/forms/productValidations.js';
 import { validate } from '../../../middleware/validatorMiddleware.js';
 
 const router = express.Router();
@@ -32,13 +32,22 @@ router.post(
     registerProduct
 );
 
-router.put(
+router.patch(
     '/:id',
     verifyApiTokenRequired,
     productValidation,
     validate,
     authorizeUserApi(productWritePermissions),
     editProduct
+);
+
+router.patch(
+    '/:id/stock',
+    verifyApiTokenRequired,
+    productStockValidation,
+    validate,
+    authorizeUserApi(productWritePermissions),
+    editProductStock
 );
 
 export default router;

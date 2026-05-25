@@ -61,6 +61,18 @@ export const validateText = ({ fieldName, maxLength, regex = nameRegex }) =>
         .matches(regex).withMessage(errorMap['name'].INVALID_FORMAT)
 ;
 
+export const validateTextOptional = ({ fieldName, maxLength, regex = nameRegex }) => {
+
+    const errors = errorMap[fieldName];
+
+    return body(fieldName)
+        .trim()
+        .if(body(fieldName).notEmpty())
+        .isString().withMessage(errors.INVALID_TYPE)
+        .isLength({ max: maxLength }).withMessage(errors.TOO_LONG(maxLength))
+        .matches(regex).withMessage(errors.INVALID_FORMAT)
+}
+
 export const validateBoolean = (fieldName) =>
     body(fieldName)
         .exists().withMessage(errorMap[fieldName].REQUIRED)
@@ -111,17 +123,6 @@ export const validateNumberOptional = (fieldName, { disableTooLong = false } = {
         .if(() => !disableTooLong)
         .matches(/^\d{1,7}(\.\d{1,3})?$/).withMessage(errors.TOO_LONG)
         .toFloat()
-}
-
-export const validateTextOptional = (fieldName) => {
-
-    const errors = errorMap[fieldName];
-
-    return body(fieldName)
-        .trim()
-        .if(body(fieldName).notEmpty())
-        .isString().withMessage(errors.INVALID_TYPE)
-        .isLength({ max: 50 }).withMessage(errors.TOO_LONG)
 }
 
 export const validateDate = (fieldName) => {

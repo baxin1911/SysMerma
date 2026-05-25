@@ -22,7 +22,7 @@ export const buildGoodsReceiptDetails = async (details) => {
         const netPurchaseAmount = roundTo(quantity * costPerUnitType);
         const grossPurchaseAmount = roundTo(netPurchaseAmount * IVA_RATE);
         const hasDimensions = base !== null && height !== null && base > 0 && height > 0;
-        const convertedQuantity = hasDimensions ? roundTo((base * height) * quantity) : quantity;
+        const convertedQuantity = hasDimensions ? roundTo((Number(base) * Number(height)) * quantity) : quantity;
         let conversionUnitCost = null;
 
         if (convertedQuantity) conversionUnitCost = convertedQuantity > 0 ? roundTo(netPurchaseAmount / convertedQuantity) : 0;

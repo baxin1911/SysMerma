@@ -1,4 +1,4 @@
-import { UnitMeasureFindDatabaseError, UnitMeasureNotFound } from "../../errors/warehouse/unitMeasureError.js";
+import { UnitMeasureNotFound } from "../../errors/warehouse/unitMeasureError.js";
 import { getDb } from "../../repository/baseRepository.js";
 
 export const findAllUnitMeasures = async ({

@@ -2,6 +2,7 @@ import { toNumber } from "../../utils/formattersUtils.js";
 import { findAllSupplierProducts } from "./products/supplierProductService.js";
 
 const mapProductRows = (products = []) => products.map((item) => ({
+    supplier: item.supplier?.tradeName,
     name: item.name,
     base: toNumber(item.base),
     height: toNumber(item.height),
