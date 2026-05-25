@@ -3,9 +3,11 @@ import { handleDataTableError } from "../../api/errorHandler.js";
 export const createDataTable = ({ selector = '#table', options = {} }) => {
 
     const ajaxConfig = options.ajax;
+    const searchDelay = options.searchDelay ?? (ajaxConfig ? 500 : 300);
 
     return $(selector).DataTable({
         ...options,
+        searchDelay,
         ajax: ajaxConfig ? async (data, callback) => {
 
             try {
