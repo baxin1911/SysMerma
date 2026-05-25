@@ -3,7 +3,7 @@ import { handleDataTableError } from "../../api/errorHandler.js";
 export const createDataTable = ({ selector = '#table', options = {} }) => {
 
     const ajaxConfig = options.ajax;
-    const searchDelay = options.searchDelay ?? (ajaxConfig ? 500 : 300);
+    const searchDelay = 1000;
 
     return $(selector).DataTable({
         ...options,

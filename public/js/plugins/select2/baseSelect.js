@@ -8,7 +8,7 @@ export const initbaseSelect2 = ({
     modalSelector,
     get, 
     clearOnOpen = true,
-    searchDelay = 500,
+    searchDelay = 1000,
     placeholder,
     processResults,
     data = (params) => {
@@ -48,6 +48,8 @@ export const initbaseSelect2 = ({
                     return success(response.data);
 
                 } catch (err) {
+
+                    if (err.name === 'AbortError') return;
 
                     handleApiError({
                         err,
