@@ -6,6 +6,7 @@ import { setupClientSelect, toggleClientOption } from "../domains/client.js";
 import { initDepartmentSelect, toggleDepartmentOption } from "../domains/department.js";
 import { setupProductSelect, toggleProductOption } from "../domains/product.js";
 import { initProfileSelect, toggleProfileOption } from "../domains/profile.js";
+import { initMdbWrapperInput, updateMdbWrapperInput } from "../../mdb/baseInstance.js";
 
 const modalSelector = '#goodsIssueModal';
 const requesterSelector = '#requesterInput';
@@ -32,7 +33,14 @@ export const initGoodsIssueFormSelect2 = () => {
             departmentName: getSelectedOptionText(departmentScopedSelector)
         });
 
-        if (projectNumberInput && projectNumber) projectNumberInput.value = projectNumber;
+        if (projectNumberInput && projectNumber) {
+            projectNumberInput.value = projectNumber;
+            const projectNumberInputInstance = initMdbWrapperInput({
+                selector: `${ modalSelector } ${ projectNumberSelector }`,
+                value: projectNumber
+            });
+            updateMdbWrapperInput(projectNumberInputInstance);
+        }
     };
 
     initDepartmentSelect({
