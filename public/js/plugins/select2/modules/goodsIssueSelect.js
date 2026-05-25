@@ -1,5 +1,5 @@
 import { getSelectedOptionText } from "../../../utils/domUtils.js";
-import { resolveAdvisorDepartmentByClientName, isInternalClientName, salesDepartmentName } from "../../../application/warehouse/goodsIssues/goodsIssueRules.js";
+import { resolveAdvisorDepartmentByClientName, isInternalClientName, resolveProjectNumberByClientAndDepartment, salesDepartmentName } from "../../../application/warehouse/goodsIssues/goodsIssueRules.js";
 import { toggleDisabledElement } from "../../../utils/formUtils.js";
 import { bindDependency } from "../baseSelect.js";
 import { setupClientSelect, toggleClientOption } from "../domains/client.js";
@@ -13,6 +13,7 @@ const clientSelector = '#clientInput';
 const departmentSelector = '#departmentInput';
 const advisorSelector = '#advisorInput';
 const productSelector = '#productInput';
+const projectNumberSelector = '#projectNumberInput';
 const requesterScopedSelector = `${ modalSelector } ${ requesterSelector }`;
 const clientScopedSelector = `${ modalSelector } ${ clientSelector }`;
 const departmentScopedSelector = `${ modalSelector } ${ departmentSelector }`;
@@ -23,7 +24,16 @@ export const initGoodsIssueFormSelect2 = () => {
 
     const modal = document.querySelector(modalSelector);
     const requesterSelectElement = modal?.querySelector(requesterSelector);
-    const getModalSelectedOptionText = (selector) => getSelectedOptionText(selector, modal);
+
+    const syncInternalClientProjectNumber = () => {
+        const projectNumberInput = modal?.querySelector(projectNumberSelector);
+        const projectNumber = resolveProjectNumberByClientAndDepartment({
+            clientName: getSelectedOptionText(clientScopedSelector),
+            departmentName: getSelectedOptionText(departmentScopedSelector)
+        });
+
+        if (projectNumberInput && projectNumber) projectNumberInput.value = projectNumber;
+    };
 
     initDepartmentSelect({
         modalSelector,
@@ -45,7 +55,7 @@ export const initGoodsIssueFormSelect2 = () => {
             return {
                 search: params.term,
                 department: resolveAdvisorDepartmentByClientName({
-                    clientName: getModalSelectedOptionText(clientSelector),
+                    clientName: getSelectedOptionText(clientScopedSelector),
                     fallbackDepartment: salesDepartmentName
                 }),
                 strictDepartmentFilter: true
@@ -60,7 +70,7 @@ export const initGoodsIssueFormSelect2 = () => {
         placeholder: 'Buscar solicitante...',
         data: (params) => {
 
-            const department = getModalSelectedOptionText(departmentSelector);
+            const department = getSelectedOptionText(departmentScopedSelector);
 
             return {
                 search: params.term,
@@ -81,6 +91,8 @@ export const initGoodsIssueFormSelect2 = () => {
         onChange: ({ value }) => {
             const isDisabled = !value;
 
+            syncInternalClientProjectNumber();
+
             toggleProfileOption({
                 selector: requesterScopedSelector,
                 id: null,
@@ -99,7 +111,9 @@ export const initGoodsIssueFormSelect2 = () => {
     bindDependency({
         sourceSelector: clientScopedSelector,
         onChange: () => {
-            if (!isInternalClientName(getModalSelectedOptionText(clientSelector))) return;
+            syncInternalClientProjectNumber();
+
+            if (!isInternalClientName(getSelectedOptionText(clientScopedSelector))) return;
 
             toggleProfileOption({
                 selector: advisorScopedSelector,
