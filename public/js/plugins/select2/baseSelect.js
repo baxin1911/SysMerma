@@ -8,6 +8,7 @@ export const initbaseSelect2 = ({
     modalSelector,
     get, 
     clearOnOpen = true,
+    searchDelay = 500,
     placeholder,
     processResults,
     data = (params) => {
@@ -35,7 +36,7 @@ export const initbaseSelect2 = ({
         minimumInputLength: 0, 
         ajax: {  
             dataType: 'json', 
-            delay: 250, 
+            delay: searchDelay, 
             data, 
             processResults,
             transport: async (params, success, failure) => {
