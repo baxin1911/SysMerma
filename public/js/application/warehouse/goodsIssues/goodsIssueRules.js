@@ -26,16 +26,12 @@ export const isInternalClientName = (clientName = '') => (
 );
 
 export const resolveAdvisorDepartmentByClientName = ({
-    clientName = '',
-    fallbackDepartment = ''
+    clientName = ''
 } = {}) => {
 
     if (isInternalClientName(clientName)) return warehouseDepartmentName;
 
-    const departments = [fallbackDepartment, managementDepartmentName]
-        .filter(Boolean);
-
-    return [...new Set(departments)];
+    return [salesDepartmentName, managementDepartmentName];
 };
 
 export const resolveProjectNumberByClientAndDepartment = ({
