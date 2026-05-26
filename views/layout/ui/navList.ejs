@@ -36,6 +36,12 @@ const items = [
         isActive: currentRoute === '/salidas-almacen',
         isVisible: canSeeAll || !canSeeOnlyProducts
     },
+    {
+        content: 'Perfiles',
+        href: '/perfiles',
+        isActive: currentRoute === '/perfiles',
+        isVisible: isAdmin
+    },
 ].filter(item => {
     if (canSeeAll) return true;
     if (canSeeOnlyProducts) return item.href === '/productos';

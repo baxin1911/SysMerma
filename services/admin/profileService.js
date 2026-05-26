@@ -1,4 +1,4 @@
-import { ProfileFindDatabaseError } from "../../errors/admin/profileError.js";
+import { ProfileCreateDatabaseError, ProfileFindDatabaseError } from "../../errors/admin/profileError.js";
 import { getDb } from "../../repository/baseRepository.js";
 import { normalizeText } from "../../utils/formattersUtils.js";
 
@@ -68,11 +68,7 @@ export const findProfileById = async ({ tx, id }) => {
                 fullName: true,
                 departments: {
                     select: {
-                        department: {
-                            select: {
-                                name: true
-                            }
-                        }
+                        department: true
                     }
                 }
             }
@@ -120,3 +116,100 @@ export const findProfileByUserId = async ({ tx, userId }) => {
 
     return profile?.id || null;
 };
+
+
+export const createProfile = async ({ profileDto }) => {
+
+    const db = getDb();
+
+    try {
+
+        return await db.$transaction(async (tx) => {
+
+            const profile = await tx.profile.create({
+                data: {
+                    fullName: profileDto.fullName,
+                }
+            });
+
+            if (profileDto.departmentIds?.length) await tx.profileDepartment.createMany({
+                data: profileDto.departmentIds.map(departmentId => ({
+                    profileId: profile.id,
+                    departmentId
+                }))
+            });
+
+            return tx.profile.findUnique({
+                where: {
+                    id: profile.id
+                },
+                select: {
+                    id: true,
+                    fullName: true,
+                    departments: {
+                        select: {
+                            department: true
+                        }
+                    }
+                }
+            });
+        });
+
+    } catch (err) {
+
+        throw new ProfileCreateDatabaseError();
+    }
+}
+
+export const updateProfile = async ({ profileDto, id }) => {
+
+    const db = getDb();
+
+    await findProfileById({ tx: db, id });
+
+    try {
+        return await db.$transaction(async (tx) => {
+
+            await tx.profile.update({
+                where: {
+                    id
+                },
+                data: {
+                    fullName: profileDto.fullName,
+                }
+            });
+
+            await tx.profileDepartment.deleteMany({
+                where: {
+                    profileId: id
+                }
+            });
+
+            if (profileDto.departmentIds?.length) await tx.profileDepartment.createMany({
+                data: profileDto.departmentIds.map(departmentId => ({
+                    profileId: id,
+                    departmentId
+                }))
+            });
+
+            return tx.profile.findUnique({
+                where: {
+                    id
+                },
+                select: {
+                    id: true,
+                    fullName: true,
+                    departments: {
+                        select: {
+                            department: true
+                        }
+                    }
+                }
+            });
+        });
+
+    } catch (err) {
+
+        throw new ProfileCreateDatabaseError();
+    }
+}

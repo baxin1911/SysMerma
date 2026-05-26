@@ -46,19 +46,17 @@ export const openStockAdjustmentModal = ({
 
     initForm({ form, mode, id: data?.id });
     setFormReadOnly({ form, fields, isReadOnly: true });
-    initProductFormSelect2({ modalSelector: productModalId, isStockAdjustment: true });
-
     clearFormErrors(form);
-
-    form.elements.name.value = data.name;
-    form.elements.height.value = data.height || '';
-    form.elements.base.value = data.base || '';
-
+    initProductFormSelect2({ modalSelector: productModalId, isStockAdjustment: true });
     setProductFormSelectOptions({ 
         modalSelector: productModalId, 
         data, 
         isStockAdjustment: true 
     });
+
+    form.elements.name.value = data.name;
+    form.elements.height.value = data.height || '';
+    form.elements.base.value = data.base || '';
 
     modalElement.querySelector('#modalTitle').textContent = 'Editar stock de producto';
     form.querySelector('#submitBtn').textContent = 'Actualizar';

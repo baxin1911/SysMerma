@@ -13,7 +13,7 @@ export const openClientModal = ({
     const form = document.querySelector(formId);
     const modalElement = document.querySelector(clientModalId);
 
-    initForm(form, data?.id);
+    initForm({ form, mode, id: data?.id });
     clearFormErrors(form);
 
     if (mode === 'create') {

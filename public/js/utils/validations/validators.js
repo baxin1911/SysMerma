@@ -72,3 +72,8 @@ export const validatePurchaseRequisitionValidators = {
 export const validateClientValidators = {
     name: (value) => validateText({ name: value, length: 100, fieldName: 'El nombre' }),
 }
+
+export const profileValidators = {
+    name: (value) => validateText({ name: value, length: 100, fieldName: 'El nombre' }),
+    departmentId: (value) => isEmptyOrNull(value, 'El departamento'),
+}

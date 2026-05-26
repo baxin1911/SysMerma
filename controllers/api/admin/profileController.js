@@ -1,4 +1,6 @@
-import { findAllProfiles } from "../../../services/admin/profileService.js";
+import { createProfileDTO } from "../../../dtos/profileDTO.js";
+import { findAllProfiles, updateProfile } from "../../../services/admin/profileService.js";
+import { sanitizeEmptyStrings } from "../../../utils/formattersUtils.js";
 
 const allowedDepartments = ['ALMACÉN Y PROVEDURÍA', 'SISTEMAS'];
 
@@ -36,4 +38,26 @@ export const getAllProfiles = async (req, res) => {
     });
 
     res.status(200).json(result);
+}
+
+export const registerProfile = async (req, res) => {
+
+    const { fullName, departmentIds } = req.body;
+    const profileDto = createProfileDTO(req.body);
+    const sanitizedProfileDto = sanitizeEmptyStrings(profileDto);
+
+    const profile = await createProfile({ profileDto: sanitizedProfileDto });
+
+    return res.status(201).json(profile);
+}
+
+export const editProfile = async (req, res) => {
+
+    const { id } = req.params;
+    const profileDto = createProfileDTO(req.body);
+    const sanitizedProfileDto = sanitizeEmptyStrings(profileDto);
+
+    const profile = await updateProfile({ id, profileDto: sanitizedProfileDto });
+
+    return res.status(200).json(profile);
 }

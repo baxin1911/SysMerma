@@ -1,7 +1,6 @@
 import express from 'express';
 import { authorizeUserApi, verifyApiTokenRequired } from '../../../middleware/authMiddleware.js';
-import { getAllClients } from '../../../controllers/api/sales/clientController.js';
-import { createClient } from '../../../services/sales/clientService.js';
+import { getAllClients, registerClient } from '../../../controllers/api/sales/clientController.js';
 
 const router = express.Router();
 const clientReadPermissions = {
@@ -42,7 +41,7 @@ router.post(
     '/',
     verifyApiTokenRequired,
     authorizeUserApi(clientWritePermissions),
-    createClient
+    registerClient
 );
 
 export default router;

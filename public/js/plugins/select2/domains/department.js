@@ -2,6 +2,8 @@ import { getAllDepartments } from "../../../application/admin/departments.js";
 import { initbaseSelect2, toggleSelectOption } from "../baseSelect.js";
 
 export const initDepartmentSelect = ({ 
+    multiple = false,
+    clearOnOpen = true,
     modalSelector, 
     baseSelector, 
     allowCreate = true
@@ -9,7 +11,9 @@ export const initDepartmentSelect = ({
 
     initbaseSelect2({
         baseSelector,
+        clearOnOpen,
         modalSelector,
+        multiple,
         get: getAllDepartments,
         placeholder: 'Buscar área...',
         processResults: (data) => {

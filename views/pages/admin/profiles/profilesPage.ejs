@@ -1,0 +1,31 @@
+<% const form = {
+    id: 'profileForm',
+    inputs: [
+        {
+            id: 'fullNameInput',
+            name: 'fullName',
+            type: 'text',
+            label: 'Nombre completo',
+            col: '12'
+        },
+    ],
+    selects: [
+        {
+            id: 'departmentInput',
+            name: 'departmentIds',
+            class: 'department-select',
+            col: '12'
+        },
+    ]
+} %>
+
+<%- include('../../../shared/mainTable', { title: 'Perfiles' }) %>
+
+<%- include('../../../shared/modal', { modalId: 'profileModal', form }) %>
+
+<script type="module" src="/js/pages/admin/profilesPage.js"></script>
+
+<%- contentFor('title') %>
+Perfiles
+<%- contentFor('layoutType') %>
+site

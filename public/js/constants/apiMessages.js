@@ -22,13 +22,20 @@ export const errorMessages = {
     RECEIVED_BY_ID_INVALID_UUID: 'La persona que recibe no es válida.',
     PROFILE_RECEIVED_BY_NOT_FOUND: 'Perfil de quien recibe no encontrado.',
 
-    PROJECT_NUMBER_REQUIRED: 'El número de proyecto es requerido.',
-    PROJECT_NUMBER_INVALID_TYPE: 'El número de proyecto debe ser texto.',
-    PROJECT_NUMBER_TOO_LONG: 'El número de proyecto no debe exceder 50 caracteres.',
-
     ADVISOR_ID_REQUIRED: 'El asesor es requerido.',
     ADVISOR_ID_INVALID_UUID: 'El asesor no es válido.',
     ADVISOR_PROFILE_NOT_FOUND: 'Perfil de asesor no encontrado.',
+
+    REQUESTER_ID_REQUIRED: 'El solicitante es requerido.',
+    REQUESTER_ID_INVALID_UUID: 'El solicitante no es válido.',
+    REQUESTER_PROFILE_NOT_FOUND: 'Perfil solicitante no encontrado.',
+
+    PROFILE_CREATE_DB_ERROR: 'Error de base de datos al crear el perfil.',
+    PROFILE_UPDATE_DB_ERROR: 'Error de base de datos al editar el perfil.',
+
+    PROJECT_NUMBER_REQUIRED: 'El número de proyecto es requerido.',
+    PROJECT_NUMBER_INVALID_TYPE: 'El número de proyecto debe ser texto.',
+    PROJECT_NUMBER_TOO_LONG: 'El número de proyecto no debe exceder 50 caracteres.',
 
     CLIENT_ID_REQUIRED: 'El cliente es requerido.',
     CLIENT_ID_INVALID_UUID: 'El cliente no es válido.',
@@ -36,10 +43,6 @@ export const errorMessages = {
     DEPARTMENT_ID_REQUIRED: 'El departamento es requerido.',
     DEPARTMENT_ID_INVALID_UUID: 'El departamento no es válido.',
     DEPARTMENT_NOT_FOUND: 'Departamento no encontrado.',
-
-    REQUESTER_ID_REQUIRED: 'El solicitante es requerido.',
-    REQUESTER_ID_INVALID_UUID: 'El solicitante no es válido.',
-    REQUESTER_PROFILE_NOT_FOUND: 'Perfil solicitante no encontrado.',
 
     PRESENTATION_ID_REQUIRED: 'La presentación es requerida.',
     PRESENTATION_ID_INVALID_UUID: 'La presentación no es válida.',

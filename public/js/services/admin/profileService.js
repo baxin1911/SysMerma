@@ -7,3 +7,15 @@ export const getAllProfilesRequest = (params) => apiRequest({
     url: `${ PROFILES_API_ROUTE }`,
     params
 });
+
+export const registerProfileRequest = (profileData) => apiRequest({
+    method: 'post',
+    url: `${ PROFILES_API_ROUTE }`,
+    data: profileData
+});
+
+export const updateProfileRequest = (profileId, profileData) => apiRequest({
+    method: 'put',
+    url: `${ PROFILES_API_ROUTE }${ profileId }/`,
+    data: profileData
+});

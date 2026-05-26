@@ -1,6 +1,7 @@
 import express from 'express';
-import { getAllProfiles } from "../../../controllers/api/admin/profileController.js";
+import { editProfile, getAllProfiles, registerProfile } from "../../../controllers/api/admin/profileController.js";
 import { authorizeUserApi, verifyApiTokenRequired } from "../../../middleware/authMiddleware.js";
+import { profileValidation } from '../../../validators/forms/profileValidations.js';
 
 const router = express.Router();
 const profileReadPermissions = {
@@ -21,11 +22,32 @@ const profileReadPermissions = {
     ]
 };
 
+const registerProfilePermissions = {
+    ...profileReadPermissions,
+    roles: [ 'Administrador del sistema' ]
+};
+
 router.get(
     '/',
     verifyApiTokenRequired,
     authorizeUserApi(profileReadPermissions),
     getAllProfiles
+);
+
+router.post(
+    '/',
+    verifyApiTokenRequired,
+    profileValidation,
+    authorizeUserApi(registerProfilePermissions),
+    registerProfile
+);
+
+router.put(
+    '/:id',
+    verifyApiTokenRequired,
+    profileValidation,
+    authorizeUserApi(registerProfilePermissions),
+    editProfile
 );
 
 export default router;

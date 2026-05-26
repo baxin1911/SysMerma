@@ -71,14 +71,13 @@ export const createClient = async (clientDto) => {
         const createdClient = await getDb().client.create({
             data: {
                 name: clientDto.name,
-                advisorId: clientDto.advisorId
             }
         });
 
         return createdClient;
 
     } catch (err) {
-        
+
         throw new ClientCreateDatabaseError();
     }
 };
