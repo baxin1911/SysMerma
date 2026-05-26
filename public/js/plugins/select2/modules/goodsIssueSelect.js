@@ -1,5 +1,5 @@
 import { getSelectedOptionText } from "../../../utils/domUtils.js";
-import { resolveAdvisorDepartmentByClientName, isInternalClientName, resolveProjectNumberByClientAndDepartment } from "../../../application/warehouse/goodsIssues/goodsIssueRules.js";
+import { resolveAdvisorDepartmentByClientName, resolveProjectNumberByClientAndDepartment } from "../../../application/warehouse/goodsIssues/goodsIssueRules.js";
 import { toggleDisabledElement } from "../../../utils/formUtils.js";
 import { bindDependency } from "../baseSelect.js";
 import { setupClientSelect, toggleClientOption } from "../domains/client.js";
@@ -120,8 +120,6 @@ export const initGoodsIssueFormSelect2 = () => {
         sourceSelector: clientScopedSelector,
         onChange: () => {
             syncInternalClientProjectNumber();
-
-            if (!isInternalClientName(getSelectedOptionText(clientScopedSelector))) return;
 
             toggleProfileOption({
                 selector: advisorScopedSelector,
