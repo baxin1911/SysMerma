@@ -55,6 +55,11 @@ export const createGoodsReceiptDatatable = () => {
                 },
                 { data: 'supplierName', title: 'Proveedor' },
                 {
+                    data: null,
+                    title: 'N° Factura',
+                    render: (_, __, row) => row.isInvoiced ? row.invoice : 'Sin factura'
+                },
+                {
                     data: 'id',
                     title: 'Acciones',
                     render: (_, __, row) => renderActionButtons({ status: row.status?.name, context: 'goodsReceipt' })
