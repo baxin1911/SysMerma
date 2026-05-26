@@ -28,19 +28,20 @@ export const initGoodsIssueFormSelect2 = () => {
 
     const syncInternalClientProjectNumber = () => {
         const projectNumberInput = modal?.querySelector(projectNumberSelector);
+        if (!projectNumberInput) return;
+
         const projectNumber = resolveProjectNumberByClientAndDepartment({
             clientName: getSelectedOptionText(clientScopedSelector),
             departmentName: getSelectedOptionText(departmentScopedSelector)
         });
 
-        if (projectNumberInput && projectNumber) {
-            projectNumberInput.value = projectNumber;
-            const projectNumberInputInstance = initMdbWrapperInput({
-                selector: `${ modalSelector } ${ projectNumberSelector }`,
-                value: projectNumber
-            });
-            updateMdbWrapperInput(projectNumberInputInstance);
-        }
+        projectNumberInput.value = projectNumber || '';
+
+        const projectNumberInputInstance = initMdbWrapperInput({
+            selector: `${ modalSelector } ${ projectNumberSelector }`,
+            value: projectNumber || ''
+        });
+        updateMdbWrapperInput(projectNumberInputInstance);
     };
 
     initDepartmentSelect({
