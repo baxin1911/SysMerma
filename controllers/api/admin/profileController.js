@@ -24,8 +24,15 @@ export const getAllProfiles = async (req, res) => {
         allowedDepartments.includes(departmentName)
     );
 
-    const departments = department
-        ? [department]
+    const departmentFilters = Array.isArray(department)
+        ? department
+        : `${ department || '' }`
+            .split(',')
+            .map(departmentName => departmentName.trim())
+            .filter(Boolean);
+
+    const departments = departmentFilters.length
+        ? departmentFilters
         : (canViewAllProfiles && !strictDepartmentFilter ? [] : userDepartments);
 
     const result = await findAllProfiles({
