@@ -1,15 +1,6 @@
-import { validatecommentNotifications, validatefollowingNotifications, validateName, validateLastName, validatenewsletterNotifications, validateUsername, validateAvatarPath, validateCoverPath } from "../fields/fieldsValidator.js";
+import { validateArrayOfUUIDs, validateName } from "../fields/fieldsValidator.js";
 
 export const profileValidation = [
-    validateUsername,
-    validateName(),
-    validateLastName,
-    validateAvatarPath,
-    validateCoverPath
+    validateName({ fieldName: 'fullName', maxLength: 255 }),
+    validateArrayOfUUIDs({ fieldName: 'departments' })
 ]
-
-export const preferencesValitdation = [
-    validatecommentNotifications,
-    validatefollowingNotifications,
-    validatenewsletterNotifications,
-];

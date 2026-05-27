@@ -6,14 +6,15 @@ import {
     GoodsIssueNotPendingConflict,
     GoodsIssueSuppliedConflict,
     GoodsIssueCreateDatabaseError,
-    GoodsIssueInternalClientAdvisorDepartmentConflict
+    GoodsIssueInternalClientAdvisorDepartmentConflict,
+    GoodsIssueInternalClientProjectNumberConflict
 } from "../../../errors/warehouse/goodsIssueError.js";
 import { getDb } from "../../../repository/baseRepository.js";
 import { findProfileById } from "../../admin/profileService.js";
 import { findDepartmentById } from "../../admin/departmentService.js";
 import { generateReferenceNumber } from "../../document/referenceNumberService.js";
 import { findClientById } from "../../sales/clientService.js";
-import { buildGoodsIssueDetails, isValidInternalClientAdvisor, resolveFulfillmentStatus } from "./goodsIssueHelpers.js";
+import { buildGoodsIssueDetails, isValidInternalClientAdvisor, isValidInternalClientProjectNumberByDepartment, resolveFulfillmentStatus } from "./goodsIssueHelpers.js";
 import { applyInventoryMovement } from "../../inventory/movementService.js";
 import { buildStockKey, parseStockKey } from "../../../utils/formattersUtils.js";
 import { findSupplierProduct } from "../products/supplierProductService.js";
@@ -149,9 +150,7 @@ export const findAllGoodsIssues = async ({
     };
 };
 
-export const createGoodsIssue = async ({
-    goodsIssueDto
-}) => {
+export const createGoodsIssue = async ({ goodsIssueDto }) => {
 
     try {
 
@@ -170,6 +169,17 @@ export const createGoodsIssue = async ({
 
         if (!isValidInternalClientAdvisor({ client, advisor })) {
             throw new GoodsIssueInternalClientAdvisorDepartmentConflict();
+        }
+
+        if (!isValidInternalClientProjectNumberByDepartment({
+            client,
+            department,
+            projectNumber: goodsIssueData.projectNumber
+        })) {
+            throw new GoodsIssueInternalClientProjectNumberConflict({
+                projectNumber: goodsIssueData.projectNumber,
+                departmentName: department.name
+            });
         }
 
         const processedDetails = await buildGoodsIssueDetails({ details });
@@ -248,7 +258,7 @@ export const createGoodsIssue = async ({
         return result.goodsIssue;
 
     } catch (err) {
-console.log(err);
+
         if (err instanceof AppError) throw err;
 
         throw new GoodsIssueCreateDatabaseError();
@@ -304,6 +314,17 @@ export const updateGoodsIssue = async ({ id, goodsIssueDto }) => {
 
         if (!isValidInternalClientAdvisor({ client, advisor })) {
             throw new GoodsIssueInternalClientAdvisorDepartmentConflict();
+        }
+
+        if (!isValidInternalClientProjectNumberByDepartment({
+            client,
+            department,
+            projectNumber: goodsIssueData.projectNumber
+        })) {
+            throw new GoodsIssueInternalClientProjectNumberConflict({
+                projectNumber: goodsIssueData.projectNumber,
+                departmentName: department.name
+            });
         }
 
         const processedDetails = await buildGoodsIssueDetails({ details });

@@ -31,8 +31,8 @@ export const validatePassword =
         .matches(passwordRegex).withMessage(errorMap['password'].INVALID_FORMAT)
 ;
 
-export const validateName = (maxLength = 50) => 
-    body('name')
+export const validateName = ({ fieldName = 'name', maxLength = 50 }) => 
+    body(fieldName)
         .trim()
         .notEmpty().withMessage(errorMap['name'].REQUIRED)
         .isString().withMessage(errorMap['name'].INVALID_TYPE)
@@ -268,4 +268,14 @@ export const validateGoodsIssueDetailsEdition =
 
             return true;
         })
+;
+
+export const validateArrayOfUUIDs = ({ fieldName }) =>
+    body(fieldName)
+        .isArray({ min: 1 }).withMessage(errorMap[fieldName].REQUIRED)
+        .custom(
+            arr => Array.isArray(arr) && arr.every(
+                id => uuidV4Regex.test(id)
+            )
+        ).withMessage(errorMap[fieldName].INVALID_FORMAT)
 ;

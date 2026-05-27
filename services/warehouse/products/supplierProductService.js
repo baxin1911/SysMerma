@@ -340,7 +340,7 @@ export const updateSupplierProductStock = async ({
                 }
             });
 
-            if (result.count === 0) {
+            if (result.count < 0) {
                 throw new GoodsIssueInsufficientStock({
                     productName: ps?.product?.name ?? 'Producto desconocido',
                     height: ps?.product?.height ?? 'Desconocido',

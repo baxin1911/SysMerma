@@ -1,5 +1,5 @@
 import { AppError } from "../../errors/AppError.js";
-import { SupplierCodeFindDatabaseError, SupplierCodeNotFound, SupplierCreateDatabaseError, SupplierFindDatabaseError, SupplierNotFound, SupplierUpdateDatabaseError } from "../../errors/warehouse/supplierError.js";
+import { SupplierCodeFindDatabaseError, SupplierCodeNotFound, SupplierCreateDatabaseError, SupplierNotFound, SupplierUpdateDatabaseError } from "../../errors/warehouse/supplierError.js";
 import { getDb } from "../../repository/baseRepository.js";
 import { incrementReferenceNumberCounter } from "../document/referenceNumberService.js";
 
@@ -26,6 +26,8 @@ export const findAllSuppliers = async ({
     orderDir = 'asc'
 }) => {
 
+    const db = getDb();
+
     const where = search
         ? {
             tradeName: {
@@ -35,7 +37,7 @@ export const findAllSuppliers = async ({
         }
         : {};
 
-    const suppliers = await getDb().supplier.findMany({
+    const suppliers = await db.supplier.findMany({
         skip,
         take,
         where,
@@ -44,8 +46,8 @@ export const findAllSuppliers = async ({
         }
     });
 
-    const total = await getDb().supplier.count();
-    const filtered = await getDb().supplier.count({ where });
+    const total = await db.supplier.count();
+    const filtered = await db.supplier.count({ where });
 
     return {
         data: suppliers,
@@ -55,27 +57,17 @@ export const findAllSuppliers = async ({
 };
 
 export const findUniqueSupplier = async ({
-    tx,
+    tx = null,
     id
 }) => {
 
-    const db = getDb(tx);
-    let supplier;
-
-    try {
-
-        supplier = await db.supplier.findUnique({
-            where: { id },
-            select: {
-                id: true,
-                tradeName: true,
-            }
-        });
-
-    } catch (err) {
-
-        throw new SupplierFindDatabaseError();
-    }
+    const supplier = await getDb(tx).supplier.findUnique({
+        where: { id },
+        select: {
+            id: true,
+            tradeName: true,
+        }
+    });
 
     if (!supplier) throw new SupplierNotFound();
 
@@ -83,12 +75,11 @@ export const findUniqueSupplier = async ({
 };
 
 export const findUniqueSupplierCode = async ({
-    tx,
+    tx = null,
     id
 }) => {
 
-    const db = getDb(tx);
-    const supplier = await db.supplier.findUnique({
+    const supplier = await getDb(tx).supplier.findUnique({
         where: { id },
         select: { code: true }
     });
@@ -102,7 +93,7 @@ export const createSupplier = async (supplierDto) => {
 
     try {
 
-        const supplier = await getDb().$transaction(async (tx) => {
+        return await getDb().$transaction(async (tx) => {
 
             const counter = await incrementReferenceNumberCounter({
                 type: 'PRO',
@@ -121,8 +112,6 @@ export const createSupplier = async (supplierDto) => {
             });
         });
 
-        return supplier;
-
     } catch (err) {
 
         throw new SupplierCreateDatabaseError();
@@ -131,7 +120,9 @@ export const createSupplier = async (supplierDto) => {
 
 export const updateSupplier = async (supplierDto, id) => {
 
-    const supplierExists = await getDb().supplier.findUnique({
+    const db = getDb();
+
+    const supplierExists = await db.supplier.findUnique({
         where: { id },
         select: { id: true }
     });
@@ -140,7 +131,7 @@ export const updateSupplier = async (supplierDto, id) => {
 
     try {
 
-        return await getDb().supplier.update({
+        return await db.supplier.update({
             data: { ...supplierDto },
             where: { id }
         });

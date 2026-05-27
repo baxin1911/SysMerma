@@ -1,7 +1,6 @@
 import express from 'express';
 import { authorizeUserApi, verifyApiTokenRequired } from '../../../middleware/authMiddleware.js';
-import { getAllClients } from '../../../controllers/api/sales/clientController.js';
-import { createClient } from '../../../services/sales/clientService.js';
+import { editClient, getAllClients, registerClient } from '../../../controllers/api/sales/clientController.js';
 
 const router = express.Router();
 const clientReadPermissions = {
@@ -31,6 +30,11 @@ const clientWritePermissions = {
     ]
 };
 
+const clientEditPermissions = {
+    roles: ['Administrador del sistema'],
+    departments: ['SISTEMAS']
+};
+
 router.get(
     '/',
     verifyApiTokenRequired,
@@ -42,7 +46,14 @@ router.post(
     '/',
     verifyApiTokenRequired,
     authorizeUserApi(clientWritePermissions),
-    createClient
+    registerClient
+);
+
+router.put(
+    '/:id',
+    verifyApiTokenRequired,
+    authorizeUserApi(clientEditPermissions),
+    editClient
 );
 
 export default router;

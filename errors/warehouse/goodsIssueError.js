@@ -50,6 +50,15 @@ export class GoodsIssueInternalClientAdvisorDepartmentConflict extends AppError 
     }
 }
 
+export class GoodsIssueInternalClientProjectNumberConflict extends AppError {
+
+    constructor ({ projectNumber, departmentName }) {
+        super(`Para el cliente GPG INTERNO, el número de proyecto ${ projectNumber } no coincide con el área ${ departmentName }`, 'GOODS_ISSUE_INTERNAL_CLIENT_PROJECT_NUMBER_CONFLICT', 409);
+
+        this.meta = { projectNumber, departmentName };
+    }
+}
+
 export class GoodsIssueDetailNotFound extends AppError {
 
     constructor () {

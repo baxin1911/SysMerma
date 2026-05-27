@@ -10,6 +10,21 @@ const FULFILLMENT_PARTIAL = 'Surtido parcial';
 const FULFILLMENT_COMPLETE = 'Surtido';
 const DEPARTMENT_WAREHOUSE = 'ALMACÉN Y PROVEDURÍA';
 const INTERNAL_CLIENT_NAME = 'GPG INTERNO';
+const PROJECT_NUMBER_BY_DEPARTMENT = new Map([
+    ['DIRECCIÓN', '120000'],
+    ['ACABADOS', '120001'],
+    ['ADMINISTRATIVO', '120002'],
+    ['ALMACÉN Y PROVEDURÍA', '120003'],
+    ['DISEÑO', '120004'],
+    ['INSTALACIONES', '120005'],
+    ['IMPRESIÓN', '120006'],
+    ['ROUTER', '120007'],
+    ['PT/TRÁFICO', '120008'],
+    ['SERVICIOS Y VIGILANCIA', '120009'],
+    ['SISTEMAS', '120010'],
+    ['TALLER 3D', '120011'],
+    ['VENTAS Y PROYECTOS ESPECIALES', '120012']
+]);
 
 export const isInternalClient = (client) => (
     normalizeText(client?.name || '') === normalizeText(INTERNAL_CLIENT_NAME)
@@ -23,6 +38,15 @@ export const isValidInternalClientAdvisor = ({ client, advisor }) => {
         profile: advisor,
         departmentName: DEPARTMENT_WAREHOUSE
     });
+};
+
+export const isValidInternalClientProjectNumberByDepartment = ({ client, department, projectNumber = '' }) => {
+
+    if (!isInternalClient(client)) return true;
+
+    const expectedProjectNumber = PROJECT_NUMBER_BY_DEPARTMENT.get(department?.name || '');
+
+    return !!expectedProjectNumber && expectedProjectNumber === projectNumber;
 };
 
 export const buildGoodsIssueDetails = async ({

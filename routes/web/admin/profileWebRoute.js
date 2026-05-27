@@ -1,10 +1,10 @@
 import express from 'express';
 import { authorizeUserWeb, verifyCookiesAuthTokenRequired } from '../../../middleware/authMiddleware.js';
-import { getSuppliers } from '../../../controllers/web/warehouse/supplierController.js';
+import { getProfilePage } from '../../../controllers/web/admin/profileController.js';
 
 const router = express.Router();
 
-const supplierPagePermissions = {
+const profilePagePermissions = {
     roles: ['Administrador del sistema'],
     departments: ['SISTEMAS']
 };
@@ -12,8 +12,8 @@ const supplierPagePermissions = {
 router.get(
     '/',
     verifyCookiesAuthTokenRequired,
-    authorizeUserWeb(supplierPagePermissions),
-    getSuppliers
+    authorizeUserWeb(profilePagePermissions),
+    getProfilePage
 );
 
 export default router;

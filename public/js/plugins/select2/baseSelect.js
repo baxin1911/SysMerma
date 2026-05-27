@@ -6,6 +6,7 @@ const wrapperSelector = '#presentationDisplayInput';
 export const initbaseSelect2 = ({ 
     baseSelector, 
     modalSelector,
+    multiple = false,
     get, 
     clearOnOpen = true,
     searchDelay = 1000,
@@ -28,9 +29,9 @@ export const initbaseSelect2 = ({
 
     if ($(baseSelector).hasClass("select2-hidden-accessible")) $(baseSelector).select2('destroy');
 
-
     $(baseSelector).select2({ 
         language: 'es',
+        multiple,
         placeholder: placeholder, 
         dropdownParent: $(modalSelector),
         minimumInputLength: 0, 
@@ -91,6 +92,24 @@ export const toggleSelectOption = ({ selector, data = null }) => {
 
     $(selector).append(option).trigger('change');
 };
+
+export const toggleSelectOptions = ({ selector, data = [] }) => {
+
+    $(selector).val(null).trigger('change');
+
+    data.forEach(d => {
+
+        const { id, text } = d || {};
+
+        if (!text || !id) return;
+
+        const option = new Option(text, id, true, true);
+
+        $(selector).append(option);
+    });
+
+    $(selector).trigger('change');
+}
 
 export const setMdbWrapperInputValue = ({
     selector, 

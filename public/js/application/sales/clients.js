@@ -1,5 +1,12 @@
 import { getSuccessMessage } from "../../constants/apiMessages.js";
-import { createClientRequest, getAllClientsRequest } from "../../services/sales/clientService.js";
+import { createClientRequest, editClientRequest, getAllClientsRequest } from "../../services/sales/clientService.js";
+
+export const getAllClients = async (params = {}) => {
+
+    const response = await getAllClientsRequest(params);
+
+    return response;
+};
 
 export const registerClient = async (formData) => {
 
@@ -15,9 +22,16 @@ export const registerClient = async (formData) => {
     };
 }
 
-export const getAllClients = async (params = {}) => {
+export const editClient = async (formData, id) => {
 
-    const response = await getAllClientsRequest(params);
+    const response = await editClientRequest(formData, id);
 
-    return response.data;
-};
+    const { data } = response;
+    const { code, client } = data;
+    let message = getSuccessMessage(code);
+
+    return { 
+        message, 
+        data: client 
+    };
+}

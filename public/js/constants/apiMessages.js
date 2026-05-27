@@ -22,13 +22,20 @@ export const errorMessages = {
     RECEIVED_BY_ID_INVALID_UUID: 'La persona que recibe no es válida.',
     PROFILE_RECEIVED_BY_NOT_FOUND: 'Perfil de quien recibe no encontrado.',
 
-    PROJECT_NUMBER_REQUIRED: 'El número de proyecto es requerido.',
-    PROJECT_NUMBER_INVALID_TYPE: 'El número de proyecto debe ser texto.',
-    PROJECT_NUMBER_TOO_LONG: 'El número de proyecto no debe exceder 50 caracteres.',
-
     ADVISOR_ID_REQUIRED: 'El asesor es requerido.',
     ADVISOR_ID_INVALID_UUID: 'El asesor no es válido.',
     ADVISOR_PROFILE_NOT_FOUND: 'Perfil de asesor no encontrado.',
+
+    REQUESTER_ID_REQUIRED: 'El solicitante es requerido.',
+    REQUESTER_ID_INVALID_UUID: 'El solicitante no es válido.',
+    REQUESTER_PROFILE_NOT_FOUND: 'Perfil solicitante no encontrado.',
+
+    PROFILE_CREATE_DB_ERROR: 'Error de base de datos al crear el perfil.',
+    PROFILE_UPDATE_DB_ERROR: 'Error de base de datos al editar el perfil.',
+
+    PROJECT_NUMBER_REQUIRED: 'El número de proyecto es requerido.',
+    PROJECT_NUMBER_INVALID_TYPE: 'El número de proyecto debe ser texto.',
+    PROJECT_NUMBER_TOO_LONG: 'El número de proyecto no debe exceder 50 caracteres.',
 
     CLIENT_ID_REQUIRED: 'El cliente es requerido.',
     CLIENT_ID_INVALID_UUID: 'El cliente no es válido.',
@@ -36,10 +43,6 @@ export const errorMessages = {
     DEPARTMENT_ID_REQUIRED: 'El departamento es requerido.',
     DEPARTMENT_ID_INVALID_UUID: 'El departamento no es válido.',
     DEPARTMENT_NOT_FOUND: 'Departamento no encontrado.',
-
-    REQUESTER_ID_REQUIRED: 'El solicitante es requerido.',
-    REQUESTER_ID_INVALID_UUID: 'El solicitante no es válido.',
-    REQUESTER_PROFILE_NOT_FOUND: 'Perfil solicitante no encontrado.',
 
     PRESENTATION_ID_REQUIRED: 'La presentación es requerida.',
     PRESENTATION_ID_INVALID_UUID: 'La presentación no es válida.',
@@ -56,12 +59,16 @@ export const errorMessages = {
     CLIENT_NOT_FOUND: 'Cliente no encontrado.',
     CLIENT_FIND_DB_ERROR: 'Error de la base de datos al buscar el cliente.',
     CLIENT_CREATE_DB_ERROR: 'Error de la base de datos al crear el cliente.',
+    CLIENT_UPDATE_DB_ERROR: 'Error de la base de datos al editar el cliente.',
 
     REQUEST_DATE_REQUIRED: 'La fecha de solicitud es requerida.',
     REQUEST_DATE_INVALID_FORMAT: 'La fecha de solicitud no es válida.',
 
     REASON_ID_REQUIRED: 'La razón es requerida.',
     REASON_ID_INVALID_UUID: 'La razón no es válida.',
+
+    DEPARTMENTS_REQUIRED: 'Los departamentos son requeridos.',
+    DEPARTMENTS_INVALID_FORMAT: 'Los departamentos seleccionados no son válidos.',
 
     // 👤 USERNAME
     USERNAME_REQUIRED: 'El nombre de usuario es requerido.',
@@ -146,6 +153,8 @@ export const errorMessages = {
     USER_FIND_DATABASE_ERROR: 'Error de base de datos al buscar usuarios.',
     USER_CREATE_DATABASE_ERROR: 'Error de base de datos al crear el usuario.',
     USER_NOT_FOUND: 'Usuario no encontrado.',
+    PROFILE_CREATE_DB_ERROR: 'Error de base de datos al crear el perfil.',
+    PROFILE_UPDATE_DB_ERROR: 'Error de base de datos al editar el perfil.',
 
     // Warehouse
     EXCEDED_MAX_RETRIES_SKU: 'Excedido el número máximo de intentos para generar un SKU único.',
@@ -215,6 +224,7 @@ export const errorMessages = {
     GOODS_ISSUE_SUPPLIED_CONFLICT: 'La salida ya tiene productos surtidos y no puede editarse en general.',
     GOODS_ISSUE_SUPPLIED_DETAIL_CONFLICT: 'No se pueden editar o eliminar detalles que ya fueron surtidos.',
     GOODS_ISSUE_INTERNAL_CLIENT_ADVISOR_DEPARTMENT_CONFLICT: 'Para el cliente GPG INTERNO, el asesor debe pertenecer al área de almacén.',
+    GOODS_ISSUE_INTERNAL_CLIENT_PROJECT_NUMBER_CONFLICT: (meta) => `Para el cliente GPG INTERNO, el número de proyecto ${ meta.projectNumber } no coincide con el área ${ meta.departmentName }.`,
     MOVEMENT_DETAIL_RELATION_CONFLICT: 'El detalle del movimiento no está asociado a un producto o proveedor.',
     PURCHASE_REQUISITION_NOT_FOUND: 'Requisición de compra no encontrada.',
     PROJECT_NOT_FOUND: 'Proyecto no encontrado.',
@@ -232,9 +242,12 @@ const successMessages = {
     UPDATED_ACCOUNT: '¡Cuenta actualizada con éxito!',
     SUCCESS_LOGIN: '¡Inicio de sesión exitoso!',
     SUCCESS_LOGOUT: 'Sesión cerrada exitosamente.',
-    CREATED_PRODUCT: '¡Producto creada exitosamente!',
-    UPDATED_PRODUCT: '¡Producto actuallizada exitosamente!',
-    CREATED_SUPPLIER: '¡Proveedor creada exitosamente!',
+    CREATED_PROFILE: '¡Perfil creado exitosamente!',
+    UPDATED_PROFILE: '¡Perfil actualizado exitosamente!',
+    CREATED_PRODUCT: '¡Producto creado exitosamente!',
+    UPDATED_PRODUCT: '¡Producto actuallizado exitosamente!',
+    CREATED_SUPPLIER: '¡Proveedor creado exitosamente!',
+    UPDATED_SUPPLIER: '¡Proveedor actualizado exitosamente!',
     CREATED_GOODS_RECEIPT: '¡Entrada de mercancía creada exitosamente!',
     CREATED_GOODS_ISSUE: '¡Salida de almacén creada exitosamente!',
     UPDATED_GOODS_ISSUE: '¡Salida de almacén actualizada exitosamente!',
@@ -246,6 +259,7 @@ const successMessages = {
     CREATED_USER: '¡Usuario creado exitosamente!',
     UPDATED_USER: '¡Usuario actualizado exitosamente!',
     UPDATED_USER_PASSWORD: '¡Contraseña actualizada exitosamente!',
+    UPDATED_CLIENT: '¡Cliente actualizado exitosamente!',
 };
 
 export const getErrorMessage = (data = {}) => {

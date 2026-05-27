@@ -10,6 +10,11 @@ const supplierPermissions = {
     departments: ['ALMACÉN Y PROVEDURÍA', 'SISTEMAS']
 };
 
+const supplierEditPermissions = {
+    roles: ['Administrador del sistema'],
+    departments: ['SISTEMAS']
+};
+
 router.get(
     '/',
     verifyApiTokenRequired,
@@ -31,7 +36,7 @@ router.put(
     verifyApiTokenRequired,
     supplierValidation,
     validate,
-    authorizeUserApi(supplierPermissions),
+    authorizeUserApi(supplierEditPermissions),
     editSupplier
 );
 

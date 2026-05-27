@@ -29,6 +29,8 @@ import purchaseRequisitionWebRoutes from './routes/web/warehouse/purchaseRequisi
 import goodsReceiptWebRoutes from './routes/web/warehouse/goodsReceiptWebRoute.js';
 import goodsIssueWebRoutes from './routes/web/warehouse/goodsIssueWebRoute.js';
 import userWebRoutes from './routes/web/admin/userWebRoute.js';
+import profileWebRoutes from './routes/web/admin/profileWebRoute.js';
+import clientWebRoutes from './routes/web/sales/clientWebRoute.js';
 
 import { checkTypeContentJson, checkTypeContentFile, checkContentTypePlainText } from './middleware/contentTypeMiddleware.js';
 import cookieParser from 'cookie-parser';
@@ -93,6 +95,9 @@ app.use('/requisiciones', purchaseRequisitionWebRoutes);
 app.use('/compras', goodsReceiptWebRoutes);
 app.use('/salidas-almacen', goodsIssueWebRoutes);
 app.use('/usuarios-sistemas', userWebRoutes);
+app.use('/perfiles', profileWebRoutes);
+app.use('/clientes', clientWebRoutes);
+app.use('/proveedores', supplierWebRoutes);
 
 // api routes
 app.use(apiRoute + authRoute, authApiRoutes);

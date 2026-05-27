@@ -13,16 +13,21 @@ export const openClientModal = ({
     const form = document.querySelector(formId);
     const modalElement = document.querySelector(clientModalId);
 
-    initForm(form, data?.id);
+    initForm({ form, mode, id: data?.id });
     clearFormErrors(form);
+
+    form.elements.name.value = data?.name || '';
 
     if (mode === 'create') {
 
-        form.reset();
-        form.elements.name.value = data?.name || '';
-
         modalElement.querySelector('#modalTitle').textContent = 'Registrar cliente';
         form.querySelector('#submitBtn').textContent = 'Guardar';
+    }
+
+    if (mode === 'edit') {
+
+        modalElement.querySelector('#modalTitle').textContent = 'Editar cliente';
+        form.querySelector('#submitBtn').textContent = 'Actualizar';
     }
 
     form.onSave = onSave;

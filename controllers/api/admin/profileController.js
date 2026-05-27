@@ -1,11 +1,16 @@
-import { findAllProfiles } from "../../../services/admin/profileService.js";
+import { createProfileDTO } from "../../../dtos/profileDTO.js";
+import { findAllProfiles, updateProfile } from "../../../services/admin/profileService.js";
+import { sanitizeEmptyStrings } from "../../../utils/formattersUtils.js";
 
 const allowedDepartments = ['ALMACÉN Y PROVEDURÍA', 'SISTEMAS'];
 
 export const getAllProfiles = async (req, res) => {
 
-    const { department } = req.query;
+    const rawDepartment =
+        req.query.department ??
+        req.query['department[]'];
     const strictDepartmentFilter = req.query.strictDepartmentFilter === 'true';
+    const includeDepartments = req.query.includeDepartments === 'true';
     const { user } = req;
     const start = parseInt(req.query.start) || 0;
     const length = parseInt(req.query.length) || 10;
@@ -22,9 +27,17 @@ export const getAllProfiles = async (req, res) => {
         allowedDepartments.includes(departmentName)
     );
 
-    const departments = department
-        ? [department]
-        : (canViewAllProfiles && !strictDepartmentFilter ? [] : userDepartments);
+    const departmentFilters = Array.isArray(rawDepartment)
+        ? rawDepartment
+        : rawDepartment
+            ? [rawDepartment]
+            : [];
+
+    const shouldUseExplicitDepartmentFilters = strictDepartmentFilter || departmentFilters.length > 0;
+
+    const departments = shouldUseExplicitDepartmentFilters
+        ? departmentFilters
+        : (canViewAllProfiles ? [] : userDepartments);
 
     const result = await findAllProfiles({
         departments,
@@ -32,8 +45,31 @@ export const getAllProfiles = async (req, res) => {
         take: length,
         search,
         orderBy: columns[orderColumnIndex],
-        orderDir
+        orderDir,
+        includeDepartments
     });
 
     res.status(200).json(result);
+}
+
+export const registerProfile = async (req, res) => {
+
+    const { fullName, departmentIds } = req.body;
+    const profileDto = createProfileDTO(req.body);
+    const sanitizedProfileDto = sanitizeEmptyStrings(profileDto);
+
+    const profile = await createProfile({ profileDto: sanitizedProfileDto });
+
+    return res.status(201).json(profile);
+}
+
+export const editProfile = async (req, res) => {
+
+    const { id } = req.params;
+    const profileDto = createProfileDTO(req.body);
+    const sanitizedProfileDto = sanitizeEmptyStrings(profileDto);
+
+    const profile = await updateProfile({ id, profileDto: sanitizedProfileDto });
+
+    return res.status(200).json(profile);
 }
