@@ -9,6 +9,11 @@ const permissions = {
     departments: ['SISTEMAS']
 };
 
-router.get('/', verifyCookiesAuthTokenRequired, authorizeUserWeb(permissions), getUsersPage);
+router.get(
+    '/', 
+    verifyCookiesAuthTokenRequired, 
+    authorizeUserWeb(permissions), 
+    getUsersPage
+);
 
 export default router;

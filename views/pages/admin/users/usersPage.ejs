@@ -2,8 +2,18 @@
     id: 'userForm',
     canApprove: false,
     selects: [
-        { id: 'departmentIdInput', name: 'departmentId', class: 'department-select', col: '6' },
-        { id: 'roleIdInput', name: 'roleId', class: 'role-select', col: '6' }
+        { 
+            id: 'departmentIdInput', 
+            name: 'departmentId', 
+            class: 'department-select', 
+            col: '12 col-md-6' 
+        },
+        { 
+            id: 'roleIdInput', 
+            name: 'roleId', 
+            class: 'role-select', 
+            col: '12 col-md-6' 
+        }
     ],
     inputs: [
         {
@@ -11,21 +21,14 @@
             name: 'name',
             type: 'text',
             label: 'Usuario',
-            col: '4'
+            col: '12 col-md-6'
         },
         {
             id: 'passwordInput',
             name: 'password',
             type: 'password',
             label: 'Contraseña',
-            col: '4'
-        },
-        {
-            id: 'profileIdInput',
-            name: 'profileId',
-            type: 'text',
-            label: 'Perfil',
-            col: '4'
+            col: '12 col-md-6'
         },
     ]
 }; %>

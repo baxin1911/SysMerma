@@ -70,20 +70,18 @@ export const validatePurchaseRequisitionValidators = {
 };
 
 export const validateClientValidators = {
-    name: (value) => validateText({ name: value, length: 100, fieldName: 'El nombre' }),
+    name: (value) => validateText({ name: value, length: 100, fieldName: 'El nombre', regex: /^[^<>\\{}[\]]+$/u }),
 }
 
 export const userValidators = {
     name: validateUsername,
     password: validatePassword,
-    profileId: (value) => isEmptyOrNull(value, 'El perfil'),
     departmentId: (value) => isEmptyOrNull(value, 'El área'),
     roleId: (value) => isEmptyOrNull(value, 'El rol')
 };
 
 export const userEditValidators = {
     name: validateUsername,
-    profileId: (value) => isEmptyOrNull(value, 'El perfil'),
     departmentId: (value) => isEmptyOrNull(value, 'El área'),
     roleId: (value) => isEmptyOrNull(value, 'El rol')
 };
@@ -91,8 +89,6 @@ export const userEditValidators = {
 export const userPasswordValidators = {
     password: validatePassword,
 };
-    name: (value) => validateText({ name: value, length: 100, fieldName: 'El nombre', regex: /^[^<>\\{}[\]]+$/u }),
-}
 
 export const profileValidators = {
     fullName: (value) => validateText({ name: value, length: 100, fieldName: 'El nombre' }),

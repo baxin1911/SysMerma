@@ -12,25 +12,22 @@ const userModalId = '#userModal';
 
 const setModeFields = ({ form, mode }) => {
 
-    const fields = mode === 'edit-password'
-        ? ['name', 'profileId', 'departmentId', 'roleId']
-        : mode === 'edit'
-            ? ['password']
-            : [];
-
     setFormReadOnly({
         form,
-        fields,
+        isReadOnly: false
+    });
+
+    if (mode === 'edit-password') setFormReadOnly({
+        form,
+        fields: ['name', 'departmentId', 'roleId'],
         isReadOnly: true
     });
 
-    if (mode === 'create') {
-        setFormReadOnly({
-            form,
-            fields: 'all',
-            isReadOnly: false
-        });
-    }
+    if (mode === 'edit') setFormReadOnly({
+        form,
+        fields: ['password'],
+        isReadOnly: true
+    });
 };
 
 export const openUserModal = ({ mode = 'create', data = null }) => {
@@ -42,27 +39,25 @@ export const openUserModal = ({ mode = 'create', data = null }) => {
     clearFormErrors(form);
     initUserFormSelect2();
     setModeFields({ form, mode });
+    setUserFormSelectOptions(data);
+
+    form.elements.name.value = data?.name || '';
+    form.elements.password.value = '';
 
     if (mode === 'create') {
-        form.reset();
 
+        form.reset();
         modalElement.querySelector('#modalTitle').textContent = 'Registrar usuario';
         form.querySelector('#submitBtn').textContent = 'Guardar';
     }
 
     if (mode === 'edit') {
-        form.elements.name.value = data.name || '';
-        form.elements.profileId.value = data.profileId || '';
-        form.elements.password.value = '';
-
-        setUserFormSelectOptions(data);
 
         modalElement.querySelector('#modalTitle').textContent = 'Editar usuario';
         form.querySelector('#submitBtn').textContent = 'Actualizar';
     }
 
     if (mode === 'edit-password') {
-        form.elements.password.value = '';
 
         modalElement.querySelector('#modalTitle').textContent = 'Editar contraseña';
         form.querySelector('#submitBtn').textContent = 'Actualizar contraseña';
@@ -80,42 +75,31 @@ useForm({
         const normalizedData = {
             ...formData,
             name: formData.name?.trim(),
-            profileId: formData.profileId?.trim()
         };
 
-        if (form.dataset.mode === 'edit-password') {
-            return {
-                password: formData.password
-            };
-        }
+        if (form.dataset.mode === 'edit-password') return {
+            password: formData.password
+        };
 
-        if (form.dataset.mode === 'edit') {
-            delete normalizedData.password;
-        }
+        if (form.dataset.mode === 'edit') delete normalizedData.password;
 
         return normalizedData;
     },
     getErrors: ({ form, formData }) => {
 
-        if (form.dataset.mode === 'edit-password') {
-            return validateFields(userPasswordValidators, formData);
-        }
+        if (form.dataset.mode === 'edit-password') return validateFields(userPasswordValidators, formData);
 
-        if (form.dataset.mode === 'edit') {
-            return validateFields(userEditValidators, formData);
-        }
+        if (form.dataset.mode === 'edit') return validateFields(userEditValidators, formData);
 
         return validateFields(userValidators, formData);
     },
     sendRequest: async ({ formData, form }) => {
 
-        if (form.dataset.mode === 'edit-password') {
-            return handleSubmit({
-                form,
-                formData,
-                update: editUserPassword
-            });
-        }
+        if (form.dataset.mode === 'edit-password') return handleSubmit({
+            form,
+            formData,
+            update: editUserPassword
+        });
 
         return handleSubmit({
             form,
