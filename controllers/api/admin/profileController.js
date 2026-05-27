@@ -10,6 +10,7 @@ export const getAllProfiles = async (req, res) => {
         req.query.department ??
         req.query['department[]'];
     const strictDepartmentFilter = req.query.strictDepartmentFilter === 'true';
+    const includeDepartments = req.query.includeDepartments === 'true';
     const { user } = req;
     const start = parseInt(req.query.start) || 0;
     const length = parseInt(req.query.length) || 10;
@@ -44,7 +45,8 @@ export const getAllProfiles = async (req, res) => {
         take: length,
         search,
         orderBy: columns[orderColumnIndex],
-        orderDir
+        orderDir,
+        includeDepartments
     });
 
     res.status(200).json(result);

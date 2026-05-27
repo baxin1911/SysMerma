@@ -17,15 +17,15 @@ useForm({
     normalizeData: ({ form, formData }) => {
 
         const fd = new FormData(form);
-        
+
         return {
             ...formData,
-            departmentIds: fd.getAll('departmentIds')
+            departments: fd.getAll('departments').filter(Boolean)
         }
     },
     getErrors: ({ formData }) => validateFields(profileValidators, formData),
     sendRequest: async ({ formData, form }) => {
-        
+
         await handleSubmit({
             form,
             formData,
@@ -55,7 +55,7 @@ export const openProfileModal = ({ mode, data = null }) => {
     
     if (mode === 'edit') {
 
-        form.elements.name.value = data.name;
+        form.elements.fullName.value = data.fullName;
         modalElement.querySelector('#modalTitle').textContent = 'Editar perfil';
         form.querySelector('#submitBtn').textContent = 'Actualizar';
     }

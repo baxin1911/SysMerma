@@ -4,12 +4,15 @@ import { normalizeText } from "../../utils/formattersUtils.js";
 
 export const findAllProfiles = async ({
     departments = [],
+    includeDepartments = false,
     skip = 0,
     take = 10,
     search = '',
     orderBy = 'fullName',
     orderDir = 'asc'
 }) => {
+
+    const db = getDb();
 
     const where = {
         isActive: true,
@@ -32,17 +35,33 @@ export const findAllProfiles = async ({
         })
     };
 
-    const profiles = await getDb().profile.findMany({
+    let profiles = await db.profile.findMany({
         skip,
         take,
         where,
         orderBy: {
             [orderBy]: orderDir
+        },
+        select: {
+            id: true,
+            fullName: true,
+            ...(includeDepartments && {
+                departments: {
+                    select: {
+                        department: true
+                    }
+                }
+            })
         }
     });
 
-    const total = await getDb().profile.count();
-    const filtered = await getDb().profile.count({ where });
+    if (includeDepartments) profiles = profiles.map(profile => ({
+        ...profile,
+        departments: profile.departments.map(pd => pd.department)
+    }));
+
+    const total = await db.profile.count();
+    const filtered = await db.profile.count({ where });
 
     return {
         data: profiles,
@@ -132,7 +151,7 @@ export const createProfile = async ({ profileDto }) => {
                 }
             });
 
-            if (profileDto.departmentIds?.length) await tx.profileDepartment.createMany({
+            if (profileDto.departmentIds?.length) await tx.departmentProfile.createMany({
                 data: profileDto.departmentIds.map(departmentId => ({
                     profileId: profile.id,
                     departmentId
@@ -179,14 +198,14 @@ export const updateProfile = async ({ profileDto, id }) => {
                 }
             });
 
-            await tx.profileDepartment.deleteMany({
+            await tx.departmentProfile.deleteMany({
                 where: {
                     profileId: id
                 }
             });
 
-            if (profileDto.departmentIds?.length) await tx.profileDepartment.createMany({
-                data: profileDto.departmentIds.map(departmentId => ({
+            if (profileDto.departments?.length) await tx.departmentProfile.createMany({
+                data: profileDto.departments.map(departmentId => ({
                     profileId: id,
                     departmentId
                 }))

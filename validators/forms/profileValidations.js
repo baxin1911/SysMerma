@@ -1,5 +1,6 @@
-import { validateName } from "../fields/fieldsValidator.js";
+import { validateArrayOfUUIDs, validateName } from "../fields/fieldsValidator.js";
 
 export const profileValidation = [
-    validateName(),
+    validateName({ fieldName: 'fullName', maxLength: 255 }),
+    validateArrayOfUUIDs({ fieldName: 'departments' })
 ]

@@ -2,8 +2,8 @@ import { isEmptyOrNull } from "./baseValidations.js";
 import { validateName, validatePassword, validateNumber, validateUsername, validateTextOptional, validateMeasure, validateDateOptional, validateGoodsReceiptDetailsArray, validateDate, validateText, validateNumberOptional, validateGoodsIssueDetailsArray, validatePositiveNumber } from "./fieldValidations.js";
 
 export const supplierValidators = {
-    legalName: (value) => validateText({ name: value, length: 200, fieldName: 'La razón social' }),
-    tradeName: (value) => validateText({ name: value, length: 100, fieldName: 'El nombre comercial' }),
+    legalName: (value) => validateText({ name: value, length: 200, fieldName: 'La razón social', regex: /^[^<>\\{}[\]]+$/u }),
+    tradeName: (value) => validateText({ name: value, length: 100, fieldName: 'El nombre comercial', regex: /^[^<>\\{}[\]]+$/u }),
 }
 
 export const productValidators = {
@@ -70,10 +70,19 @@ export const validatePurchaseRequisitionValidators = {
 };
 
 export const validateClientValidators = {
-    name: (value) => validateText({ name: value, length: 100, fieldName: 'El nombre' }),
+    name: (value) => validateText({ name: value, length: 100, fieldName: 'El nombre', regex: /^[^<>\\{}[\]]+$/u }),
 }
 
 export const profileValidators = {
-    name: (value) => validateText({ name: value, length: 100, fieldName: 'El nombre' }),
-    departmentId: (value) => isEmptyOrNull(value, 'El departamento'),
+    fullName: (value) => validateText({ name: value, length: 100, fieldName: 'El nombre' }),
+    departments: (value) => {
+
+        if (!Array.isArray(value) || !value.length) return 'Seleccione al menos un departamento';
+
+        const hasInvalid = value.some(department => isEmptyOrNull(department));
+
+        if (hasInvalid) return 'Todos los departamentos seleccionados deben ser válidos';
+
+        return null;
+    },
 }

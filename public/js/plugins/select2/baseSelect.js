@@ -93,6 +93,24 @@ export const toggleSelectOption = ({ selector, data = null }) => {
     $(selector).append(option).trigger('change');
 };
 
+export const toggleSelectOptions = ({ selector, data = [] }) => {
+
+    $(selector).val(null).trigger('change');
+
+    data.forEach(d => {
+
+        const { id, text } = d || {};
+
+        if (!text || !id) return;
+
+        const option = new Option(text, id, true, true);
+
+        $(selector).append(option);
+    });
+
+    $(selector).trigger('change');
+}
+
 export const setMdbWrapperInputValue = ({
     selector, 
     value

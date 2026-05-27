@@ -2,13 +2,15 @@ import { getSuccessMessage } from "../../constants/apiMessages.js";
 import { getAllProfilesRequest, registerProfileRequest, updateProfileRequest } from "../../services/admin/profileService.js";
 
 export const getAllProfiles = async (params = {}) => {
+
     const response = await getAllProfilesRequest(params);
-    return response.data;
+    
+    return response;
 };
 
-export const registerProfile = async (profileData) => {
+export const registerProfile = async (formData) => {
 
-    const response = await registerProfileRequest(profileData);
+    const response = await registerProfileRequest(formData);
 
     const { data } = response;
     const { code, profile } = data;
@@ -20,9 +22,9 @@ export const registerProfile = async (profileData) => {
     };
 }
 
-export const updateProfile = async (profileId, profileData) => {
+export const updateProfile = async (formData, id) => {
 
-    const response = await updateProfileRequest(profileId, profileData);
+    const response = await updateProfileRequest(formData, id);
 
     const { data } = response;
     const { code, profile } = data;

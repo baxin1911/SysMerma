@@ -1,4 +1,4 @@
-import { initDepartmentSelect, toggleDepartmentOption } from "../domains/department.js";
+import { initDepartmentSelect, toggleDepartmentOptions } from "../domains/department.js";
 
 const departmentSelector = '.department-select';
 
@@ -20,9 +20,8 @@ export const setProfileFormSelectOptions = ({
     data = null 
 }) => {
 
-    toggleDepartmentOption({
+    toggleDepartmentOptions({
         selector: departmentSelector,
-        id: data?.department?.id,
-        name: data?.department?.name
+        data: data?.departments ? data.departments : []
     });
 }

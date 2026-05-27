@@ -59,12 +59,16 @@ export const errorMessages = {
     CLIENT_NOT_FOUND: 'Cliente no encontrado.',
     CLIENT_FIND_DB_ERROR: 'Error de la base de datos al buscar el cliente.',
     CLIENT_CREATE_DB_ERROR: 'Error de la base de datos al crear el cliente.',
+    CLIENT_UPDATE_DB_ERROR: 'Error de la base de datos al editar el cliente.',
 
     REQUEST_DATE_REQUIRED: 'La fecha de solicitud es requerida.',
     REQUEST_DATE_INVALID_FORMAT: 'La fecha de solicitud no es válida.',
 
     REASON_ID_REQUIRED: 'La razón es requerida.',
     REASON_ID_INVALID_UUID: 'La razón no es válida.',
+
+    DEPARTMENTS_REQUIRED: 'Los departamentos son requeridos.',
+    DEPARTMENTS_INVALID_FORMAT: 'Los departamentos seleccionados no son válidos.',
 
     // 👤 USERNAME
     USERNAME_REQUIRED: 'El nombre de usuario es requerido.',
@@ -143,6 +147,8 @@ export const errorMessages = {
     // Admin / catálogos
     PROFILE_NOT_FOUND: 'Perfil no encontrado.',
     PROFILE_FIND_DB_ERROR: 'Error de base de datos al buscar el perfil.',
+    PROFILE_CREATE_DB_ERROR: 'Error de base de datos al crear el perfil.',
+    PROFILE_UPDATE_DB_ERROR: 'Error de base de datos al editar el perfil.',
 
     // Warehouse
     EXCEDED_MAX_RETRIES_SKU: 'Excedido el número máximo de intentos para generar un SKU único.',
@@ -230,9 +236,12 @@ const successMessages = {
     UPDATED_ACCOUNT: '¡Cuenta actualizada con éxito!',
     SUCCESS_LOGIN: '¡Inicio de sesión exitoso!',
     SUCCESS_LOGOUT: 'Sesión cerrada exitosamente.',
-    CREATED_PRODUCT: '¡Producto creada exitosamente!',
-    UPDATED_PRODUCT: '¡Producto actuallizada exitosamente!',
-    CREATED_SUPPLIER: '¡Proveedor creada exitosamente!',
+    CREATED_PROFILE: '¡Perfil creado exitosamente!',
+    UPDATED_PROFILE: '¡Perfil actualizado exitosamente!',
+    CREATED_PRODUCT: '¡Producto creado exitosamente!',
+    UPDATED_PRODUCT: '¡Producto actuallizado exitosamente!',
+    CREATED_SUPPLIER: '¡Proveedor creado exitosamente!',
+    UPDATED_SUPPLIER: '¡Proveedor actualizado exitosamente!',
     CREATED_GOODS_RECEIPT: '¡Entrada de mercancía creada exitosamente!',
     CREATED_GOODS_ISSUE: '¡Salida de almacén creada exitosamente!',
     UPDATED_GOODS_ISSUE: '¡Salida de almacén actualizada exitosamente!',
@@ -241,6 +250,7 @@ const successMessages = {
     CONFIRMED_PURCHASE_REQUISITION: '¡Requisición de compra confirmada exitosamente!',
     CANCELED_PURCHASE_REQUISITION: '¡Requisición de compra cancelada exitosamente!',
     CREATED_CLIENT: '¡Cliente creado exitosamente!',
+    UPDATED_CLIENT: '¡Cliente actualizado exitosamente!',
 };
 
 export const getErrorMessage = (data = {}) => {

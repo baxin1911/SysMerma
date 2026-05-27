@@ -1,6 +1,6 @@
 import { getAllProfiles } from "../../application/admin/profiles.js";
 import { openProfileModal } from "../../pages/admin/profilesPage.js";
-import { createDataTable } from "./baseDatatable.js";
+import { createDataTable, renderActionButtons } from "./baseDatatable.js";
 import { getResponsiveRowData } from "./utils/responsive.js";
 
 const selector = '#table';
@@ -10,10 +10,23 @@ export const createProfilesDatatable = () => {
     const table = createDataTable({
         options: {
             ajax: {
-                get: getAllProfiles
+                get: (data) => getAllProfiles({
+                    ...data,
+                    includeDepartments: true
+                })
             },
             columns: [
-                { data: 'name', title: 'Nombre' },
+                { data: 'fullName', title: 'Nombre' },
+                { 
+                    data: 'departments',
+                    title: 'Áreas',
+                    render: (data) => data.map(d => d.name).join(', ')
+                },
+                {
+                    data: null,
+                    title: 'Acciones',
+                    render: () => renderActionButtons({ context: 'profile' })
+                }
             ],
             buttons: [
                 {

@@ -39,7 +39,7 @@ export const findAllClients = async ({
     };
 }
 
-export const findClientById = async ({ tx, id }) => {
+export const findClientById = async ({ tx = null, id }) => {
 
     const db = getDb(tx);
     let client;
@@ -64,14 +64,17 @@ export const findClientById = async ({ tx, id }) => {
     return client || null;
 }
 
-export const createClient = async (clientDto) => {
+export const createClient = async ({ 
+    tx = null, 
+    clientDto 
+}) => {
+
+    const db = getDb(tx);
 
     try {
 
-        const createdClient = await getDb().client.create({
-            data: {
-                name: clientDto.name,
-            }
+        const createdClient = await db.client.create({
+            data: { ...clientDto }
         });
 
         return createdClient;
@@ -81,3 +84,25 @@ export const createClient = async (clientDto) => {
         throw new ClientCreateDatabaseError();
     }
 };
+
+export const updateClient = async ({ 
+    tx = null, 
+    id, 
+    clientDto 
+}) => {
+
+    const db = getDb(tx);
+
+    try {
+
+        return await db.client.update({
+            where: { id },
+            data: { ...clientDto }
+        });
+
+    } catch (err) {
+
+        if (err.code === 'P2025') throw new ClientNotFound();
+        throw new ClientFindDatabaseError();
+    }
+}

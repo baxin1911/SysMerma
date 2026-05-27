@@ -1,5 +1,5 @@
 import { getAllDepartments } from "../../../application/admin/departments.js";
-import { initbaseSelect2, toggleSelectOption } from "../baseSelect.js";
+import { initbaseSelect2, toggleSelectOption, toggleSelectOptions } from "../baseSelect.js";
 
 export const initDepartmentSelect = ({ 
     multiple = false,
@@ -56,3 +56,19 @@ export const toggleDepartmentOption = ({
         text: name
     }
 });
+
+export const toggleDepartmentOptions = ({ 
+    selector, 
+    data = []
+}) => {
+
+    const options = data.map(d => ({
+        id: d.id,
+        text: d.name
+    }));
+
+    toggleSelectOptions({
+        selector,
+        data: options
+    });
+}

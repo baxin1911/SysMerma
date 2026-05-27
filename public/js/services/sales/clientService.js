@@ -1,6 +1,6 @@
 import { apiRequest } from "../axiosInstanceApi.js";
 
-export const CLIENTS_API_ROUTE = '/api/sales/clients/';
+export const CLIENTS_API_ROUTE = '/api/sales/clients';
 
 export const getAllClientsRequest = (params) => apiRequest({
     method: 'get',
@@ -11,5 +11,11 @@ export const getAllClientsRequest = (params) => apiRequest({
 export const createClientRequest = (data) => apiRequest({
     method: 'post',
     url: `${ CLIENTS_API_ROUTE }`,
+    data
+});
+
+export const editClientRequest = (data, id) => apiRequest({
+    method: 'put',
+    url: `${ CLIENTS_API_ROUTE }/${ id }`,
     data
 });

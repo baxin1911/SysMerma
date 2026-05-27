@@ -20,3 +20,10 @@ export class ClientCreateDatabaseError extends AppError {
         super('Error de la base de datos al crear el cliente', 'CLIENT_CREATE_DB_ERROR', 500);
     }
 }
+
+export class ClientUpdateDatabaseError extends AppError {
+
+    constructor () {
+        super('Error de la base de datos al editar el cliente', 'CLIENT_UPDATE_DB_ERROR', 500);
+    }
+}

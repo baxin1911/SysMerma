@@ -1,6 +1,6 @@
-import { createClientDtoForRegister } from "../../../dtos/clientDTO.js";
+import { createClientDto } from "../../../dtos/clientDTO.js";
 import { successCodeMessages } from "../../../messages/codeMessages.js";
-import { createClient, findAllClients } from "../../../services/sales/clientService.js";
+import { createClient, findAllClients, updateClient } from "../../../services/sales/clientService.js";
 import { sanitizeEmptyStrings } from "../../../utils/formattersUtils.js";
 
 export const getAllClients = async (req, res) => {
@@ -28,7 +28,7 @@ export const getAllClients = async (req, res) => {
 
 export const registerClient = async (req, res) => {
 
-    const clientDto = createClientDtoForRegister(req.body);
+    const clientDto = createClientDto(req.body);
     const sanitizedClientDto = sanitizeEmptyStrings(clientDto);
 
     const client = await createClient(sanitizedClientDto);
@@ -36,5 +36,22 @@ export const registerClient = async (req, res) => {
     res.status(200).json({
         client,
         code: successCodeMessages.CREATED_CLIENT
+    });
+}
+
+export const editClient = async (req, res) => {
+
+    const { id } = req.params;
+    const clientDto = createClientDto(req.body);
+    const sanitizedClientDto = sanitizeEmptyStrings(clientDto);
+
+    const client = await updateClient({
+        id,
+        clientDto: sanitizedClientDto
+    });
+
+    return res.status(200).json({
+        client,
+        code: successCodeMessages.UPDATED_CLIENT
     });
 }

@@ -16,13 +16,18 @@ export const openClientModal = ({
     initForm({ form, mode, id: data?.id });
     clearFormErrors(form);
 
-    if (mode === 'create') {
+    form.elements.name.value = data?.name || '';
 
-        form.reset();
-        form.elements.name.value = data?.name || '';
+    if (mode === 'create') {
 
         modalElement.querySelector('#modalTitle').textContent = 'Registrar cliente';
         form.querySelector('#submitBtn').textContent = 'Guardar';
+    }
+
+    if (mode === 'edit') {
+
+        modalElement.querySelector('#modalTitle').textContent = 'Editar cliente';
+        form.querySelector('#submitBtn').textContent = 'Actualizar';
     }
 
     form.onSave = onSave;

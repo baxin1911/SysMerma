@@ -1,6 +1,6 @@
 import { apiRequest } from "../axiosInstanceApi.js";
 
-export const PROFILES_API_ROUTE = '/api/admin/profiles/';
+export const PROFILES_API_ROUTE = '/api/admin/profiles';
 
 export const getAllProfilesRequest = (params) => apiRequest({
     method: 'get',
@@ -8,14 +8,14 @@ export const getAllProfilesRequest = (params) => apiRequest({
     params
 });
 
-export const registerProfileRequest = (profileData) => apiRequest({
+export const registerProfileRequest = (data) => apiRequest({
     method: 'post',
     url: `${ PROFILES_API_ROUTE }`,
-    data: profileData
+    data
 });
 
-export const updateProfileRequest = (profileId, profileData) => apiRequest({
+export const updateProfileRequest = (data, id) => apiRequest({
     method: 'put',
-    url: `${ PROFILES_API_ROUTE }${ profileId }/`,
-    data: profileData
+    url: `${ PROFILES_API_ROUTE }/${ id }/`,
+    data
 });

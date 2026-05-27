@@ -42,6 +42,18 @@ const items = [
         isActive: currentRoute === '/perfiles',
         isVisible: isAdmin
     },
+    {
+        content: 'Clientes',
+        href: '/clientes',
+        isActive: currentRoute === '/clientes',
+        isVisible: isAdmin
+    },
+    {
+        content: 'Proveedores',
+        href: '/proveedores',
+        isActive: currentRoute === '/proveedores',
+        isVisible: isAdmin
+    }
 ].filter(item => {
     if (canSeeAll) return true;
     if (canSeeOnlyProducts) return item.href === '/productos';
