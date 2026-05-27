@@ -36,7 +36,12 @@ const items = [
         isActive: currentRoute === '/salidas-almacen',
         isVisible: canSeeAll || !canSeeOnlyProducts
     },
-].filter(item => {
+    {
+        content: 'Usuarios',
+        href: '/usuarios-sistemas',
+        isActive: currentRoute === '/usuarios-sistemas',
+        isVisible: hasDepartment('SISTEMAS') && hasRole('Administrador del sistema')
+    }].filter(item => {
     if (canSeeAll) return true;
     if (canSeeOnlyProducts) return item.href === '/productos';
 

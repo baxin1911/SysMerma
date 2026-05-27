@@ -72,3 +72,22 @@ export const validatePurchaseRequisitionValidators = {
 export const validateClientValidators = {
     name: (value) => validateText({ name: value, length: 100, fieldName: 'El nombre' }),
 }
+
+export const userValidators = {
+    name: validateUsername,
+    password: validatePassword,
+    profileId: (value) => isEmptyOrNull(value, 'El perfil'),
+    departmentId: (value) => isEmptyOrNull(value, 'El área'),
+    roleId: (value) => isEmptyOrNull(value, 'El rol')
+};
+
+export const userEditValidators = {
+    name: validateUsername,
+    profileId: (value) => isEmptyOrNull(value, 'El perfil'),
+    departmentId: (value) => isEmptyOrNull(value, 'El área'),
+    roleId: (value) => isEmptyOrNull(value, 'El rol')
+};
+
+export const userPasswordValidators = {
+    password: validatePassword,
+};

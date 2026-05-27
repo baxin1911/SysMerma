@@ -32,7 +32,9 @@ export const findAllProfiles = async ({
         })
     };
 
-    const profiles = await getDb().profile.findMany({
+    const db = getDb();
+
+    const profiles = await db.profile.findMany({
         skip,
         take,
         where,
@@ -41,8 +43,8 @@ export const findAllProfiles = async ({
         }
     });
 
-    const total = await getDb().profile.count();
-    const filtered = await getDb().profile.count({ where });
+    const total = await db.profile.count();
+    const filtered = await db.profile.count({ where });
 
     return {
         data: profiles,

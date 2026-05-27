@@ -1,0 +1,43 @@
+<% const form = {
+    id: 'userForm',
+    canApprove: false,
+    selects: [
+        { id: 'departmentIdInput', name: 'departmentId', class: 'department-select', col: '6' },
+        { id: 'roleIdInput', name: 'roleId', class: 'role-select', col: '6' }
+    ],
+    inputs: [
+        {
+            id: 'nameInput',
+            name: 'name',
+            type: 'text',
+            label: 'Usuario',
+            col: '4'
+        },
+        {
+            id: 'passwordInput',
+            name: 'password',
+            type: 'password',
+            label: 'Contraseña',
+            col: '4'
+        },
+        {
+            id: 'profileIdInput',
+            name: 'profileId',
+            type: 'text',
+            label: 'Perfil',
+            col: '4'
+        },
+    ]
+}; %>
+
+
+<%- include('../../../shared/mainTable', { title: 'Usuarios' }) %>
+
+<%- include('../../../shared/modal', { modalId: 'userModal', form }) %>
+
+<script type="module" src="/js/pages/admin/usersPage.js"></script>
+
+<%- contentFor('title') %>
+Usuarios
+<%- contentFor('layoutType') %>
+site
