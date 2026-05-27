@@ -147,6 +147,12 @@ export const errorMessages = {
     // Admin / catálogos
     PROFILE_NOT_FOUND: 'Perfil no encontrado.',
     PROFILE_FIND_DB_ERROR: 'Error de base de datos al buscar el perfil.',
+    ROLE_ID_INVALID_UUID: 'El rol no es válido.',
+    ROLE_ID_REQUIRED: 'El rol es requerido.',
+    USER_UPDATE_DATABASE_ERROR: 'Error de base de datos al actualizar el usuario.',
+    USER_FIND_DATABASE_ERROR: 'Error de base de datos al buscar usuarios.',
+    USER_CREATE_DATABASE_ERROR: 'Error de base de datos al crear el usuario.',
+    USER_NOT_FOUND: 'Usuario no encontrado.',
     PROFILE_CREATE_DB_ERROR: 'Error de base de datos al crear el perfil.',
     PROFILE_UPDATE_DB_ERROR: 'Error de base de datos al editar el perfil.',
 
@@ -250,6 +256,9 @@ const successMessages = {
     CONFIRMED_PURCHASE_REQUISITION: '¡Requisición de compra confirmada exitosamente!',
     CANCELED_PURCHASE_REQUISITION: '¡Requisición de compra cancelada exitosamente!',
     CREATED_CLIENT: '¡Cliente creado exitosamente!',
+    CREATED_USER: '¡Usuario creado exitosamente!',
+    UPDATED_USER: '¡Usuario actualizado exitosamente!',
+    UPDATED_USER_PASSWORD: '¡Contraseña actualizada exitosamente!',
     UPDATED_CLIENT: '¡Cliente actualizado exitosamente!',
 };
 

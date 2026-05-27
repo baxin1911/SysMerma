@@ -13,6 +13,8 @@ import unitMeasuresApiRoutes from './routes/api/warehouse/unitMeasureApiRoute.js
 import presentationApiRoutes from './routes/api/warehouse/presentationApiRoute.js';
 import departmentApiRoutes from './routes/api/admin/departmentApiRoute.js';
 import profileApiRoutes from './routes/api/admin/profileApiRoute.js';
+import roleApiRoutes from './routes/api/admin/roleApiRoute.js';
+import userApiRoutes from './routes/api/admin/userApiRoute.js';
 import reasonApiRoutes from './routes/api/warehouse/reasonApiRoute.js';
 import fulfillmentStatusApiRoutes from './routes/api/warehouse/fulfillmentStatusApiRoute.js';
 
@@ -26,6 +28,7 @@ import supplierWebRoutes from './routes/web/warehouse/supplierWebRoute.js';
 import purchaseRequisitionWebRoutes from './routes/web/warehouse/purchaseRequisitionWebRoute.js';
 import goodsReceiptWebRoutes from './routes/web/warehouse/goodsReceiptWebRoute.js';
 import goodsIssueWebRoutes from './routes/web/warehouse/goodsIssueWebRoute.js';
+import userWebRoutes from './routes/web/admin/userWebRoute.js';
 import profileWebRoutes from './routes/web/admin/profileWebRoute.js';
 import clientWebRoutes from './routes/web/sales/clientWebRoute.js';
 
@@ -91,6 +94,7 @@ app.use('/mermas', wasteWebRoutes);
 app.use('/requisiciones', purchaseRequisitionWebRoutes);
 app.use('/compras', goodsReceiptWebRoutes);
 app.use('/salidas-almacen', goodsIssueWebRoutes);
+app.use('/usuarios-sistemas', userWebRoutes);
 app.use('/perfiles', profileWebRoutes);
 app.use('/clientes', clientWebRoutes);
 app.use('/proveedores', supplierWebRoutes);
@@ -109,6 +113,8 @@ app.use(apiRoute + warehouse + '/unit-measures', unitMeasuresApiRoutes);
 app.use(apiRoute + warehouse + '/presentations', presentationApiRoutes);
 app.use(apiRoute + admin + '/departments', departmentApiRoutes);
 app.use(apiRoute + admin + '/profiles', profileApiRoutes);
+app.use(apiRoute + admin + '/roles', roleApiRoutes);
+app.use(apiRoute + admin + '/users', userApiRoutes);
 app.use(apiRoute + warehouse + '/reasons', reasonApiRoutes);
 app.use(apiRoute + warehouse + '/fulfillment-statuses', fulfillmentStatusApiRoutes);
 

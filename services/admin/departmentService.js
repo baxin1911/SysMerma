@@ -18,7 +18,9 @@ export const findAllDepartments = async ({
         })
     };
 
-    const departments = await getDb().department.findMany({
+    const db = getDb();
+
+    const departments = await db.department.findMany({
         skip,
         take,
         where,
@@ -27,8 +29,8 @@ export const findAllDepartments = async ({
         }
     });
 
-    const total = await getDb().department.count();
-    const filtered = await getDb().department.count({ where });
+    const total = await db.department.count();
+    const filtered = await db.department.count({ where });
 
     return {
         data: departments,
