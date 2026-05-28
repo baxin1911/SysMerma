@@ -23,7 +23,7 @@ export const getAllProducts = async (req, res) => {
         orderDir
     });
 
-    res.status(200).json(result);
+    return res.status(200).json(result);
 }
 
 export const registerProduct = async (req, res) => {

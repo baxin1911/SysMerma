@@ -18,5 +18,5 @@ export const getAllPresentations = async (req, res) => {
         orderDir
     });
 
-    res.status(200).json(result);
+    return res.status(200).json(result);
 }

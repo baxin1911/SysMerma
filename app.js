@@ -17,6 +17,7 @@ import roleApiRoutes from './routes/api/admin/roleApiRoute.js';
 import userApiRoutes from './routes/api/admin/userApiRoute.js';
 import reasonApiRoutes from './routes/api/warehouse/reasonApiRoute.js';
 import fulfillmentStatusApiRoutes from './routes/api/warehouse/fulfillmentStatusApiRoute.js';
+import movementApiRoutes from './routes/api/admin/movementApiRoute.js';
 
 import loginWebRoutes from './routes/web/auth/loginWebRoute.js';
 import logoutWebRoutes from './routes/web/auth/logoutWebRoute.js';
@@ -31,6 +32,7 @@ import goodsIssueWebRoutes from './routes/web/warehouse/goodsIssueWebRoute.js';
 import userWebRoutes from './routes/web/admin/userWebRoute.js';
 import profileWebRoutes from './routes/web/admin/profileWebRoute.js';
 import clientWebRoutes from './routes/web/sales/clientWebRoute.js';
+import movementWebRoutes from './routes/web/admin/movementWebRoute.js';
 
 import { checkTypeContentJson, checkTypeContentFile, checkContentTypePlainText } from './middleware/contentTypeMiddleware.js';
 import cookieParser from 'cookie-parser';
@@ -98,6 +100,7 @@ app.use('/usuarios-sistemas', userWebRoutes);
 app.use('/perfiles', profileWebRoutes);
 app.use('/clientes', clientWebRoutes);
 app.use('/proveedores', supplierWebRoutes);
+app.use('/movimientos', movementWebRoutes);
 
 // api routes
 app.use(apiRoute + authRoute, authApiRoutes);
@@ -111,12 +114,12 @@ app.use(apiRoute + warehouse + '/notifications', notificationApiRoutes);
 app.use(apiRoute + warehouse + '/reports', reportApiRoutes);
 app.use(apiRoute + warehouse + '/unit-measures', unitMeasuresApiRoutes);
 app.use(apiRoute + warehouse + '/presentations', presentationApiRoutes);
-app.use(apiRoute + admin + '/departments', departmentApiRoutes);
-app.use(apiRoute + admin + '/profiles', profileApiRoutes);
-app.use(apiRoute + admin + '/roles', roleApiRoutes);
-app.use(apiRoute + admin + '/users', userApiRoutes);
 app.use(apiRoute + warehouse + '/reasons', reasonApiRoutes);
 app.use(apiRoute + warehouse + '/fulfillment-statuses', fulfillmentStatusApiRoutes);
+
+app.use(apiRoute + admin + '/departments', departmentApiRoutes);
+app.use(apiRoute + admin + '/profiles', profileApiRoutes);
+app.use(apiRoute + admin + '/movements', movementApiRoutes);
 
 app.use((req, res, next) => {
     res.status(404).json({ message: 'Ruta no encontrada.' });

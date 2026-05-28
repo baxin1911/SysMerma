@@ -31,7 +31,7 @@ export const getAllGoodsIssues = async (req, res) => {
         accesses: req.user?.accesses
     });
 
-    res.status(200).json(result);
+    return res.status(200).json(result);
 };
 
 export const registerGoodsIssue = async (req, res) => {

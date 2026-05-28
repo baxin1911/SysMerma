@@ -37,6 +37,12 @@ const items = [
         isVisible: canSeeAll || !canSeeOnlyProducts
     },
     {
+        content: 'Movimientos',
+        href: '/movimientos',
+        isActive: currentRoute === '/movimientos',
+        isVisible: isAdmin
+    },
+    {
         content: 'Usuarios',
         href: '/usuarios-sistemas',
         isActive: currentRoute === '/usuarios-sistemas',

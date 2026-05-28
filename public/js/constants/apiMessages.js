@@ -234,7 +234,8 @@ export const errorMessages = {
     PURCHASE_REQUISITION_APPROVER_PROFILE_NOT_FOUND: 'Perfil aprobador activo no encontrado para el usuario.',
 
     // Documento / folios
-    REFERENCE_NUMBER_UPDATE_DB_ERROR: 'Error de base de datos al actualizar el folio.'
+    REFERENCE_NUMBER_UPDATE_DB_ERROR: 'Error de base de datos al actualizar el folio.',
+    MOVEMENT_FIND_DATABASE_ERROR: 'Error de base de datos al buscar el movmiento.'
 };
 
 const successMessages = {

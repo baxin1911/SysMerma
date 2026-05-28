@@ -21,7 +21,7 @@ export const getAllSuppliers = async (req, res) => {
         orderDir
     });
 
-    res.status(200).json(result);
+    return res.status(200).json(result);
 }
 
 export const registerSupplier = async (req, res) => {
