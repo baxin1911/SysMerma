@@ -53,7 +53,11 @@ export const findAllUsers = async ({
             departmentName: user.accesses?.[0]?.department?.name || null
         }));
 
-        return { data, recordsTotal: total, recordsFiltered: filtered };
+        return { 
+            data, 
+            recordsTotal: total, 
+            recordsFiltered: filtered 
+        };
 
     } catch {
         throw new UserFindDatabaseError();

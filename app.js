@@ -117,6 +117,8 @@ app.use(apiRoute + warehouse + '/presentations', presentationApiRoutes);
 app.use(apiRoute + warehouse + '/reasons', reasonApiRoutes);
 app.use(apiRoute + warehouse + '/fulfillment-statuses', fulfillmentStatusApiRoutes);
 
+app.use(apiRoute + admin + '/users', userApiRoutes);
+app.use(apiRoute + admin + '/roles', roleApiRoutes);
 app.use(apiRoute + admin + '/departments', departmentApiRoutes);
 app.use(apiRoute + admin + '/profiles', profileApiRoutes);
 app.use(apiRoute + admin + '/movements', movementApiRoutes);

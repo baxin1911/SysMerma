@@ -13,15 +13,13 @@ export const getAllUsers = async (req, res) => {
     const orderColumnIndex = req.query.order?.[0]?.column || 0;
     const orderDir = req.query.order?.[0]?.dir || 'asc';
 
-    const findUsersParams = {
+    const result = await findAllUsers({
         skip: start,
         take: length,
         search,
         orderBy: columns[orderColumnIndex],
         orderDir
-    };
-
-    const result = await findAllUsers(findUsersParams);
+    });
 
     return res.status(200).json(result);
 };
