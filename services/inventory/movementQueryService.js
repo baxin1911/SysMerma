@@ -1,5 +1,6 @@
 import { MovementFindDatabaseError } from "../../errors/inventory/movementError.js";
 import { getDb } from "../../repository/baseRepository.js";
+import { formatDateLongWithTime } from "../../utils/formattersUtils.js";
 
 export const findAllMovements = async ({
     skip = 0,
@@ -96,7 +97,7 @@ export const findAllMovements = async ({
         const movementsMapper = movements.map(detail => ({
             id: detail.id,
 
-            date: detail.movement.date,
+            date: formatDateLongWithTime(detail.movement.date),
 
             type: detail.movement.type,
 
@@ -106,7 +107,11 @@ export const findAllMovements = async ({
 
             quantity: detail.quantity,
 
+            previousConvertedQuantity: detail.previousConvertedQuantity,
+
             convertedQuantity: detail.convertedQuantity,
+
+            newConvertedQuantity: detail.newConvertedQuantity,
 
             previousStock: detail.previousStock,
 

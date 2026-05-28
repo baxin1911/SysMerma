@@ -7,7 +7,7 @@ import { renderMaterialName } from "./utils/renderProductDatatable.js";
 import { getResponsiveRowData } from "./utils/responsive.js";
 import { buildExcelButton } from "../../ui/excelUI.js";
 import { exportWarehouseReport } from "../../application/warehouse/report.js";
-import { formatInventoryFileName as formatFileName } from "../../utils/formatters.js";
+import { formatFileName } from "../../utils/formatters.js";
 import { openStockAdjustmentModal } from "../../pages/warehouse/productsPage.js";
 
 const selectorTable = '#table';

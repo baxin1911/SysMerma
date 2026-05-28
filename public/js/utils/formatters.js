@@ -27,7 +27,7 @@ export const formatDateLongWithTime = (dateTime) => {
     return formatted;
 }
 
-export const formatInventoryFileName = (filename) => {
+export const formatFileName = (filename) => {
 
     const now = new Date();
     const month = String(now.getUTCMonth() + 1).padStart(2, '0');

@@ -7,6 +7,18 @@ export const sanitizeEmptyStrings = (obj) => {
   );
 };
 
+export const formatDateLongWithTime = (dateTime) => {
+
+    if (!dateTime) return '';
+
+    const date = new Date(dateTime);
+    return new Intl.DateTimeFormat('es-MX', {
+        timeZone: 'America/Mexico_City',
+        dateStyle: 'short',
+        timeStyle: 'medium'
+    }).format(date);
+}
+
 export const cleanSearchTerm = (search) => {
 
   const cleaned = search.trim();
