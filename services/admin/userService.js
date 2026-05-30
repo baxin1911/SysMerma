@@ -94,7 +94,7 @@ export const getUserIdByLogin = async (name, password) => {
 
     const isValid = await verifyPassword(password, user.password);
 
-    if (isValid) return null;
+    if (!isValid) return null;
 
     return user.id;
 }
