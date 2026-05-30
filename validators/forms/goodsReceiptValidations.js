@@ -6,6 +6,6 @@ export const goodsReceiptValidation = [
     validateBoolean('isInvoiced'),
     validateInvoice(),
     validateDate('receptionDate'),
-    validateTextOptional({ fieldName: 'observations', maxLength: 500, regex: /^[^<>\\{}[\]]+$/u }),
+    validateTextOptional({ fieldName: 'observations', maxLength: 500 }),
     validateDetailsArray
 ]

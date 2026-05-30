@@ -1,8 +1,8 @@
 import { getAllFulfillmentStatusesRequest } from "../../services/warehouse/fulfillmentStatusService.js";
 
-export const getFulfillmentStatusOptions = async () => {
+export const getFulfillmentStatusOptions = async (params = {}) => {
 
-    const response = await getAllFulfillmentStatusesRequest();
+    const response = await getAllFulfillmentStatusesRequest({ params });
     
     const list = response.data?.data || [];
 

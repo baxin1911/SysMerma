@@ -2,7 +2,7 @@ import { createUserDtoForToken } from "../dtos/userDTO.js";
 import { loginError, authError, detectedReuseError } from "../errors/authError.js";
 import { encryptToken } from "../utils/encryptionUtils.js";
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from "./jwtService.js";
-import { getUserIdByLogin } from "./userService.js";
+import { getUserIdByLogin } from "./admin/userService.js";
 
 export const loginUser = async ({ name, password }) => {
 

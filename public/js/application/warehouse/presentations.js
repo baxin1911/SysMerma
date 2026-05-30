@@ -2,7 +2,7 @@ import { getAllPresentationsRequest } from "../../services/warehouse/presentatio
 
 export const getAllPresentations = async (params = {}) => {
 
-    const response = await getAllPresentationsRequest(params);
+    const response = await getAllPresentationsRequest({ params });
     
     return response;
 };

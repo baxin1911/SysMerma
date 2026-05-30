@@ -3,14 +3,14 @@ import { getAllProfilesRequest, registerProfileRequest, updateProfileRequest } f
 
 export const getAllProfiles = async (params = {}) => {
 
-    const response = await getAllProfilesRequest(params);
-    
+    const response = await getAllProfilesRequest({ params });
+
     return response;
 };
 
-export const registerProfile = async (formData) => {
+export const registerProfile = async ({ formData }) => {
 
-    const response = await registerProfileRequest(formData);
+    const response = await registerProfileRequest({ data: formData });
 
     const { data } = response;
     const { code, profile } = data;
@@ -22,9 +22,9 @@ export const registerProfile = async (formData) => {
     };
 }
 
-export const updateProfile = async (formData, id) => {
+export const updateProfile = async ({ formData, id }) => {
 
-    const response = await updateProfileRequest(formData, id);
+    const response = await updateProfileRequest({ data: formData, id });
 
     const { data } = response;
     const { code, profile } = data;

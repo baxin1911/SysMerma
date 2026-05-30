@@ -1,7 +1,7 @@
 import { verifyAccessToken } from "../services/jwtService.js";
 import { errorMap } from "../messages/codeMessages.js";
 import { clearAccessCookie } from "../utils/cookiesUtils.js";
-import { getLoggedUser } from "../services/userService.js";
+import { getLoggedUser } from "../services/admin/userService.js";
 
 const getAuthTokenInfo = ( req, res) => {
 

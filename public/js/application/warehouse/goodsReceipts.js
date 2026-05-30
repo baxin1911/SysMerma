@@ -3,14 +3,14 @@ import { getAllGoodsReceiptsRequest, registerGoodsReceiptRequest } from "../../s
 
 export const getAllGoodsReceipts = async (params = {}) => {
 
-    const response = await getAllGoodsReceiptsRequest(params);
+    const response = await getAllGoodsReceiptsRequest({ params });
 
     return response;
 };
 
-export const registerGoodsReceipt = async (formData) => {
+export const registerGoodsReceipt = async ({ formData }) => {
 
-    const response = await registerGoodsReceiptRequest(formData);
+    const response = await registerGoodsReceiptRequest({ data: formData });
 
     const { data } = response;
     const { code } = data;

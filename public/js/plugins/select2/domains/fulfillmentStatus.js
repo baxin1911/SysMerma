@@ -1,14 +1,14 @@
 import { getFulfillmentStatusOptions } from "../../../application/warehouse/fulfillmentStatuses.js";
 import { initbaseSelect2 } from "../baseSelect.js";
 
-export const fulfillmentStatusSelector = '#fulfillmentStatusFilter';
+const fulfillmentStatusSelector = '#fulfillmentStatusFilter';
 
 export const getFulfillmentStatusSelectApi = () => ({
     getSelect: () => document.querySelector(fulfillmentStatusSelector),
     getValue: () => document.querySelector(fulfillmentStatusSelector)?.value || ''
 });
 
-export const initFulfillmentStatusSelect = ({
+export const initFulfillmentStatusFilterSelect = ({
     selectedId = null
 }) => {
 
@@ -20,7 +20,9 @@ export const initFulfillmentStatusSelect = ({
         }),
         clearOnOpen: false,
         placeholder: 'Filtrar por estado surtido',
-        data: () => ({}),
+        data: (params) => ({
+            search: params.term
+        }),
         processResults: (data) => {
             const list = data.data || data;
             return {
@@ -41,20 +43,15 @@ export const initFulfillmentStatusSelect = ({
     }
 };
 
-export const attachFulfillmentStatusHandler = ({
+export const attachFulfillmentStatusFilterHandler = ({
     onChange
 }) => {
-    $(fulfillmentStatusSelector)
-        .off('select2:select.fulfillmentFilter change.fulfillmentFilter')
-        .on('select2:select.fulfillmentFilter change.fulfillmentFilter', () => {
-            const select = document.querySelector(fulfillmentStatusSelector);
-            const value = select?.value || '';
-            const hasValue = Array.from(select?.options || []).some(option => option.value === value);
+    
+$(fulfillmentStatusSelector).off('select2:select').on('select2:select', () => {
+        
+        const select = document.querySelector(fulfillmentStatusSelector);
+        const value = select?.value || '';
 
-            if (value && !hasValue) {
-                $(fulfillmentStatusSelector).val(select?.options[0]?.value || '').trigger('change.select2');
-            }
-
-            onChange?.(value);
-        });
+        onChange?.(value);
+    });
 };

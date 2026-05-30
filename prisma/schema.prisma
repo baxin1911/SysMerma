@@ -27,7 +27,7 @@ model User {
   id           String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   profileId    String?              @db.Uuid
   name         String               @unique @db.VarChar(50)
-  password     String               @db.VarChar(50)
+  password     String               @db.VarChar(100)
   isActive     Boolean              @default(true)
   profile      Profile?             @relation(fields: [profileId], references: [id])
   accesses     UserRoleDepartment[]
@@ -371,7 +371,7 @@ model InventoryMovement {
 
   referenceNumber String? @unique @db.VarChar(50)
 
-  type InventoryMovementType?
+  type InventoryMovementType
 
   goodsReceiptId    String? @db.Uuid
   goodsIssueId      String? @db.Uuid
@@ -400,6 +400,8 @@ model MovementDetail {
   previousConvertedQuantity Decimal? @db.Decimal(10, 2)
 
   productId            String  @db.Uuid
+  productBase Decimal? @db.Decimal(10, 2)
+  productHeight Decimal? @db.Decimal(10, 2)
   supplierId           String  @db.Uuid
   goodsReceiptDetailId String? @db.Uuid
   goodsIssueDetailId   String? @db.Uuid

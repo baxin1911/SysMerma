@@ -7,7 +7,7 @@ export const goodsIssueValidation = [
     validateUUID('requesterId'),
     validateProjectNumber('projectNumber'),
     validateDate('requestDate'),
-    validateTextOptional({ fieldName: 'observations', maxLength: 500, regex: /^[^<>\\{}[\]]+$/u }),
+    validateTextOptional({ fieldName: 'observations', maxLength: 500 }),
     validateGoodsIssueDetailsArray()
 ];
 
@@ -18,7 +18,7 @@ export const goodsIssueUpdateValidation = [
     validateUUID('requesterId'),
     validateProjectNumber('projectNumber'),
     validateDate('requestDate'),
-    validateTextOptional({ fieldName: 'observations', maxLength: 500, regex: /^[^<>\\{}[\]]+$/u }),
+    validateTextOptional({ fieldName: 'observations', maxLength: 500 }),
     validateGoodsIssueDetailsArray({ allowDetailId: true })
 ];
 

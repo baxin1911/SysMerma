@@ -57,13 +57,13 @@ export const renderActionButtons = ({ status, fulfillmentStatus, context }) => {
     const actions = [];
     const canEditGoodsIssue = context === 'goodsIssue' && fulfillmentStatus === 'Pendiente';
 
-    if ((status === 'Abierta' || canEditGoodsIssue) || context === 'profile' || context === 'client') actions.push('<button class="btn-edit"><i class="fa-solid fa-pencil"></i></button>');
+    if ((status === 'Abierta' || canEditGoodsIssue) || context === 'profile' || context === 'client' || context === 'supplier') actions.push('<button class="btn-edit"><i class="fa-solid fa-pencil"></i></button>');
 
     if (context === 'product') actions.push('<button class="btn-adjust-stock"><i class="fa-solid fa-boxes-stacked"></i></button>');
 
     if (status === 'Aprobada' && context === 'goodsIssue' && canEditGoodsIssue) actions.push('<button class="btn-edit-detail"><i class="fa fa-edit"></i></button>');
 
-    if (context !== 'product' && context !== 'profile' && context !== 'client') actions.push('<button class="btn-view"><i class="fa fa-eye"></i></button>');
+    if (context !== 'product' && context !== 'profile' && context !== 'client' && context !== 'supplier') actions.push('<button class="btn-view"><i class="fa fa-eye"></i></button>');
 
     return actions.join('');
 }

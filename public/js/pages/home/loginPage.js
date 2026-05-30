@@ -19,7 +19,7 @@ useForm({
     },
     sendRequest: async ({ formData }) => {
 
-        const response = await login(formData);
+        const response = await login({ formData });
 
         localStorage.setItem('showSuccessToast', response.message);
         window.location.replace('/productos');

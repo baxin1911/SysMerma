@@ -5,12 +5,11 @@ export const getAllMovements = async (req, res) => {
     const start = parseInt(req.query.start) || 0;
     const length = parseInt(req.query.length) || 10;
     const search = req.query['search[value]'] || '';
-    const type = req.query.type || '';
+    const starDate = req.query.starDate || '';
+    const endDate = req.query.endDate || '';
+    const movementType = req.query.movementType || '';
     const productId = req.query.productId || '';
     const supplierId = req.query.supplierId || '';
-    const goodsIssueId = req.query.goodsIssueId || '';
-    const goodsReceiptId = req.query.goodsReceiptId || '';
-
     const columns = ['date'];
     const orderColumnIndex = req.query.order?.[0]?.column || 0;
     const orderDir = req.query.order?.[0]?.dir || 'desc';
@@ -19,11 +18,11 @@ export const getAllMovements = async (req, res) => {
         skip: start,
         take: length,
         search,
-        type,
+        starDate,
+        endDate,
+        movementType,
         productId,
         supplierId,
-        goodsIssueId,
-        goodsReceiptId,
         orderBy: columns[orderColumnIndex],
         orderDir,
     });

@@ -2,7 +2,7 @@ import { getAllUnitMeasuresRequest } from "../../services/warehouse/unitMeasureS
 
 export const getAllUnitMeasures = async (params = {}) => {
 
-    const response = await getAllUnitMeasuresRequest(params);
+    const response = await getAllUnitMeasuresRequest({ params });
 
     return response;
 };

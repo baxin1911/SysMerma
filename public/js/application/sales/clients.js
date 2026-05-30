@@ -3,14 +3,14 @@ import { createClientRequest, editClientRequest, getAllClientsRequest } from "..
 
 export const getAllClients = async (params = {}) => {
 
-    const response = await getAllClientsRequest(params);
+    const response = await getAllClientsRequest({ params });
 
     return response;
 };
 
-export const registerClient = async (formData) => {
+export const registerClient = async ({ formData }) => {
 
-    const response = await createClientRequest(formData);
+    const response = await createClientRequest({ data: formData });
 
     const { data } = response;
     const { code, client } = data;
@@ -22,9 +22,9 @@ export const registerClient = async (formData) => {
     };
 }
 
-export const editClient = async (formData, id) => {
+export const editClient = async ({ formData, id }) => {
 
-    const response = await editClientRequest(formData, id);
+    const response = await editClientRequest({ data: formData, id });
 
     const { data } = response;
     const { code, client } = data;

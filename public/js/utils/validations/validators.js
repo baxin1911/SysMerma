@@ -2,8 +2,16 @@ import { isEmptyOrNull } from "./baseValidations.js";
 import { validateName, validatePassword, validateNumber, validateUsername, validateTextOptional, validateMeasure, validateDateOptional, validateGoodsReceiptDetailsArray, validateDate, validateText, validateNumberOptional, validateGoodsIssueDetailsArray, validatePositiveNumber } from "./fieldValidations.js";
 
 export const supplierValidators = {
-    legalName: (value) => validateText({ name: value, length: 200, fieldName: 'La razón social', regex: /^[^<>\\{}[\]]+$/u }),
-    tradeName: (value) => validateText({ name: value, length: 100, fieldName: 'El nombre comercial', regex: /^[^<>\\{}[\]]+$/u }),
+    legalName: (value) => validateText({ 
+        name: value, 
+        length: 200, 
+        fieldName: 'La razón social' 
+    }),
+    tradeName: (value) => validateText({ 
+        name: value, 
+        length: 100, 
+        fieldName: 'El nombre comercial' 
+    }),
 }
 
 export const productValidators = {
@@ -48,7 +56,11 @@ export const validateGoodsReceiptValidators = {
 }
 
 export const validateGoodsIssueValidators = {
-    projectNumber: (value) => validateText({ name: value, maxLength: 50, fieldName: 'El número de proyecto' }),
+    projectNumber: (value) => validateText({ 
+        name: value, 
+        maxLength: 50, 
+        fieldName: 'El número de proyecto' 
+    }),
     advisorId: (value) => isEmptyOrNull(value, 'El asesor'),
     clientId: (value) => isEmptyOrNull(value, 'El cliente'),
     departmentId: (value) => isEmptyOrNull(value, 'El cliente'),
@@ -70,7 +82,11 @@ export const validatePurchaseRequisitionValidators = {
 };
 
 export const validateClientValidators = {
-    name: (value) => validateText({ name: value, length: 100, fieldName: 'El nombre', regex: /^[^<>\\{}[\]]+$/u }),
+    name: (value) => validateText({ 
+        name: value, 
+        length: 100, 
+        fieldName: 'El nombre' 
+    }),
 }
 
 export const userValidators = {
@@ -91,7 +107,12 @@ export const userPasswordValidators = {
 };
 
 export const profileValidators = {
-    fullName: (value) => validateText({ name: value, length: 100, fieldName: 'El nombre' }),
+    fullName: (value) => validateText({ 
+        name: value, 
+        length: 100, 
+        fieldName: 'El nombre', 
+        regex: /^[\p{L}0-9]+(?:[ '\-.,:;()¿?¡!][\p{L}0-9]+)*[.,:;()¿?¡!]*$/u 
+    }),
     departments: (value) => {
 
         if (!Array.isArray(value) || !value.length) return 'Seleccione al menos un departamento';

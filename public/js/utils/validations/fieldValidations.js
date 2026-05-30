@@ -141,7 +141,7 @@ export const validateText = ({
     name, 
     length, 
     fieldName,
-    regex = /^[\p{L}0-9]+(?:[ '\-.,:;()¿?¡!][\p{L}0-9]+)*[.,:;()¿?¡!]*$/u
+    regex = /^[^<>\\{}[\]]+$/u
 }) => {
 
     let result = isEmptyOrNull(name, fieldName);

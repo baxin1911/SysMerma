@@ -1,6 +1,65 @@
 import { openSupplierModal } from "../../../modules/suppliers/supplierModal.js";
-import { getAllSuppliers } from "../../../application/warehouse/suppliers.js";
+import { getAllSuppliers, getSupplierOptions } from "../../../application/warehouse/suppliers.js";
 import { initbaseSelect2, toggleSelectOption } from "../baseSelect.js";
+
+const supplierSelector = '#supplierFilter';
+
+export const getSupplierSelectApi = () => ({
+    getSelect: () => document.querySelector(supplierSelector),
+    getValue: () => document.querySelector(supplierSelector)?.value || ''
+});
+
+export const initSupplierFilterSelect = ({
+    selectedId = null
+}) => {
+
+    initbaseSelect2({
+        baseSelector: supplierSelector,
+        modalSelector: 'body',
+        get: async (params) => ({
+            data: await getSupplierOptions(params)
+        }),
+        clearOnOpen: false,
+        placeholder: 'Filtrar por proveedor',
+        data: (params) => ({
+            search: params.term
+        }),
+        processResults: (data) => {
+            const list = data.data || data;
+            return {
+                results: list.map(supplier => ({
+                    id: supplier.value,
+                    text: supplier.label
+                }))
+            };
+        }
+    });
+
+    if (!selectedId) {
+
+        $(supplierSelector).val('').trigger('change');
+        return;
+    }
+
+    const currentOption = $(`${ supplierSelector } option[value=\"${ selectedId }\"]`);
+
+    if (currentOption.length) {
+        $(supplierSelector).val(selectedId).trigger('change');
+    }
+};
+
+export const attachSupplierFilterHandler = ({
+    onChange
+}) => {
+    
+    $(supplierSelector).off('select2:select').on('select2:select', () => {
+
+        const select = document.querySelector(supplierSelector);
+        const value = select?.value || '';
+
+        onChange?.(value);
+    });
+};
 
 const initSupplierSelect = ({ 
     modalSelector, 

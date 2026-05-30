@@ -5,12 +5,16 @@ import { createDataTable, refreshProductTable, renderActionButtons } from "./bas
 import { buildDetailsColumns, buildDetailsHeader } from "./utils/builderDetailDatatable.js";
 import { handleDelete, renderMaterialName } from "./utils/renderProductDatatable.js";
 import { getResponsiveRowData } from "./utils/responsive.js";
-import { setupTableSelectFilter } from "./utils/tableFilter.js";
+import { setupTableFilters } from "./utils/tableFilter.js";
+import { attachFulfillmentStatusFilterHandler, getFulfillmentStatusSelectApi, initFulfillmentStatusFilterSelect } from "../select2/domains/fulfillmentStatus.js";
+import { getFulfillmentStatusOptions } from "../../application/warehouse/fulfillmentStatuses.js";
 
 export let details = [];
 const selectorProductTable = '#productTable';
 const tableSelector = '#table';
-let getFulfillmentStatusFilterValue = () => undefined;
+let filters = {
+    getValues: () => ({})
+};
 
 let productTable;
 
@@ -55,16 +59,26 @@ export const createGoodsIssueDatatable = async (context) => {
         }
     );
 
-    const filterConfig = await setupTableSelectFilter();
-
-    getFulfillmentStatusFilterValue = filterConfig?.getValue || (() => undefined);
+    filters = await setupTableFilters({
+        filters: [
+            {
+                key: 'fulfillmentStatusId',
+                getSelectApi: getFulfillmentStatusSelectApi,
+                getOptions: getFulfillmentStatusOptions,
+                initSelect: initFulfillmentStatusFilterSelect,
+                attachHandler: () => attachFulfillmentStatusFilterHandler({
+                    onChange: () => table.ajax.reload()
+                })
+            }
+        ]
+    });
 
     const table = createDataTable({
         options: {
             ajax: {
                 get: (params) => getAllGoodsIssues({
                     ...params,
-                    fulfillmentStatusId: getFulfillmentStatusFilterValue() || ''
+                    ...filters.getValues()
                 })
             },
             columns,
@@ -75,10 +89,6 @@ export const createGoodsIssueDatatable = async (context) => {
                 }
             ]
         }
-    });
-
-    setupTableSelectFilter({
-        table
     });
 
     $(`${ tableSelector } tbody`).on('click', '.btn-edit', function () {

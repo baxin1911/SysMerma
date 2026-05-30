@@ -14,9 +14,8 @@ import { buildStockKey, parseStockKey } from "../../../utils/formattersUtils.js"
 import { AppError } from "../../../errors/AppError.js";
 
 const REFERENCE_NUMBER_TYPE = 'REC';
-const MOVEMENT_TYPE_IN = 'IN';
+const MOVEMENT_TYPE_IN = 'ENTRY';
 const STATUS_CONFIRMED = 'Confirmada';
-
 
 export const findAllGoodsReceipts = async ({
     skip = 0,
@@ -143,6 +142,7 @@ export const createGoodsReceipt = async ({ goodsReceiptDto }) => {
                 id: true,
                 productId: true,
                 supplierId: true,
+                convertedQuantity: true,
                 currentStock: true,
                 product: {
                     select: {

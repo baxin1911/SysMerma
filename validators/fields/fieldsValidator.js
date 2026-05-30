@@ -8,6 +8,7 @@ const usernameRegex = /^[a-zA-Z0-9_]+$/;
 const invoiceRegex = /^[a-zA-Z0-9\-]+$/;
 const passwordRegex = /^[A-Za-z0-9!@#\$%\^&\*]+$/;
 const nameRegex = /^[\p{L}0-9]+(?:[ '\-.,:;()¿?¡!][\p{L}0-9]+)*[.,:;()¿?¡!]*$/u;
+const genericRegex = /^[^<>\\{}[\]]+$/u;
 const uuidV4Regex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export const validateUsername = 
@@ -52,16 +53,16 @@ export const validateInvoice = (maxLength = 50) =>
         .matches(invoiceRegex).withMessage(errorMap['invoice'].INVALID_FORMAT)
 ;
 
-export const validateText = ({ fieldName, maxLength, regex = nameRegex }) =>
+export const validateText = ({ fieldName, maxLength }) =>
     body(fieldName)
         .trim()
         .notEmpty().withMessage(errorMap['name'].REQUIRED)
         .isString().withMessage(errorMap['name'].INVALID_TYPE)
         .isLength({ max: maxLength }).withMessage(errorMap['name'].TOO_LONG(maxLength))
-        .matches(regex).withMessage(errorMap['name'].INVALID_FORMAT)
+        .matches(genericRegex).withMessage(errorMap['name'].INVALID_FORMAT)
 ;
 
-export const validateTextOptional = ({ fieldName, maxLength, regex = nameRegex }) => {
+export const validateTextOptional = ({ fieldName, maxLength }) => {
 
     const errors = errorMap[fieldName];
 
@@ -70,7 +71,7 @@ export const validateTextOptional = ({ fieldName, maxLength, regex = nameRegex }
         .if(body(fieldName).notEmpty())
         .isString().withMessage(errors.INVALID_TYPE)
         .isLength({ max: maxLength }).withMessage(errors.TOO_LONG(maxLength))
-        .matches(regex).withMessage(errors.INVALID_FORMAT)
+        .matches(genericRegex).withMessage(errors.INVALID_FORMAT)
 }
 
 export const validateBoolean = (fieldName) =>

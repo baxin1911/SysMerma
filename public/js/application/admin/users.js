@@ -3,28 +3,14 @@ import { editUserPasswordRequest, editUserRequest, getAllUsersRequest, registerU
 
 export const getAllUsers = async (params = {}) => {
 
-    const response = await getAllUsersRequest(params);
+    const response = await getAllUsersRequest({ params });
 
     return response;
 };
 
-export const registerUser = async (formData) => {
+export const registerUser = async ({ formData }) => {
 
-    const response = await registerUserRequest(formData);
-
-    const { data } = response;
-    const { code, user } = data;
-    const message = getSuccessMessage(code);
-
-    return {
-        message,
-        data: user
-    };
-};
-
-export const editUser = async (formData, id) => {
-
-    const response = await editUserRequest(formData, id);
+    const response = await registerUserRequest({ data: formData });
 
     const { data } = response;
     const { code, user } = data;
@@ -36,9 +22,23 @@ export const editUser = async (formData, id) => {
     };
 };
 
-export const editUserPassword = async (formData, id) => {
+export const editUser = async ({ formData, id }) => {
 
-    const response = await editUserPasswordRequest(formData, id);
+    const response = await editUserRequest({ data: formData, id });
+
+    const { data } = response;
+    const { code, user } = data;
+    const message = getSuccessMessage(code);
+
+    return {
+        message,
+        data: user
+    };
+};
+
+export const editUserPassword = async ({ formData, id }) => {
+
+    const response = await editUserPasswordRequest({ data: formData, id });
 
     const { data } = response;
     const { code } = data;

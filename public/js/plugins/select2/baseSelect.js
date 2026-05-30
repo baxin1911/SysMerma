@@ -65,14 +65,18 @@ export const initbaseSelect2 = ({
         createTag
     });
 
-    if (clearOnOpen) $(baseSelector).on('select2:opening', () => {
+    if (clearOnOpen) $(baseSelector).on('select2:open', () => {
 
-        $(baseSelector).val(null).trigger('change');
+        setTimeout(() => {
 
-        setMdbWrapperInputValue({
-            selector: `${ modalSelector } ${ wrapperSelector }`,
-            value: ''
-        });
+            $(baseSelector).val(null).trigger('change');
+
+            setMdbWrapperInputValue({
+                selector: `${ modalSelector } ${ wrapperSelector }`,
+                value: ''
+            });
+
+        }, 10);
     });
 }
 

@@ -1,6 +1,6 @@
-import { createUserDtoForEdit, createUserDtoForRegister, createUserPasswordDtoForEdit } from "../../../dtos/userManagementDTO.js";
+import { createUserDtoForEdit, createUserDtoForRegister, createUserPasswordDtoForEdit } from "../../../dtos/userDTO.js";
 import { successCodeMessages } from "../../../messages/codeMessages.js";
-import { createUser, findAllUsers, updateUser, updateUserPassword } from "../../../services/admin/userManagementService.js";
+import { createUser, findAllUsers, updateUser, updateUserPassword } from "../../../services/admin/userService.js";
 import { sanitizeEmptyStrings } from "../../../utils/formattersUtils.js";
 
 export const getAllUsers = async (req, res) => {

@@ -1,32 +1,90 @@
-import { getFulfillmentStatusOptions } from "../../../application/warehouse/fulfillmentStatuses.js";
-import { attachFulfillmentStatusHandler, getFulfillmentStatusSelectApi, initFulfillmentStatusSelect } from "../../select2/domains/fulfillmentStatus.js";
+const startDateSelector = '#startDateInput';
+const endDateSelector = '#endDateInput';
 
-export const setupTableSelectFilter = async ({
-    table = null
+export const getDateFilterApi = () => ({
+    getValues: () => ({
+        startDate: document.querySelector(startDateSelector)?.value || '',
+        endDate: document.querySelector(endDateSelector)?.value || ''
+    })
+});
+
+export const attachDateFilterHandler = ({
+    onChange
+}) => {
+
+    $(startDateSelector).on('change', () => {
+        onChange?.();
+    });
+
+    $(endDateSelector).on('change', () => {
+        onChange?.();
+    });
+};
+
+export const setupTableFilters = async ({
+    filters = []
 } = {}) => {
-    const { getSelect, getValue } = getFulfillmentStatusSelectApi();
-    const select = getSelect();
 
-    if (!select) return { getValue };
+    const values = {};
 
-    const options = await getFulfillmentStatusOptions();
+    for (const filter of filters) {
 
-    select.options.length = 0;
-    options.forEach((option) => {
-        select.add(new Option(option.label, option.value, false, false));
-    });
+        const {
+            key,
+            isSelected = true,
+            getSelectApi,
+            getOptions,
+            initSelect,
+            attachHandler
+        } = filter;
 
-    const selectedValue = options[0]?.value || '';
+        if (filter.customGetValues) {
 
-    initFulfillmentStatusSelect({
-        selectedId: selectedValue || null
-    });
+            values[key || crypto.randomUUID()] = filter.customGetValues;
 
-    if (table?.ajax?.reload) {
-        attachFulfillmentStatusHandler({
-            onChange: () => table.ajax.reload(null, true)
+            if (attachHandler) attachHandler();
+
+            continue;
+        }
+
+        const { getSelect, getValue } = getSelectApi();
+
+        const select = getSelect();
+
+        if (!select) continue;
+
+        const options = await getOptions();
+
+        select.options.length = 0;
+
+        options.forEach((option) => {
+            select.add(
+                new Option(
+                    option.label,
+                    option.value,
+                    false,
+                    false
+                )
+            );
+        });
+
+        initSelect({
+            selectedId: isSelected ? options[0]?.value : null
+        });
+
+        if (attachHandler) attachHandler();
+
+        values[key] = () => ({
+            [key]: getValue?.() || ''
         });
     }
 
-    return { getValue };
+    return {
+        getValues: () => {
+            return Object.assign(
+                {},
+                ...Object.values(values).map(getter => getter())
+            );
+        }
+    };
 };

@@ -26,7 +26,7 @@ const DEPARTMENT_WAREHOUSE = 'ALMACÉN Y PROVEDURÍA';
 const FULFILLMENT_PENDING = 'Pendiente';
 const STATUS_APPROVED = 'Aprobada';
 const REFERENCE_NUMBER_TYPE = 'SAL';
-const MOVEMENT_TYPE_OUT = 'OUT';
+const MOVEMENT_TYPE_OUT = 'ISSUE';
 const FLOAT_EPSILON = 0.000001;
 
 export const findAllGoodsIssues = async ({

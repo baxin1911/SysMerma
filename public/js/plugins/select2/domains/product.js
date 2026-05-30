@@ -1,8 +1,61 @@
 import { openProductModal } from "../../../modules/products/productModal.js";
-import { getAllProducts } from "../../../application/warehouse/products.js";
+import { getAllProducts, getProductOptions } from "../../../application/warehouse/products.js";
 import { initbaseSelect2, setMdbWrapperInputValue, toggleSelectOption } from "../baseSelect.js";
 
 const wrapperSelector = '#presentationDisplayInput';
+const productSelector = '#productFilter';
+
+export const getProductSelectApi = () => ({
+    getSelect: () => document.querySelector(productSelector),
+    getValue: () => document.querySelector(productSelector)?.value || ''
+});
+
+export const initProductFilterSelect = ({
+    selectedId = null
+}) => {
+
+    initbaseSelect2({
+        baseSelector: productSelector,
+        modalSelector: 'body',
+        get: async (params) => ({
+            data: await getProductOptions(params)
+        }),
+        clearOnOpen: false,
+        placeholder: 'Filtrar por producto',
+        data: (params) => ({
+            search: params.term
+        }),
+        processResults: (data) => {
+            const list = data.data || data;
+            return {
+                results: list.map(p => ({
+                    ...p
+                }))
+            };
+        }
+    });
+
+    if (!selectedId) return;
+
+    const currentOption = $(`${ productSelector } option[value=\"${ selectedId }\"]`);
+
+    if (currentOption.length) {
+        $(productSelector).val(selectedId).trigger('change');
+    }
+};
+
+export const attachProductFilterHandler = ({
+    onChange
+}) => {
+    
+    $(productSelector).off('select2:select').on('select2:select', () => {
+            
+        const select = document.querySelector(productSelector);
+        const value = select?.value || '';
+
+        onChange?.(value);
+    });
+};
 
 const initProductSelect = ({ 
     modalSelector, 

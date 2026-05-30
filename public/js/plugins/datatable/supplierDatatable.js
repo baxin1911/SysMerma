@@ -18,12 +18,12 @@ export const createSupplierDatatable = () => {
                 {
                     data: null,
                     title: 'Acciones',
-                    render: () => renderActionButtons({ context: 'client' })
+                    render: () => renderActionButtons({ context: 'supplier' })
                 }
             ],
             buttons: [
                 {
-                    text: 'Nuevo cliente',
+                    text: 'Nuevo proveedor',
                     action: () => openSupplierModal({ mode: 'create' })
                 }
             ]
