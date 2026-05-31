@@ -2,7 +2,7 @@ import { getAllMovements } from "../../application/admin/movements.js";
 import { exportMovementReport } from "../../application/admin/report.js";
 import { getProductOptions } from "../../application/warehouse/products.js";
 import { getSupplierOptions } from "../../application/warehouse/suppliers.js";
-import { buildExcelButton, clearTableFilters } from "../../ui/tableUI.js";
+import { buildExcelButton, clearTableFilters, isClearingFilters } from "../../ui/tableUI.js";
 import { on } from "../../utils/domUtils.js";
 import { formatFileName } from "../../utils/formatters.js";
 import { toggleDisabledElement } from "../../utils/formUtils.js";
@@ -47,6 +47,13 @@ export const createMovementDatatable = async () => {
         }
     });
 
+    const updateTable = () => {
+
+        if (isClearingFilters) return;
+
+        table.ajax.reload();
+    };
+
     filters = await setupTableFilters({
         filters: [
             {
@@ -55,7 +62,7 @@ export const createMovementDatatable = async () => {
                     endDate: document.querySelector('#endDateInput')?.value || ''
                 }),
                 attachHandler: () => attachDateFilterHandler({
-                    onChange: () => table.ajax.reload()
+                    onChange: updateTable
                 })
             },
             {
@@ -65,7 +72,7 @@ export const createMovementDatatable = async () => {
                 getOptions: getMovementTypeData,
                 initSelect: initMovementTypeFilterSelect,
                 attachHandler: () => attachMovementTypeFilterHandler({
-                    onChange: () => table.ajax.reload()
+                    onChange: () => updateTable()
                 })
             },
             {
@@ -75,7 +82,7 @@ export const createMovementDatatable = async () => {
                 getOptions: getSupplierOptions,
                 initSelect: initSupplierFilterSelect,
                 attachHandler: () => attachSupplierFilterHandler({
-                    onChange: () => table.ajax.reload()
+                    onChange: () => updateTable()
                 })
             },
             {
@@ -85,7 +92,7 @@ export const createMovementDatatable = async () => {
                 getOptions: getProductOptions,
                 initSelect: ({ selectedId }) => initProductFilterSelect({ selectedId, supplierFilterSelector }),
                 attachHandler: () => attachProductFilterHandler({
-                    onChange: () => table.ajax.reload()
+                    onChange: () => updateTable()
                 })
             }
         ]

@@ -19,7 +19,7 @@ export const exportMovementReport = async (req, res) => {
         startDate: req.query.startDate || '',
         endDate: req.query.endDate || '',
         search: req.query.search || '',
-        type: req.query.type || '',
+        movementType: req.query.movementType || '',
         productId: req.query.productId || '',
         supplierId: req.query.supplierId || '',
         goodsIssueId: req.query.goodsIssueId || '',

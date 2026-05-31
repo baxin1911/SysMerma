@@ -60,7 +60,11 @@ export const findAllMovements = async ({
         const movements = await db.movementDetail.findMany({
             skip,
             take,
-
+            orderBy: {
+                movement: {
+                    [orderBy]: orderDir
+                }
+            },
             where,
 
             include: {

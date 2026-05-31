@@ -1,6 +1,8 @@
 import { downloadBlob } from "../utils/downloadBlob.js";
 import { notifications } from "../plugins/swal/swalComponent.js";
 
+export let isClearingFilters = false;
+
 export const buildExcelButton = ({
     filename = 'reporte.xlsx',
     request
@@ -27,6 +29,8 @@ export const buildExcelButton = ({
 
 export const clearTableFilters = (table) => {
 
+    isClearingFilters = true;
+
     const filterElements = document.querySelectorAll(
         '.table-filters select, .table-filters input'
     );
@@ -39,4 +43,8 @@ export const clearTableFilters = (table) => {
             element.dispatchEvent(new Event('change'));
         }
     });
+
+    isClearingFilters = false;
+
+    table.ajax.reload();
 }

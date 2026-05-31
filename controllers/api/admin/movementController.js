@@ -5,7 +5,7 @@ export const getAllMovements = async (req, res) => {
     const start = parseInt(req.query.start) || 0;
     const length = parseInt(req.query.length) || 10;
     const search = req.query['search[value]'] || '';
-    const starDate = req.query.starDate || '';
+    const startDate = req.query.startDate || '';
     const endDate = req.query.endDate || '';
     const movementType = req.query.movementType || '';
     const productId = req.query.productId || '';
@@ -18,7 +18,7 @@ export const getAllMovements = async (req, res) => {
         skip: start,
         take: length,
         search,
-        starDate,
+        startDate,
         endDate,
         movementType,
         productId,
