@@ -12,7 +12,7 @@ export const initProfileSelect = ({
 
     initbaseSelect2({
         baseSelector,
-        modalSelector,
+        containerSelector: modalSelector,
         get: getAllProfiles,
         clearOnOpen,
         data,

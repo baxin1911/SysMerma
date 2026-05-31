@@ -1,43 +1,60 @@
-<% const filters = [
-    {
-        id: 'startDateInput',
-        name: 'startDate',
-        type: 'date',
-        label: 'Fecha de inicio:',
-        col: '6'
-    },
-    {
-        id: 'endDateInput',
-        name: 'endDate',
-        type: 'date',
-        label: 'Fecha de fin:',
-        col: '6'
+<% const filters = {
+    dateInputs: [
+        {
+            id: 'startDateInput',
+            name: 'startDate',
+            type: 'date',
+            label: 'Fecha de inicio:',
+            col: '6'
+        },
+        {
+            id: 'endDateInput',
+            name: 'endDate',
+            type: 'date',
+            label: 'Fecha de fin:',
+            col: '6'
+        }
+    ],
+    selectInputs: [
+        {
+            id: 'movementTypeFilter',
+            label: 'Tipo de movimiento:',
+            col: 'col-12 col-md-6'
+        },
+        {
+            id: 'supplierFilter',
+            label: 'Proveedor:',
+            col: 'col-12 col-md-6'
+        },
+        {
+            id: 'productFilter',
+            label: 'Material:',
+            col: 'col-12 col-md-6'
+        }
+    ]
+} %>
+
+<div class="row table-filters">
+    <% filters.selectInputs.forEach(filter => { %>
+        <%- include('../../../shared/tableSelectFilter', { 
+            id: filter.id, 
+            label: filter.label,
+            col: filter.col
+        }) %>
+    <% }) %>
+</div>
+
+<div class="row mb-3 table-filters">
+    <%- include('../../../shared/outlineInputList', { inputs: filters.dateInputs }) %>
+</div>
+
+<%- include('../../../shared/button', { 
+    button : {
+        id: 'clearFiltersButton',
+        class: 'btn btn-secondary mb-3',
+        content: 'Limpiar filtros'
     }
-] %>
-
-<div class="row">
-    <%- include('../../../shared/tableSelectFilter', { 
-        id: 'movementTypeFilter', 
-        label: 'Tipo de movimiento',
-        col: 'col-12 col-md-6'
-    }) %>
-
-    <%- include('../../../shared/tableSelectFilter', { 
-        id: 'productFilter', 
-        label: 'Material',
-        col: 'col-12 col-md-6'
-    }) %>
-
-    <%- include('../../../shared/tableSelectFilter', { 
-        id: 'supplierFilter', 
-        label: 'Proveedor',
-        col: 'col-12 col-md-6'
-    }) %>
-</div>
-
-<div class="row">
-    <%- include('../../../shared/outlineInputList', { inputs: filters }) %>
-</div>
+}) %>
 
 <%- include('../../../shared/mainTable', { title: 'Movmientos' }) %>
 

@@ -5,7 +5,7 @@ import { hasPermission } from "../../utils/permissions.js";
 import { getAllProducts } from "../../application/warehouse/products.js";
 import { renderMaterialName } from "./utils/renderProductDatatable.js";
 import { getResponsiveRowData } from "./utils/responsive.js";
-import { buildExcelButton } from "../../ui/excelUI.js";
+import { buildExcelButton } from "../../ui/tableUI.js";
 import { exportWarehouseReport } from "../../application/warehouse/report.js";
 import { formatFileName } from "../../utils/formatters.js";
 import { openStockAdjustmentModal } from "../../pages/warehouse/productsPage.js";

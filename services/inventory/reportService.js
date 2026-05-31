@@ -1,18 +1,30 @@
 import { toNumber } from "../../utils/formattersUtils.js";
 import { findAllMovements } from "./movementQueryService.js";
 
-export const findMovementReportRows = async () => {
+export const findMovementReportRows = async ({
+    startDate = '',
+    endDate = '',
+    search = '',
+    type = '',
+    productId = '',
+    supplierId = '',
+    goodsIssueId = '',
+    goodsReceiptId = '',
+    stockAdjustmentId = ''
+} = {}) => {
 
     const movementsResult = await findAllMovements({
         skip: 0,
         take: 100000,
-        type: '',
-        search: '',
-        productId: '',
-        supplierId: '',
-        goodsIssueId: '',
-        goodsReceiptId: '',
-        stockAdjustmentId: '',
+        startDate,
+        endDate,
+        type,
+        search,
+        productId,
+        supplierId,
+        goodsIssueId,
+        goodsReceiptId,
+        stockAdjustmentId,
         orderBy: 'date',
         orderDir: 'desc',
     });

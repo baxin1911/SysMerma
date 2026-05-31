@@ -5,7 +5,7 @@ const wrapperSelector = '#presentationDisplayInput';
 
 export const initbaseSelect2 = ({ 
     baseSelector, 
-    modalSelector,
+    containerSelector,
     multiple = false,
     get, 
     clearOnOpen = true,
@@ -33,7 +33,7 @@ export const initbaseSelect2 = ({
         language: 'es',
         multiple,
         placeholder: placeholder, 
-        dropdownParent: $(modalSelector),
+        dropdownParent: $(containerSelector),
         minimumInputLength: 0, 
         ajax: {  
             dataType: 'json', 
@@ -72,7 +72,7 @@ export const initbaseSelect2 = ({
             $(baseSelector).val(null).trigger('change');
 
             setMdbWrapperInputValue({
-                selector: `${ modalSelector } ${ wrapperSelector }`,
+                selector: `${ containerSelector } ${ wrapperSelector }`,
                 value: ''
             });
 

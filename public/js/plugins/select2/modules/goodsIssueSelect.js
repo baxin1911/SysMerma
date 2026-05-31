@@ -97,6 +97,7 @@ export const initGoodsIssueFormSelect2 = () => {
     bindDependency({
         sourceSelector: departmentScopedSelector,
         onChange: ({ value }) => {
+            
             const isDisabled = !value;
 
             syncInternalClientProjectNumber();

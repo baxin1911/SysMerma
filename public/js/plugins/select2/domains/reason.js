@@ -11,7 +11,7 @@ export const initReasonSelect = ({
 
     initbaseSelect2({
         baseSelector,
-        modalSelector,
+        containerSelector: modalSelector,
         get: getAllReasons,
         clearOnOpen,
         data,

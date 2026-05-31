@@ -12,7 +12,7 @@ export const initDepartmentSelect = ({
     initbaseSelect2({
         baseSelector,
         clearOnOpen,
-        modalSelector,
+        containerSelector: modalSelector,
         multiple,
         get: getAllDepartments,
         placeholder: 'Buscar área...',

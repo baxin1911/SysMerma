@@ -9,7 +9,7 @@ export const initUnitMeasureSelect = ({
 
     initbaseSelect2({
         baseSelector,
-        modalSelector,
+        containerSelector: modalSelector,
         get: getAllUnitMeasures,
         placeholder: 'Buscar unidad...',
         processResults: (data) => {

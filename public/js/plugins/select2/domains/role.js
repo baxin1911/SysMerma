@@ -8,7 +8,7 @@ export const initRoleSelect = ({
 
     initbaseSelect2({
         baseSelector,
-        modalSelector,
+        containerSelector: modalSelector,
         get: getAllRoles,
         placeholder: 'Buscar rol...',
         processResults: (data) => {

@@ -3,16 +3,16 @@ import { initbaseSelect2 } from "../baseSelect.js";
 const movementTypeSelector = '#movementTypeFilter';
 export const getMovementTypeData = () => ([
     {
-        value: 'ENTRY',
-        label: 'Entrada'
+        id: 'ENTRY',
+        text: 'Entrada'
     },
     {
-        value: 'ISSUE',
-        label: 'Salida'
+        id: 'ISSUE',
+        text: 'Salida'
     },
     {
-        value: 'ADJUSTMENT',
-        label: 'Ajuste'
+        id: 'ADJUSTMENT',
+        text: 'Ajuste'
     }
 ]);
 
@@ -27,19 +27,22 @@ export const initMovementTypeFilterSelect = ({
 
     initbaseSelect2({
         baseSelector: movementTypeSelector,
-        modalSelector: 'body',
+        containerSelector: 'body',
         get: async () => ({
             data: getMovementTypeData()
         }),
         clearOnOpen: false,
         placeholder: 'Filtrar por tipo de movimiento',
-        data: () => ({}),
+        data: (params) => ({
+            search: params.term,
+        }),
         processResults: (data) => {
+
             const list = data.data || data;
+
             return {
                 results: list.map(status => ({
-                    id: status.value,
-                    text: status.label
+                    ...status
                 }))
             };
         }
@@ -49,9 +52,7 @@ export const initMovementTypeFilterSelect = ({
 
     const currentOption = $(`${ movementTypeSelector } option[value=\"${ selectedId }\"]`);
 
-    if (currentOption.length) {
-        $(movementTypeSelector).val(selectedId).trigger('change');
-    }
+    if (currentOption.length) $(movementTypeSelector).val(selectedId).trigger('change');
 }
 
 export const attachMovementTypeFilterHandler = ({

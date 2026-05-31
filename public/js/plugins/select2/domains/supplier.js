@@ -15,7 +15,7 @@ export const initSupplierFilterSelect = ({
 
     initbaseSelect2({
         baseSelector: supplierSelector,
-        modalSelector: 'body',
+        containerSelector: 'body',
         get: async (params) => ({
             data: await getSupplierOptions(params)
         }),
@@ -43,9 +43,7 @@ export const initSupplierFilterSelect = ({
 
     const currentOption = $(`${ supplierSelector } option[value=\"${ selectedId }\"]`);
 
-    if (currentOption.length) {
-        $(supplierSelector).val(selectedId).trigger('change');
-    }
+    if (currentOption.length) $(supplierSelector).val(selectedId).trigger('change');
 };
 
 export const attachSupplierFilterHandler = ({
@@ -69,7 +67,7 @@ const initSupplierSelect = ({
 
     initbaseSelect2({
         baseSelector,
-        modalSelector,
+        containerSelector: modalSelector,
         get: getAllSuppliers,
         placeholder: 'Buscar proveedor...',
         processResults: (data) => {

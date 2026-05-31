@@ -9,7 +9,7 @@ export const initPresentationSelect = ({
 
     initbaseSelect2({
         baseSelector,
-        modalSelector,
+        containerSelector: modalSelector,
         get: getAllPresentations,
         placeholder: 'Buscar presentación...',
         processResults: (data) => {

@@ -14,7 +14,7 @@ export const initFulfillmentStatusFilterSelect = ({
 
     initbaseSelect2({
         baseSelector: fulfillmentStatusSelector,
-        modalSelector: 'body',
+        containerSelector: 'body',
         get: async () => ({
             data: await getFulfillmentStatusOptions()
         }),

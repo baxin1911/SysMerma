@@ -11,22 +11,36 @@ export const getProductSelectApi = () => ({
 });
 
 export const initProductFilterSelect = ({
-    selectedId = null
+    selectedId = null,
+    supplierFilterSelector = null
 }) => {
+
+    const baseSelector = 'body';
 
     initbaseSelect2({
         baseSelector: productSelector,
-        modalSelector: 'body',
+        containerSelector: baseSelector,
         get: async (params) => ({
             data: await getProductOptions(params)
         }),
         clearOnOpen: false,
         placeholder: 'Filtrar por producto',
-        data: (params) => ({
-            search: params.term
-        }),
+        data: (params) => {
+
+            let supplierId;
+
+            if (supplierFilterSelector) supplierId = $(`${ baseSelector } ${ supplierFilterSelector }`).val();
+            else supplierId = ''
+
+            return {
+                search: params.term,
+                supplierId
+            };
+        },
         processResults: (data) => {
+
             const list = data.data || data;
+            
             return {
                 results: list.map(p => ({
                     ...p
@@ -39,9 +53,7 @@ export const initProductFilterSelect = ({
 
     const currentOption = $(`${ productSelector } option[value=\"${ selectedId }\"]`);
 
-    if (currentOption.length) {
-        $(productSelector).val(selectedId).trigger('change');
-    }
+    if (currentOption.length) $(productSelector).val(selectedId).trigger('change');
 };
 
 export const attachProductFilterHandler = ({
@@ -66,7 +78,7 @@ const initProductSelect = ({
 
     initbaseSelect2({
         baseSelector,
-        modalSelector,
+        containerSelector: modalSelector,
         get: getAllProducts,
         placeholder: 'Buscar producto...',
         data: (params) => {
@@ -190,6 +202,7 @@ const attachProductHandler = ({
         });
 
         const value = data.presentationName || '';
+
         setMdbWrapperInputValue({
             selector: `${ modalSelector } ${ wrapperSelector }`,
             value

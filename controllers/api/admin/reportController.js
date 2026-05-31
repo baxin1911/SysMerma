@@ -15,7 +15,17 @@ const getReportFilename = () => {
 
 export const exportMovementReport = async (req, res) => {
 
-    const rows = await findMovementReportRows();
+    const rows = await findMovementReportRows({
+        startDate: req.query.startDate || '',
+        endDate: req.query.endDate || '',
+        search: req.query.search || '',
+        type: req.query.type || '',
+        productId: req.query.productId || '',
+        supplierId: req.query.supplierId || '',
+        goodsIssueId: req.query.goodsIssueId || '',
+        goodsReceiptId: req.query.goodsReceiptId || '',
+        stockAdjustmentId: req.query.stockAdjustmentId || ''
+    });
 
     const data = [
         [
