@@ -16,6 +16,11 @@ const productWritePermissions = {
     departments: ['ALMACÉN Y PROVEDURÍA', 'SISTEMAS']
 };
 
+const productStockWritePermissions = {
+    roles: ['Administrador del sistema'],
+    departments: ['SISTEMAS']
+};
+
 router.get(
     '/',
     verifyApiTokenRequired,
@@ -46,7 +51,7 @@ router.patch(
     verifyApiTokenRequired,
     productStockValidation,
     validate,
-    authorizeUserApi(productWritePermissions),
+    authorizeUserApi(productStockWritePermissions),
     editProductStock
 );
 

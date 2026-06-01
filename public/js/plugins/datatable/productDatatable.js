@@ -1,4 +1,4 @@
-import { openProductModal } from "../../modules/products/productModal.js";
+import { openProductModal, openStockAdjustmentModal } from "../../modules/products/productModal.js";
 import { createDataTable, renderActionButtons } from "./baseDatatable.js";
 import { notifications } from "../swal/swalComponent.js";
 import { hasPermission } from "../../utils/permissions.js";
@@ -8,33 +8,36 @@ import { getResponsiveRowData } from "./utils/responsive.js";
 import { buildExcelButton } from "../../ui/tableUI.js";
 import { exportWarehouseReport } from "../../application/warehouse/report.js";
 import { formatFileName } from "../../utils/formatters.js";
-import { openStockAdjustmentModal } from "../../pages/warehouse/productsPage.js";
 
 const selectorTable = '#table';
 let lastLowStockNotification = '';
 let stockSocketConfigured = false;
 
 const tableElement = document.querySelector(selectorTable);
-tableElement.innerHTML = `
-    <thead>
-        <tr>
-            <th rowspan="2">Material</th>
-            <th colspan="2">Medidas</th>
-            <th rowspan="2">Compra</th>
-            <th rowspan="2">Stock Mínimo</th>
-            <th rowspan="2">Presentación</th>
-            <th colspan="2">Conversión</th>
-            <th rowspan="2">Costo Unitario</th>
-            <th rowspan="2">Acciones</th>
-        </tr>
-        <tr>
-            <th>Base</th>
-            <th>Altura</th>
-            <th>Cantidad</th>
-            <th>Unidad</th>
-        </tr>
-    </thead>
-`;
+
+const renderProductTableHeader = ({ canSeeCost, canManageProducts }) => {
+
+    tableElement.innerHTML = `
+        <thead>
+            <tr>
+                <th rowspan="2">Material</th>
+                <th colspan="2">Medidas</th>
+                <th rowspan="2">Compra</th>
+                <th rowspan="2">Stock Mínimo</th>
+                <th rowspan="2">Presentación</th>
+                <th colspan="2">Conversión</th>
+                ${ canSeeCost ? '<th rowspan="2">Costo Unitario</th>' : '' }
+                ${ canManageProducts ? '<th rowspan="2">Acciones</th>' : '' }
+            </tr>
+            <tr>
+                <th>Base</th>
+                <th>Altura</th>
+                <th>Cantidad</th>
+                <th>Unidad</th>
+            </tr>
+        </thead>
+    `;
+};
 
 const configureStockRealtime = (table) => {
 
@@ -49,7 +52,12 @@ const configureStockRealtime = (table) => {
 
 export const createProductDatatable = (context) => {
 
-    const { isWarehouse, isSystem, isSales } = hasPermission(context);
+    const { hasRole, isAdmin, isWarehouse, isSystem, isSales } = hasPermission(context);
+    const isWarehouseProductManager = isWarehouse && (hasRole('Almacenista') || hasRole('Coordinador') || hasRole('Auxiliar'));
+    const canSeeCost = isWarehouse || isSystem || isSales;
+    const canManageProducts = isAdmin || isWarehouseProductManager;
+
+    renderProductTableHeader({ canSeeCost, canManageProducts });
 
     const columns = [
         { 
@@ -66,15 +74,15 @@ export const createProductDatatable = (context) => {
         { data: 'unitMeasure.name', title: 'Unidad' }
     ];
 
-    if (isWarehouse || isSystem || isSales) {
+    if (canSeeCost) {
         columns.push({ data: 'maxUnitCost', title: 'Costo Unitario de Conversión' });
     }
 
-    if (isWarehouse || isSystem) {
+    if (canManageProducts) {
         columns.push({
             data: null,
             title: 'Acciones',
-            render: () => renderActionButtons({ status: 'Abierta', context: 'product' })
+            render: () => renderActionButtons({ status: 'Abierta', context: 'product', canAdjustStock: isAdmin })
         });
     }
 

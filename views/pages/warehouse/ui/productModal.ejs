@@ -2,6 +2,28 @@
     id: 'productForm',
     canApprove: false,
     invoice: false,
+    stockAdjustment: {
+        selects: [
+            {
+                id: 'reasonInput',
+                name: 'reasonId',
+                class: 'reason-select',
+                col: '6'
+            }
+        ],
+        inputs: [
+            {
+                id: 'quantityInput',
+                type: 'number',
+                name: 'newStock',
+                label: 'Nueva cantidad',
+                attrs: {
+                    'min': '0'
+                },
+                col: '6'
+            },
+        ],
+    },
     selects: [
         {
             id: 'productSupplierInput',
@@ -60,8 +82,12 @@
             },
             col: '6'
         },
-    ]
-    ,
+    ],
+    textArea: {
+        id: 'observationsInput',
+        name: 'observations',
+        label: 'Observaciones',
+    },
     checkboxes: [
         {
             id: 'isActiveInput',

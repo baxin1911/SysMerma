@@ -186,6 +186,31 @@ export const clearFormErrors = (form) => {
     }
 };
 
+const getFormFieldContainer = (form, fieldName) => {
+
+    const field = form.elements[fieldName];
+
+    if (!field) return null;
+
+    return field.closest('[class*="col-"]') || field.closest('.form-outline') || field.parentElement;
+};
+
+export const toggleFormFields = ({
+    form,
+    fields,
+    isVisible
+}) => {
+
+    fields.forEach((fieldName) => {
+
+        const field = form.elements[fieldName];
+        const container = getFormFieldContainer(form, fieldName);
+
+        if (container) container.classList.toggle('d-none', !isVisible);
+        if (field) field.disabled = !isVisible;
+    });
+};
+
 export const setFormReadOnly = ({
     form,
     fields = 'all',
