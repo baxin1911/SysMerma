@@ -3,22 +3,23 @@ import { authorizeUserApi, verifyApiTokenRequired } from '../../../middleware/au
 import { editProduct, editProductStock, getAllProducts, registerProduct } from '../../../controllers/api/warehouse/productController.js';
 import { productStockValidation, productValidation } from '../../../validators/forms/productValidations.js';
 import { validate } from '../../../middleware/validatorMiddleware.js';
+import { departments, productManagerRoles } from '../../../utils/permissionsUtils.js';
 
 const router = express.Router();
 
 const productReadPermissions = {
     roles: ['Almacenista', 'Coordinador', 'Auxiliar', 'Operador', 'Instalador', 'Vendedor', 'Administrador del sistema'],
-    departments: ['ALMACÉN Y PROVEDURÍA', 'SISTEMAS', 'VENTAS Y PROYECTOS ESPECIALES']
+    departments: [departments.warehouse, departments.systems, departments.sales]
 };
 
 const productWritePermissions = {
-    roles: ['Almacenista', 'Coordinador', 'Auxiliar', 'Administrador del sistema'],
-    departments: ['ALMACÉN Y PROVEDURÍA', 'SISTEMAS']
+    roles: productManagerRoles,
+    departments: [departments.warehouse, departments.systems]
 };
 
 const productStockWritePermissions = {
-    roles: ['Administrador del sistema'],
-    departments: ['SISTEMAS']
+    roles: productManagerRoles,
+    departments: [departments.systems]
 };
 
 router.get(
@@ -31,27 +32,27 @@ router.get(
 router.post(
     '/',
     verifyApiTokenRequired,
+    authorizeUserApi(productWritePermissions),
     productValidation,
     validate,
-    authorizeUserApi(productWritePermissions),
     registerProduct
 );
 
 router.patch(
     '/:id',
     verifyApiTokenRequired,
+    authorizeUserApi(productWritePermissions),
     productValidation,
     validate,
-    authorizeUserApi(productWritePermissions),
     editProduct
 );
 
 router.patch(
     '/:id/stock',
     verifyApiTokenRequired,
+    authorizeUserApi(productStockWritePermissions),
     productStockValidation,
     validate,
-    authorizeUserApi(productStockWritePermissions),
     editProductStock
 );
 

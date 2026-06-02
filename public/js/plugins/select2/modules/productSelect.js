@@ -1,4 +1,3 @@
-import { openSupplierModal } from "../../../modules/suppliers/supplierModal.js";
 import { initPresentationSelect, togglePresentationOption } from "../domains/presentation.js";
 import { initReasonSelect, toggleReasonOption } from "../domains/reason.js";
 import { setupSupplierSelect, toggleSupplierOption } from "../domains/supplier.js";
@@ -10,9 +9,9 @@ const presentationSelector = '#presentationInput';
 const reasonSelector = '#reasonInput';
 
 export const initProductFormSelect2 = ({ 
-    modalSelector,
-    isStockAdjustment = false
-}) => {
+    modalSelector = '#productModal',
+    includeReasonSelect = false
+} = {}) => {
 
     const supplierScopedSelector = `${ modalSelector } ${ supplierSelector }`;
     const unitMeasureScopedSelector = `${ modalSelector } ${ unitMeasureSelector }`;
@@ -36,7 +35,7 @@ export const initProductFormSelect2 = ({
         allowCreate: false
     });
 
-    if (!isStockAdjustment) return;
+    if (!includeReasonSelect) return;
 
     initReasonSelect({
         modalSelector,
@@ -46,10 +45,10 @@ export const initProductFormSelect2 = ({
 };
 
 export const setProductFormSelectOptions = ({ 
-    modalSelector,
-    isStockAdjustment = false,
+    modalSelector = '#productModal',
+    includeReasonSelect = false,
     data = null 
-}) => {
+} = {}) => {
 
     const supplierScopedSelector = `${ modalSelector } ${ supplierSelector }`;
     const unitMeasureScopedSelector = `${ modalSelector } ${ unitMeasureSelector }`;
@@ -74,7 +73,7 @@ export const setProductFormSelectOptions = ({
         name: data?.presentation?.name
     });
 
-    if (!isStockAdjustment) return;
+    if (!includeReasonSelect) return;
 
     toggleReasonOption({
         selector: reasonScopedSelector,

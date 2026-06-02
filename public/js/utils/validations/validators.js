@@ -24,11 +24,21 @@ export const productValidators = {
     height: (value) => validateNumberOptional(value, 'La altura'),
 }
 
-export const productStockValidators = {
-    newStock: (value) => validateNumber(value, 'El nuevo stock'),
-    reasonId: (value) => isEmptyOrNull(value, 'La razón de ajuste'),
+const createProductStockValidators = ({ validateStock, validateReason }) => ({
+    newStock: validateStock,
+    reasonId: validateReason,
     observations: (value) => validateTextOptional(value, 500, 'Las observaciones'),
-}
+});
+
+export const productInitialStockValidators = createProductStockValidators({
+    validateStock: (value) => validateNumberOptional(value, 'El stock inicial'),
+    validateReason: (value, formData = {}) => Number(formData.newStock) > 0 ? isEmptyOrNull(value, 'La razón de ajuste') : null
+});
+
+export const productStockValidators = createProductStockValidators({
+    validateStock: (value) => validateNumber(value, 'El nuevo stock'),
+    validateReason: (value) => isEmptyOrNull(value, 'La razón de ajuste')
+});
 
 export const loginValidators = {
     name: validateUsername,

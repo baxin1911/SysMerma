@@ -11,7 +11,9 @@ const PRISMA_RECORD_NOT_FOUND = 'P2025';
 
 const createProductInTransaction = async ({
     tx,
-    productDto
+    productDto,
+    userId = null,
+    canSetInitialStock = false
 }) => {
 
     const {
@@ -39,6 +41,18 @@ const createProductInTransaction = async ({
         supplierId: relations.supplierId,
         productId: createdProduct.id,
     });
+
+    if (canSetInitialStock && userId && productDto.initialStock > 0 && productDto.reasonId) {
+        return createStockAdjustment({
+            tx,
+            productId: createdProduct.id,
+            supplierId: relations.supplierId,
+            reasonId: productDto.reasonId,
+            observations: productDto.observations,
+            newStock: productDto.initialStock,
+            userId
+        });
+    }
 
     return findSupplierProductByIds({
         tx,
@@ -112,14 +126,16 @@ export const existsProduct = async ({
     return productExists;
 }
 
-export const createProduct = async (productDto) => {
+export const createProduct = async (productDto, { userId = null, canSetInitialStock = false } = {}) => {
 
     try {
 
         return getDb().$transaction((tx) =>
             createProductInTransaction({
                 tx,
-                productDto
+                productDto,
+                userId,
+                canSetInitialStock
             })
         );
 

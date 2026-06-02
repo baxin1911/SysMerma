@@ -3,6 +3,7 @@ import { successCodeMessages } from "../../../messages/codeMessages.js";
 import { findAllProducts, createProduct, updateProduct, updateProductStock } from "../../../services/warehouse/products/productService.js";
 import { sanitizeEmptyStrings } from "../../../utils/formattersUtils.js";
 import { getDataTableOrder, getDataTablePaging, getDataTableSearch } from "../../../utils/requestQueryUtils.js";
+import { canAdjustProductStock, canManageProducts } from "../../../utils/permissionsUtils.js";
 
 export const getAllProducts = async (req, res) => {
 
@@ -33,7 +34,10 @@ export const registerProduct = async (req, res) => {
     const productDto = createProductDtoForRegister(req.body);
     const sanitizedProductDto = sanitizeEmptyStrings(productDto);
 
-    const product = await createProduct(sanitizedProductDto);
+    const product = await createProduct(sanitizedProductDto, {
+        userId: canManageProducts(req.user) ? req.user.id : null,
+        canSetInitialStock: canAdjustProductStock(req.user)
+    });
 
     return res.status(200).json({
         product,

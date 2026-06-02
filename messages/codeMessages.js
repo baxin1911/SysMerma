@@ -88,7 +88,8 @@ export const errorMap = {
     },
     newStock: {
         REQUIRED: 'NEW_STOCK_REQUIRED',
-        INVALID_NUMBER: 'NEW_STOCK_INVALID_NUMBER'
+        INVALID_NUMBER: 'NEW_STOCK_INVALID_NUMBER',
+        TOO_LONG: 'NEW_STOCK_TOO_LONG'
     },
     minStock: {
         REQUIRED: 'MIN_STOCK_REQUIRED',
