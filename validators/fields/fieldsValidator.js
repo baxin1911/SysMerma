@@ -108,7 +108,7 @@ export const validateNumber = (fieldName) => {
 
     return body(fieldName)
         .notEmpty().withMessage(errors.REQUIRED)
-        .isFloat().withMessage(errors.INVALID_NUMBER)
+        .isFloat({ min: 0 }).withMessage(errors.INVALID_NUMBER)
         .matches(/^\d{1,8}(\.\d{1,2})?$/).withMessage(errors.TOO_LONG)
         .toFloat()
 }
@@ -120,7 +120,7 @@ export const validateNumberOptional = (fieldName, { disableTooLong = false } = {
     return body(fieldName)
         .if(body(fieldName).notEmpty())
         .notEmpty().withMessage(errors.REQUIRED)
-        .isFloat().withMessage(errors.INVALID_NUMBER)
+        .isFloat({ min: 0 }).withMessage(errors.INVALID_NUMBER)
         .if(() => !disableTooLong)
         .matches(/^\d{1,7}(\.\d{1,3})?$/).withMessage(errors.TOO_LONG)
         .toFloat()

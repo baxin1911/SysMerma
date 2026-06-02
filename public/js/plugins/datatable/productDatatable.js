@@ -1,7 +1,7 @@
 import { openProductModal, openStockAdjustmentModal } from "../../modules/products/productModal.js";
 import { createDataTable, renderActionButtons } from "./baseDatatable.js";
 import { notifications } from "../swal/swalComponent.js";
-import { hasPermission } from "../../utils/permissions.js";
+import { canAdjustProductStock, canManageProducts, hasPermission } from "../../utils/permissions.js";
 import { getAllProducts } from "../../application/warehouse/products.js";
 import { renderMaterialName } from "./utils/renderProductDatatable.js";
 import { getResponsiveRowData } from "./utils/responsive.js";
@@ -39,6 +39,7 @@ const renderProductTableHeader = ({ canSeeCost, canManageProducts }) => {
     `;
 };
 
+
 const configureStockRealtime = (table) => {
 
     if (stockSocketConfigured) return;
@@ -52,12 +53,12 @@ const configureStockRealtime = (table) => {
 
 export const createProductDatatable = (context) => {
 
-    const { hasRole, isAdmin, isWarehouse, isSystem, isSales } = hasPermission(context);
-    const isWarehouseProductManager = isWarehouse && (hasRole('Almacenista') || hasRole('Coordinador') || hasRole('Auxiliar'));
+    const { isWarehouse, isSystem, isSales } = hasPermission(context);
+    const userCanManageProducts = canManageProducts(context);
+    const canAdjustStock = canAdjustProductStock(context);
     const canSeeCost = isWarehouse || isSystem || isSales;
-    const canManageProducts = isAdmin || isWarehouseProductManager;
 
-    renderProductTableHeader({ canSeeCost, canManageProducts });
+    renderProductTableHeader({ canSeeCost, canManageProducts: userCanManageProducts });
 
     const columns = [
         { 
@@ -78,11 +79,11 @@ export const createProductDatatable = (context) => {
         columns.push({ data: 'maxUnitCost', title: 'Costo Unitario de Conversión' });
     }
 
-    if (canManageProducts) {
+    if (userCanManageProducts) {
         columns.push({
             data: null,
             title: 'Acciones',
-            render: () => renderActionButtons({ status: 'Abierta', context: 'product', canAdjustStock: isAdmin })
+            render: () => renderActionButtons({ status: 'Abierta', context: 'product', canAdjustStock })
         });
     }
 
@@ -124,6 +125,10 @@ export const createProductDatatable = (context) => {
                 );
             },
             buttons: [
+                ...(userCanManageProducts ? [{
+                    text: '<i class="fa-solid fa-plus me-2"></i>Registrar producto',
+                    action: () => openProductModal({ mode: 'create', canAdjustStock })
+                }] : []),
                 buildExcelButton({
                     filename: formatFileName('reporte_inventario_productos'),
                     request: () => exportWarehouseReport(buildTableExportParams(table))
@@ -138,9 +143,8 @@ export const createProductDatatable = (context) => {
 
         const data = getResponsiveRowData(table, this);
     
-        openProductModal({ mode: 'edit', data });
+        openProductModal({ mode: 'edit', data, canAdjustStock });
     });
-
     $(`${ selectorTable } tbody`).on('click', '.btn-adjust-stock', function() {
 
         const data = getResponsiveRowData(table, this);
