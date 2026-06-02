@@ -1,20 +1,22 @@
 import { findAllUnitMeasures } from "../../../services/warehouse/unitMeasureService.js";
+import { getDataTableOrder, getDataTablePaging, getDataTableSearch } from "../../../utils/requestQueryUtils.js";
 
 export const getAllUnitMeasures = async (req, res) => {
 
-    const start = parseInt(req.query.start) || 0;
-    const length = parseInt(req.query.length) || 10;
-    const search = req.query['search[value]'] || req.query.search || '';
+    const { skip, take } = getDataTablePaging(req.query);
+    const search = getDataTableSearch(req.query);
 
     const columns = ['name'];
-    const orderColumnIndex = req.query.order?.[0]?.column || 0;
-    const orderDir = req.query.order?.[0]?.dir || 'asc';
+    const { orderBy, orderDir } = getDataTableOrder({
+        query: req.query,
+        columns
+    });
 
     const result = await findAllUnitMeasures({
-        skip: start,
-        take: length,
+        skip,
+        take,
         search,
-        orderBy: columns[orderColumnIndex],
+        orderBy,
         orderDir
     });
 

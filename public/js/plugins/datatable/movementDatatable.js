@@ -2,7 +2,7 @@ import { getAllMovements } from "../../application/admin/movements.js";
 import { exportMovementReport } from "../../application/admin/report.js";
 import { getProductOptions } from "../../application/warehouse/products.js";
 import { getSupplierOptions } from "../../application/warehouse/suppliers.js";
-import { buildExcelButton, clearTableFilters, isClearingFilters } from "../../ui/tableUI.js";
+import { buildExcelButton, buildTableExportParams, clearTableFilters, isClearingFilters } from "../../ui/tableUI.js";
 import { on } from "../../utils/domUtils.js";
 import { formatFileName } from "../../utils/formatters.js";
 import { toggleDisabledElement } from "../../utils/formUtils.js";
@@ -137,7 +137,7 @@ export const createMovementDatatable = async () => {
             buttons: [
                 buildExcelButton({
                     filename: formatFileName('reporte_movimientos'),
-                    request: () => exportMovementReport(filters.getValues())
+                    request: () => exportMovementReport(buildTableExportParams(table, filters.getValues()))
                 })
             ]
         }

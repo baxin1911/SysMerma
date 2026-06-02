@@ -23,6 +23,10 @@ export const findAllReasons = async ({
         where,
         orderBy: {
             [orderBy]: orderDir
+        },
+        select: {
+            id: true,
+            name: true
         }
     });
 

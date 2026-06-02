@@ -6,27 +6,30 @@ import {
     updateGoodsIssue,
     updateGoodsIssueDetails
 } from "../../../services/warehouse/goodsIssues/goodsIssueService.js";
+import { getDataTableOrder, getDataTablePaging, getDataTableSearch } from "../../../utils/requestQueryUtils.js";
 import { createStockNotification, notifyProductStockStatusChanges } from "../../../services/warehouse/notificationService.js";
 import { emitStockUpdated } from "../../../utils/socketUtils.js";
 import { sanitizeEmptyStrings } from "../../../utils/formattersUtils.js";
 
 export const getAllGoodsIssues = async (req, res) => {
 
-    const start = parseInt(req.query.start) || 0;
-    const length = parseInt(req.query.length) || 10;
-    const search = req.query['search[value]'] || '';
+    const { skip, take } = getDataTablePaging(req.query);
+    const search = getDataTableSearch(req.query);
     const fulfillmentStatusId = req.query.fulfillmentStatusId || '';
 
-    const columns = ['referenceNumber'];
-    const orderColumnIndex = req.query.order?.[0]?.column || 0;
-    const orderDir = req.query.order?.[0]?.dir || 'desc';
+    const columns = ['referenceNumber', 'requestDate', 'departmentName', 'projectNumber', 'clientName', null, null];
+    const { orderBy, orderDir } = getDataTableOrder({
+        query: req.query,
+        columns,
+        defaultDirection: 'desc'
+    });
 
     const result = await findAllGoodsIssues({
-        skip: start,
-        take: length,
+        skip,
+        take,
         search,
         fulfillmentStatusId,
-        orderBy: columns[orderColumnIndex],
+        orderBy,
         orderDir,
         accesses: req.user?.accesses
     });

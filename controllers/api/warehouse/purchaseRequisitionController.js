@@ -7,6 +7,7 @@ import {
     findAllPurchaseRequisitions,
     updatePurchaseRequisition
 } from "../../../services/warehouse/purchaseRequisitionService.js";
+import { getDataTableOrder, getDataTablePaging, getDataTableSearch } from "../../../utils/requestQueryUtils.js";
 import { createStockNotification } from "../../../services/warehouse/notificationService.js";
 import { sanitizeEmptyStrings } from "../../../utils/formattersUtils.js";
 import { emitStockUpdated } from "../../../utils/socketUtils.js";
@@ -15,20 +16,22 @@ export const getAllPurchaseRequisitions = async (req, res) => {
 
     const { department = '' } = req.query;
 
-    const start = parseInt(req.query.start) || 0;
-    const length = parseInt(req.query.length) || 10;
-    const search =req.query['search[value]'] || '';
+    const { skip, take } = getDataTablePaging(req.query);
+    const search = getDataTableSearch(req.query);
 
-    const columns = ['referenceNumber'];
-    const orderColumnIndex = req.query.order?.[0]?.column || 0;
-    const orderDir = req.query.order?.[0]?.dir || 'desc';
+    const columns = ['referenceNumber', 'requestDate', null, null, 'approveDate', null, null];
+    const { orderBy, orderDir } = getDataTableOrder({
+        query: req.query,
+        columns,
+        defaultDirection: 'desc'
+    });
 
     const result = await findAllPurchaseRequisitions({
         currentDepartment: department,
-        skip: start,
-        take: length,
+        skip,
+        take,
         search,
-        orderBy: columns[orderColumnIndex],
+        orderBy,
         orderDir,
         userDepartment: req.user?.department,
         userRole: req.user?.role

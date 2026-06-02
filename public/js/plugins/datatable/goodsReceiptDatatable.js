@@ -1,10 +1,13 @@
 import { openGoodsReceiptModal } from "../../pages/warehouse/goodsReceiptsPage.js";
 import { createDataTable, renderActionButtons } from "./baseDatatable.js";
 import { getAllGoodsReceipts } from "../../application/warehouse/goodsReceipts.js";
+import { exportGoodsReceiptReport } from "../../application/warehouse/report.js";
 import { initMdbWrapperInput, updateMdbWrapperInput } from "../mdb/baseInstance.js";
 import { buildDetailsColumns, buildDetailsHeader } from "./utils/builderDetailDatatable.js";
 import { handleDelete, renderMaterialName } from "./utils/renderProductDatatable.js";
 import { getResponsiveRowData } from "./utils/responsive.js";
+import { buildExcelButton, buildTableExportParams } from "../../ui/tableUI.js";
+import { formatFileName } from "../../utils/formatters.js";
 
 export let details = [];
 const selectorProductTable = '#productTable';
@@ -69,7 +72,11 @@ export const createGoodsReceiptDatatable = () => {
                 {
                     text: 'Nueva compra',
                     action: () => openGoodsReceiptModal({ mode: 'create' })
-                }
+                },
+                buildExcelButton({
+                    filename: formatFileName('reporte_compras'),
+                    request: () => exportGoodsReceiptReport(buildTableExportParams(table))
+                })
             ]
         }
     });

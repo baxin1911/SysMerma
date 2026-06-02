@@ -1,6 +1,11 @@
 import { ClientCreateDatabaseError, ClientFindDatabaseError, ClientNotFound } from "../../errors/sales/clientError.js";
 import { getDb } from "../../repository/baseRepository.js";
 
+const CLIENT_SELECT = {
+    id: true,
+    name: true
+};
+
 export const findAllClients = async ({
     advisorId,
     skip = 0,
@@ -26,7 +31,8 @@ export const findAllClients = async ({
         where,
         orderBy: {
             [orderBy]: orderDir
-        }
+        },
+        select: CLIENT_SELECT
     });
 
     const total = await getDb().client.count();
@@ -42,22 +48,10 @@ export const findAllClients = async ({
 export const findClientById = async ({ tx = null, id }) => {
 
     const db = getDb(tx);
-    let client;
-
-    try {
-
-        client = await db.client.findFirst({
-            where: { id },
-            select: {
-                id: true,
-                name: true
-            }
-        });
-
-    } catch (err) {
-
-        throw new ClientFindDatabaseError();
-    }
+    const client = await db.client.findFirst({
+        where: { id },
+        select: CLIENT_SELECT
+    });
 
     if (!client) throw new ClientNotFound();
 

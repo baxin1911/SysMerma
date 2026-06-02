@@ -6,17 +6,55 @@ import { createStockAdjustment } from "../adjustmentService.js";
 
 const MOVEMENT_TYPE_IN = 'IN';
 
-export const findSupplierProduct = async ({
+const SUPPLIER_PRODUCT_SNAPSHOT_INCLUDE = {
+    product: {
+        select: {
+            id: true,
+            name: true,
+            base: true,
+            height: true,
+            presentation: true,
+            unitMeasure: true
+        }
+    },
+    supplier: {
+        select: {
+            id: true,
+            tradeName: true
+        }
+    }
+};
+
+const SUPPLIER_PRODUCT_STOCK_MOVEMENT_SELECT = {
+    id: true,
+    productId: true,
+    supplierId: true,
+    currentStock: true,
+    convertedQuantity: true,
+    product: {
+        select: {
+            base: true,
+            height: true,
+            name: true
+        }
+    },
+    supplier: {
+        select: {
+            tradeName: true
+        }
+    }
+};
+
+export const findSupplierProductsForStockMovement = async ({
     tx,
-    where,
-    select
+    where
 }) => {
 
     const db = getDb(tx);
 
     return db.supplierProduct.findMany({
         where,
-        select
+        select: SUPPLIER_PRODUCT_STOCK_MOVEMENT_SELECT
     });
 };
 
@@ -99,7 +137,6 @@ export const findAllSupplierProducts = async ({
             supplier: {
                 select: {
                     id: true,
-                    code: true,
                     tradeName: true
                 }
             }
@@ -113,8 +150,8 @@ export const findAllSupplierProducts = async ({
 
     const sorted = supplierProducts.sort((a, b) => {
 
-        const isLowStockA = Number(a.product.currentStock) < Number(a.product.minStock);
-        const isLowStockB = Number(b.product.currentStock) < Number(b.product.minStock);
+        const isLowStockA = Number(a.currentStock) < Number(a.product.minStock);
+        const isLowStockB = Number(b.currentStock) < Number(b.product.minStock);
 
         if (isLowStockA !== isLowStockB) return isLowStockB - isLowStockA;
 
@@ -165,7 +202,6 @@ export const findSupplierProductByIds = async ({
             supplier: {
                 select: {
                     id: true,
-                    code: true,
                     tradeName: true
                 }
             }
@@ -188,24 +224,7 @@ export const findSupplierProductsSnapshot = async ({
         where: {
             OR: pairs
         },
-        include: {
-            product: {
-                select: {
-                    id: true,
-                    name:true,
-                    base: true,
-                    height: true,
-                    presentation: true,
-                    unitMeasure: true
-                }
-            },
-            supplier: {
-                select: {
-                    id: true,
-                    tradeName: true
-                }
-            }
-        }
+        include: SUPPLIER_PRODUCT_SNAPSHOT_INCLUDE
     });
 
     return products.map(mapSupplierProduct);

@@ -2,24 +2,26 @@ import { createProductDtoForRegister, createProductDtoForStockUpdate } from "../
 import { successCodeMessages } from "../../../messages/codeMessages.js";
 import { findAllProducts, createProduct, updateProduct, updateProductStock } from "../../../services/warehouse/products/productService.js";
 import { sanitizeEmptyStrings } from "../../../utils/formattersUtils.js";
+import { getDataTableOrder, getDataTablePaging, getDataTableSearch } from "../../../utils/requestQueryUtils.js";
 
 export const getAllProducts = async (req, res) => {
 
-    const start = parseInt(req.query.start) || 0;
-    const length = parseInt(req.query.length) || 10;
-    const search = req.query['search[value]'] || req.query.search || '';
+    const { skip, take } = getDataTablePaging(req.query);
+    const search = getDataTableSearch(req.query);
     const supplierId = req.query.supplierId || null;
 
-    const columns = ['name'];
-    const orderColumnIndex = req.query.order?.[0]?.column || 0;
-    const orderDir = req.query.order?.[0]?.dir || 'asc';
+    const columns = ['name', 'base', 'height', null, 'minStock', null, null, null, null, null];
+    const { orderBy, orderDir } = getDataTableOrder({
+        query: req.query,
+        columns
+    });
 
     const result = await findAllProducts({
-        skip: start,
-        take: length,
+        skip,
+        take,
         search,
         supplierId,
-        orderBy: columns[orderColumnIndex],
+        orderBy,
         orderDir
     });
 

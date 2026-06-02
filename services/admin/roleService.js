@@ -25,6 +25,10 @@ export const findAllRoles = async ({
         where,
         orderBy: {
             [orderBy]: orderDir
+        },
+        select: {
+            id: true,
+            name: true
         }
     });
 

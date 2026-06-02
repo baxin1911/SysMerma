@@ -30,10 +30,20 @@ export const findAllSuppliers = async ({
 
     const where = search
         ? {
-            tradeName: {
-                contains: search,
-                mode: 'insensitive'
-            }
+            OR: [
+                {
+                    tradeName: {
+                        contains: search,
+                        mode: 'insensitive'
+                    }
+                },
+                {
+                    legalName: {
+                        contains: search,
+                        mode: 'insensitive'
+                    }
+                }
+            ]
         }
         : {};
 
@@ -43,6 +53,12 @@ export const findAllSuppliers = async ({
         where,
         orderBy: {
             [orderBy]: orderDir
+        },
+        select: {
+            id: true,
+            tradeName: true,
+            legalName: true,
+            isActive: true
         }
     });
 
@@ -56,6 +72,11 @@ export const findAllSuppliers = async ({
     };
 };
 
+const DEFAULT_SUPPLIER_SELECT = {
+    id: true,
+    tradeName: true
+};
+
 export const findUniqueSupplier = async ({
     tx = null,
     id
@@ -63,10 +84,7 @@ export const findUniqueSupplier = async ({
 
     const supplier = await getDb(tx).supplier.findUnique({
         where: { id },
-        select: {
-            id: true,
-            tradeName: true,
-        }
+        select: DEFAULT_SUPPLIER_SELECT
     });
 
     if (!supplier) throw new SupplierNotFound();

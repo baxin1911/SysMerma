@@ -1,6 +1,9 @@
 import { openGoodsIssueModal } from "../../pages/warehouse/goodsIssuesPage.js";
 import { getAllGoodsIssues } from "../../application/warehouse/goodsIssues/goodsIssues.js";
+import { exportGoodsIssueReport } from "../../application/warehouse/report.js";
 import { hasPermission } from "../../utils/permissions.js";
+import { buildExcelButton, buildTableExportParams } from "../../ui/tableUI.js";
+import { formatFileName } from "../../utils/formatters.js";
 import { createDataTable, refreshProductTable, renderActionButtons } from "./baseDatatable.js";
 import { buildDetailsColumns, buildDetailsHeader } from "./utils/builderDetailDatatable.js";
 import { handleDelete, renderMaterialName } from "./utils/renderProductDatatable.js";
@@ -86,7 +89,11 @@ export const createGoodsIssueDatatable = async (context) => {
                 {
                     text: 'Nueva salida',
                     action: () => openGoodsIssueModal({ mode: 'create' })
-                }
+                },
+                buildExcelButton({
+                    filename: formatFileName('reporte_salidas'),
+                    request: () => exportGoodsIssueReport(buildTableExportParams(table, filters.getValues()))
+                })
             ]
         }
     });

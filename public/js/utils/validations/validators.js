@@ -58,7 +58,7 @@ export const validateGoodsReceiptValidators = {
 export const validateGoodsIssueValidators = {
     projectNumber: (value) => validateText({ 
         name: value, 
-        maxLength: 50, 
+        maxLength: 10, 
         fieldName: 'El número de proyecto' 
     }),
     advisorId: (value) => isEmptyOrNull(value, 'El asesor'),

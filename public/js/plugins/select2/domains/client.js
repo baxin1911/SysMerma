@@ -11,7 +11,7 @@ export const initClientSelect = ({
 
     initbaseSelect2({
         baseSelector,
-        modalSelector,
+        containerSelector: modalSelector,
         get: getAllClients,
         placeholder: 'Buscar cliente...',
         processResults: (data) => {

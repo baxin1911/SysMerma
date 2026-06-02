@@ -10,7 +10,9 @@ export const findMovementReportRows = async ({
     supplierId = '',
     goodsIssueId = '',
     goodsReceiptId = '',
-    stockAdjustmentId = ''
+    stockAdjustmentId = '',
+    orderBy = 'date',
+    orderDir = 'desc'
 } = {}) => {
 
     const movementsResult = await findAllMovements({
@@ -25,8 +27,8 @@ export const findMovementReportRows = async ({
         goodsIssueId,
         goodsReceiptId,
         stockAdjustmentId,
-        orderBy: 'date',
-        orderDir: 'desc',
+        orderBy,
+        orderDir,
     });
 
     return movementsResult.data.map((movement) => ({

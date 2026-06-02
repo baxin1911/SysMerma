@@ -1,14 +1,16 @@
 import { findAllRoles } from "../../../services/admin/roleService.js";
+import { getDataTableOrder, getDataTablePaging, getDataTableSearch } from "../../../utils/requestQueryUtils.js";
 
 export const getAllRoles = async (req, res) => {
-    const start = parseInt(req.query.start) || 0;
-    const length = parseInt(req.query.length) || 10;
-    const search = req.query['search[value]'] || req.query.search || '';
+    const { skip, take } = getDataTablePaging(req.query);
+    const search = getDataTableSearch(req.query);
 
     const columns = ['name'];
-    const orderColumnIndex = req.query.order?.[0]?.column || 0;
-    const orderDir = req.query.order?.[0]?.dir || 'asc';
+    const { orderBy, orderDir } = getDataTableOrder({
+        query: req.query,
+        columns
+    });
 
-    const result = await findAllRoles({ skip: start, take: length, search, orderBy: columns[orderColumnIndex], orderDir });
+    const result = await findAllRoles({ skip, take, search, orderBy, orderDir });
     res.status(200).json(result);
 };

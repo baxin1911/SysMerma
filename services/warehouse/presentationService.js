@@ -24,6 +24,10 @@ export const findAllPresentations = async ({
         where,
         orderBy: {
             [orderBy]: orderDir
+        },
+        select: {
+            id: true,
+            name: true
         }
     });
 
@@ -37,6 +41,10 @@ export const findAllPresentations = async ({
     };
 }
 
+const DEFAULT_PRESENTATION_SELECT = {
+    id: true
+};
+
 export const findUniquePresentation = async ({
     tx,
     id
@@ -45,7 +53,7 @@ export const findUniquePresentation = async ({
     const db = getDb(tx);
     const presentation = await db.presentation.findUnique({
         where: { id },
-        select: { id: true }
+        select: DEFAULT_PRESENTATION_SELECT
     });
 
     if (!presentation) throw new PresentationNotFound();

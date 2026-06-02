@@ -9,7 +9,7 @@ import { findProfileById } from "../../admin/profileService.js";
 import { applyInventoryMovement } from "../../inventory/movementService.js";
 import { findUniqueSupplier } from "../supplierService.js";
 import { buildGoodsReceiptDetails } from "./goodsReceiptHelpers.js";
-import { findSupplierProduct, updateProductUnitCostIfHigher } from "../products/supplierProductService.js";
+import { findSupplierProductsForStockMovement, updateProductUnitCostIfHigher } from "../products/supplierProductService.js";
 import { buildStockKey, parseStockKey } from "../../../utils/formattersUtils.js";
 import { AppError } from "../../../errors/AppError.js";
 
@@ -134,28 +134,9 @@ export const createGoodsReceipt = async ({ goodsReceiptDto }) => {
 
         const filters = Array.from(grouped.keys()).map(key => parseStockKey(key));
 
-        const supplierProducts = await findSupplierProduct({
+        const supplierProducts = await findSupplierProductsForStockMovement({
             where: {
                 OR: filters
-            },
-            select: {
-                id: true,
-                productId: true,
-                supplierId: true,
-                convertedQuantity: true,
-                currentStock: true,
-                product: {
-                    select: {
-                        base: true,
-                        height: true,
-                        name: true
-                    }
-                },
-                supplier: {
-                    select: {
-                        tradeName: true
-                    }
-                }
             }
         });
 

@@ -3,6 +3,19 @@ import { notifications } from "../plugins/swal/swalComponent.js";
 
 export let isClearingFilters = false;
 
+
+export const buildTableExportParams = (table, params = {}) => {
+
+    const [column = 0, dir = 'asc'] = table?.order?.()?.[0] || [];
+
+    return {
+        ...params,
+        search: table?.search?.() || '',
+        'order[0][column]': column,
+        'order[0][dir]': dir
+    };
+};
+
 export const buildExcelButton = ({
     filename = 'reporte.xlsx',
     request

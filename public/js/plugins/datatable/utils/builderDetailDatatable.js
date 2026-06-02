@@ -1,8 +1,14 @@
+const shouldShowIssueProjectColumns = ({ type, mode, isWarehouse, isCoordinator, isSystem }) => (
+    type === 'issue'
+    && ((isWarehouse && isCoordinator) || isSystem)
+    && (mode === 'edit-detail' || mode === 'view')
+);
+
 export const buildDetailsHeader = ({ type, mode, isWarehouse, isCoordinator, isSystem }) => {
 
     let extraHeaders = '';
 
-    if (type === 'issue' && ((isWarehouse && isCoordinator) || isSystem) && mode === 'edit-detail') {
+    if (shouldShowIssueProjectColumns({ type, mode, isWarehouse, isCoordinator, isSystem })) {
         extraHeaders += `
             <th rowspan="2">Costo unitario de Conversión</th>
             <th rowspan="2">Cantidad de proyecto</th>
@@ -62,12 +68,15 @@ export const buildDetailsColumns = ({ type, mode, render, isWarehouse, isCoordin
         { data: 'unitMeasureName' },
     ];
 
-    if (type === 'issue' && ((isWarehouse && isCoordinator) || isSystem) && mode === 'edit-detail') {
+    if (shouldShowIssueProjectColumns({ type, mode, isWarehouse, isCoordinator, isSystem })) {
         columns.push(
             { data: 'maxUnitCost' },
-            { 
-                data: null,
-                render: (_, __, row) => {
+            {
+                data: 'projectConvertedQuantity',
+                render: (value, _, row) => {
+
+                    if (mode === 'view') return value ?? '';
+
                     const detailId = row.id || row.productId;
                     const isEditableDetail = mode === 'edit-detail' && !row.isSupplied;
 
@@ -75,7 +84,7 @@ export const buildDetailsColumns = ({ type, mode, render, isWarehouse, isCoordin
                         <input
                             type="number"
                             name="projectConvertedQuantity"
-                            value="${ row.projectConvertedQuantity || '' }"
+                            value="${ value ?? '' }"
                             class="form-control project-converted-quantity-input"
                             ${ isEditableDetail ? '' : 'disabled' }
                             data-detail-id="${ detailId }"

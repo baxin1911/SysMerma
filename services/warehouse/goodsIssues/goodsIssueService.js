@@ -10,14 +10,14 @@ import {
     GoodsIssueInternalClientProjectNumberConflict
 } from "../../../errors/warehouse/goodsIssueError.js";
 import { getDb } from "../../../repository/baseRepository.js";
-import { findProfileById } from "../../admin/profileService.js";
+import { findProfileById, findProfileWithDepartmentsById } from "../../admin/profileService.js";
 import { findDepartmentById } from "../../admin/departmentService.js";
 import { generateReferenceNumber } from "../../document/referenceNumberService.js";
 import { findClientById } from "../../sales/clientService.js";
 import { buildGoodsIssueDetails, isValidInternalClientAdvisor, isValidInternalClientProjectNumberByDepartment, resolveFulfillmentStatus } from "./goodsIssueHelpers.js";
 import { applyInventoryMovement } from "../../inventory/movementService.js";
 import { buildStockKey, parseStockKey } from "../../../utils/formattersUtils.js";
-import { findSupplierProduct } from "../products/supplierProductService.js";
+import { findSupplierProductsForStockMovement } from "../products/supplierProductService.js";
 import { AppError } from "../../../errors/AppError.js";
 
 const ROLE_SYSTEM_ADMIN = 'Administrador del sistema';
@@ -160,7 +160,7 @@ export const createGoodsIssue = async ({ goodsIssueDto }) => {
 
         if (!requester) throw new GoodsIssueRequesterProfileNotFound();
         
-        const advisor = await findProfileById({ id: advisorId });
+        const advisor = await findProfileWithDepartmentsById({ id: advisorId });
 
         if (!advisor) throw new GoodsIssueAdvisorProfileNotFound();
 
@@ -305,7 +305,7 @@ export const updateGoodsIssue = async ({ id, goodsIssueDto }) => {
 
         if (!requester) throw new GoodsIssueRequesterProfileNotFound();
 
-        const advisor = await findProfileById({ id: advisorId });
+        const advisor = await findProfileWithDepartmentsById({ id: advisorId });
 
         if (!advisor) throw new GoodsIssueAdvisorProfileNotFound();
 
@@ -499,28 +499,9 @@ export const updateGoodsIssueDetails = async ({ id, goodsIssueDto }) => {
 
                 const filters = Array.from(grouped.keys()).map(parseStockKey);
 
-                const supplierProducts = await findSupplierProduct({
+                const supplierProducts = await findSupplierProductsForStockMovement({
                     tx,
-                    where: { OR: filters },
-                    select: {
-                        id: true,
-                        productId: true,
-                        supplierId: true,
-                        currentStock: true,
-                        convertedQuantity: true,
-                        product: {
-                            select: {
-                                base: true,
-                                height: true,
-                                name: true
-                            }
-                        },
-                        supplier: {
-                            select: {
-                                tradeName: true
-                            }
-                        }
-                    }
+                    where: { OR: filters }
                 });
 
                 await applyInventoryMovement({

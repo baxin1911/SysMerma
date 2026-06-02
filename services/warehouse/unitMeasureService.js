@@ -24,6 +24,11 @@ export const findAllUnitMeasures = async ({
         where,
         orderBy: {
             [orderBy]: orderDir
+        },
+        select: {
+            id: true,
+            name: true,
+            symbol: true
         }
     });
 
@@ -37,6 +42,10 @@ export const findAllUnitMeasures = async ({
     };
 }
 
+const DEFAULT_UNIT_MEASURE_SELECT = {
+    id: true
+};
+
 export const findUniqueUnitMeasure = async ({
     tx,
     id
@@ -45,7 +54,7 @@ export const findUniqueUnitMeasure = async ({
     const db = getDb(tx);
     const unit = await db.unitMeasure.findUnique({
         where: { id },
-        select: { id: true }
+        select: DEFAULT_UNIT_MEASURE_SELECT
     });
 
     if (!unit) throw new UnitMeasureNotFound();

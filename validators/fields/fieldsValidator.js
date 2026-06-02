@@ -99,7 +99,7 @@ export const validateProjectNumber = (fieldName) => {
         .trim()
         .notEmpty().withMessage(errors.REQUIRED)
         .isString().withMessage(errors.INVALID_TYPE)
-        .isLength({ max: 50 }).withMessage(errors.TOO_LONG)
+        .isLength({ max: 10 }).withMessage(errors.TOO_LONG)
 }
 
 export const validateNumber = (fieldName) => {

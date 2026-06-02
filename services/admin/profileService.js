@@ -1,4 +1,4 @@
-import { ProfileCreateDatabaseError, ProfileFindDatabaseError } from "../../errors/admin/profileError.js";
+import { ProfileCreateDatabaseError, ProfileUpdateDatabaseError } from "../../errors/admin/profileError.js";
 import { getDb } from "../../repository/baseRepository.js";
 import { normalizeText } from "../../utils/formattersUtils.js";
 
@@ -70,35 +70,44 @@ export const findAllProfiles = async ({
     };
 };
 
+const DEFAULT_PROFILE_SELECT = {
+    id: true,
+    fullName: true
+};
+
+const PROFILE_WITH_DEPARTMENTS_SELECT = {
+    ...DEFAULT_PROFILE_SELECT,
+    departments: {
+        select: {
+            department: true
+        }
+    }
+};
+
 export const findProfileById = async ({ tx, id }) => {
 
     const db = getDb(tx);
-    let profile;
 
-    try {
+    return db.profile.findUnique({
+        where: {
+            id,
+            isActive: true
+        },
+        select: DEFAULT_PROFILE_SELECT
+    });
+};
 
-        profile = await db.profile.findUnique({
-            where: {
-                id,
-                isActive: true
-            },
-            select: {
-                id: true,
-                fullName: true,
-                departments: {
-                    select: {
-                        department: true
-                    }
-                }
-            }
-        });
+export const findProfileWithDepartmentsById = async ({ tx, id }) => {
 
-    } catch (err) {
+    const db = getDb(tx);
 
-        throw new ProfileFindDatabaseError();
-    }
-
-    return profile || null;
+    return db.profile.findUnique({
+        where: {
+            id,
+            isActive: true
+        },
+        select: PROFILE_WITH_DEPARTMENTS_SELECT
+    });
 };
 
 export const profileBelongsToDepartment = ({ profile, departmentName }) => (
@@ -110,28 +119,20 @@ export const profileBelongsToDepartment = ({ profile, departmentName }) => (
 export const findProfileByUserId = async ({ tx, userId }) => {
 
     const db = getDb(tx);
-    let profile;
 
-    try {
-
-        profile = await db.profile.findFirst({
-            where: {
-                isActive: true,
-                users: {
-                    some: {
-                        id: userId
-                    }
+    const profile = await db.profile.findFirst({
+        where: {
+            isActive: true,
+            users: {
+                some: {
+                    id: userId
                 }
-            },
-            select: {
-                id: true,
             }
-        });
-
-    } catch (err) {
-
-        throw new ProfileFindDatabaseError();
-    }
+        },
+        select: {
+            id: true,
+        }
+    });
 
     return profile?.id || null;
 };
@@ -151,8 +152,8 @@ export const createProfile = async ({ profileDto }) => {
                 }
             });
 
-            if (profileDto.departmentIds?.length) await tx.departmentProfile.createMany({
-                data: profileDto.departmentIds.map(departmentId => ({
+            if (profileDto.departments?.length) await tx.departmentProfile.createMany({
+                data: profileDto.departments.map(departmentId => ({
                     profileId: profile.id,
                     departmentId
                 }))
@@ -162,15 +163,7 @@ export const createProfile = async ({ profileDto }) => {
                 where: {
                     id: profile.id
                 },
-                select: {
-                    id: true,
-                    fullName: true,
-                    departments: {
-                        select: {
-                            department: true
-                        }
-                    }
-                }
+                select: PROFILE_WITH_DEPARTMENTS_SELECT
             });
         });
 
@@ -215,20 +208,12 @@ export const updateProfile = async ({ profileDto, id }) => {
                 where: {
                     id
                 },
-                select: {
-                    id: true,
-                    fullName: true,
-                    departments: {
-                        select: {
-                            department: true
-                        }
-                    }
-                }
+                select: PROFILE_WITH_DEPARTMENTS_SELECT
             });
         });
 
     } catch (err) {
 
-        throw new ProfileCreateDatabaseError();
+        throw new ProfileUpdateDatabaseError();
     }
 }

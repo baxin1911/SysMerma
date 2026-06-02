@@ -24,6 +24,10 @@ export const findAllFulfillmentStatuses = async ({
         where,
         orderBy: {
             [orderBy]: orderDir
+        },
+        select: {
+            id: true,
+            name: true
         }
     });
 

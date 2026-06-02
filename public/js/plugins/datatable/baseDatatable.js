@@ -1,12 +1,32 @@
 import { handleDataTableError } from "../../api/errorHandler.js";
 
+const SORT_DIRECTIONS = ['asc', 'desc'];
+
+const isActionColumn = (column = {}) => column.title === 'Acciones';
+
+const normalizeColumns = (columns) => {
+
+    if (!Array.isArray(columns)) return columns;
+
+    return columns.map(column => ({
+        ...column,
+        orderSequence: column.orderSequence || SORT_DIRECTIONS,
+        ...(isActionColumn(column) && {
+            orderable: false,
+            searchable: false
+        })
+    }));
+};
+
 export const createDataTable = ({ selector = '#table', options = {} }) => {
 
     const ajaxConfig = options.ajax;
     const searchDelay = 1000;
+    const normalizedColumns = normalizeColumns(options.columns);
 
     return $(selector).DataTable({
         ...options,
+        columns: normalizedColumns,
         searchDelay,
         ajax: ajaxConfig ? async (data, callback) => {
 

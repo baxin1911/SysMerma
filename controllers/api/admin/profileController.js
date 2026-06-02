@@ -1,6 +1,7 @@
 import { createProfileDTO } from "../../../dtos/profileDTO.js";
-import { findAllProfiles, updateProfile } from "../../../services/admin/profileService.js";
+import { createProfile, findAllProfiles, updateProfile } from "../../../services/admin/profileService.js";
 import { sanitizeEmptyStrings } from "../../../utils/formattersUtils.js";
+import { getDataTableOrder, getDataTablePaging, getDataTableSearch } from "../../../utils/requestQueryUtils.js";
 
 const allowedDepartments = ['ALMACÉN Y PROVEDURÍA', 'SISTEMAS'];
 
@@ -12,13 +13,14 @@ export const getAllProfiles = async (req, res) => {
     const strictDepartmentFilter = req.query.strictDepartmentFilter === 'true';
     const includeDepartments = req.query.includeDepartments === 'true';
     const { user } = req;
-    const start = parseInt(req.query.start) || 0;
-    const length = parseInt(req.query.length) || 10;
-    const search = req.query.search?.value || req.query.search || '';
+    const { skip, take } = getDataTablePaging(req.query);
+    const search = getDataTableSearch(req.query);
 
-    const columns = ['fullName'];
-    const orderColumnIndex = req.query.order?.[0]?.column || 0;
-    const orderDir = req.query.order?.[0]?.dir || 'asc';
+    const columns = ['fullName', null, null];
+    const { orderBy, orderDir } = getDataTableOrder({
+        query: req.query,
+        columns
+    });
 
     const userDepartments = (user?.accesses || [])
         .map(access => access.department)
@@ -41,10 +43,10 @@ export const getAllProfiles = async (req, res) => {
 
     const result = await findAllProfiles({
         departments,
-        skip: start,
-        take: length,
+        skip,
+        take,
         search,
-        orderBy: columns[orderColumnIndex],
+        orderBy,
         orderDir,
         includeDepartments
     });
@@ -54,7 +56,6 @@ export const getAllProfiles = async (req, res) => {
 
 export const registerProfile = async (req, res) => {
 
-    const { fullName, departmentIds } = req.body;
     const profileDto = createProfileDTO(req.body);
     const sanitizedProfileDto = sanitizeEmptyStrings(profileDto);
 

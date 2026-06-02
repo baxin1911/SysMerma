@@ -66,6 +66,16 @@ export const findAllProducts = async ({
     });
 };
 
+const DEFAULT_PRODUCT_SNAPSHOT_SELECT = {
+    id: true,
+    name: true,
+    minStock: true,
+    base: true,
+    height: true,
+    presentation: true,
+    unitMeasure: true
+};
+
 export const findProductsSnapshot = async ({
     tx,
     productIds
@@ -79,15 +89,7 @@ export const findProductsSnapshot = async ({
                 in: productIds
             }
         },
-        select: {
-            id: true,
-            name: true,
-            minStock: true,
-            base: true,
-            height: true,
-            presentation: true,
-            unitMeasure: true
-        }
+        select: DEFAULT_PRODUCT_SNAPSHOT_SELECT
     });
 
     return products;
